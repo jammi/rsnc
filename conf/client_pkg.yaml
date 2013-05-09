@@ -7,7 +7,6 @@
 # List of theme names to include and pack
 :theme_names:
   - default  # Makes default_theme.js containing css and html templates
-  - bright   # Makes bright_theme.js containing css and html templates
 
 # List of packages to build
 :packages:
@@ -92,10 +91,6 @@
   # Server error message application ( the Reload / Reset Session dialog )
   servermessage:
     - reloadapp # ReloadApp
-
-  # Special package for Internet Explorer 6.0
-  iefix:
-    - iefix
 
   # Date and time -related control widgets (components)
   # These are not complete; they are still under development
@@ -203,4 +198,4 @@
 #  - 0 means largest size, but fast compression
 #  - 9 means smallest size, but slow compression
 #  - any number in between is a compromise
-:gz_strategy: 9
+:gz_strategy: 0
