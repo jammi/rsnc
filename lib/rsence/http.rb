@@ -1,3 +1,0 @@
-
-require 'rsence/http/broker'
-
