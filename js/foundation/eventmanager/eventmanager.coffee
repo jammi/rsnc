@@ -261,6 +261,7 @@ EventManagerApp = HApplication.extend
       droppable:    [] # viewIds
       rectHover:    [] # viewIds
       multiDrop:    [] # viewIds
+      keyRepeat:    [] # viewIds
       keyDown:      [] # viewIds
       keyUp:        [] # viewIds
       mouseWheel:   [] # viewIds
@@ -350,12 +351,24 @@ EventManagerApp = HApplication.extend
         _value = _eventOptions[_key]
         if _value
           _eventsOn.push( _key )
-          @_listeners.byEvent[_key].unshift( _viewId ) unless ~@_listeners.byEvent[_key].indexOf(_viewId)
-          if _key == 'rectHover' and _value == 'intersects' and not ~@_listeners._rectHoverIntersectMode.indexOf( _viewId )
+          if _key == 'keyDown'
+            if _value == 'repeat'
+              unless ~@_listeners.byEvent['keyRepeat'].indexOf(_viewId)
+                @_listeners.byEvent['keyRepeat'].unshift( _viewId )
+            else
+              _idx = @_listeners.byEvent['keyRepeat'].indexOf(_viewId)
+              @_listeners.byEvent['keyRepeat'].splice( _idx, 1 ) if ~_idx
+          unless ~@_listeners.byEvent[_key].indexOf(_viewId)
+            @_listeners.byEvent[_key].unshift( _viewId ) 
+          if _key == 'rectHover' and _value == 'intersects' and
+             not ~@_listeners._rectHoverIntersectMode.indexOf( _viewId )
             @_listeners._rectHoverIntersectMode.unshift( _viewId )
-        else
-          _idx = @_listeners.byEvent[_key].indexOf(_viewId)
-          @_listeners.byEvent[_key].splice( _idx, 1 ) if ~_idx
+        else # not _value
+          _keys = [_key]
+          _keys.push('keyRepeat') if _key == 'keyDown'
+          for _key in _keys
+            _idx = @_listeners.byEvent[_key].indexOf(_viewId)
+            @_listeners.byEvent[_key].splice( _idx, 1 ) if ~_idx
       else
         @warn( "EventManager##{_warnMethodName} => Invalid event type: #{_key}" )
     _this = @
@@ -445,12 +458,12 @@ EventManagerApp = HApplication.extend
   # both before and after in all circumstances, but better be safe than sure.
   resize: (e)->
     HSystem._updateFlexibleRects()
+    ELEM.flush()
     for _viewId in @_listeners.byEvent.resize
       _ctrl = @_views[_viewId]
       _ctrl.resize() if _ctrl.resize?
-    setTimeout(->
-      HSystem._updateFlexibleRects()
-    , 100 )
+    ELEM.flush()
+    HSystem._updateFlexibleRects()
   #
   # Finds the next elem with a view_id attribute
   _findViewId: (_elem)->
@@ -561,9 +574,7 @@ EventManagerApp = HApplication.extend
   # mouse has been moved (replacement of mouseover/mouseout)
   _findNewFocus: (x,y)->
     _dragged = @_listeners.dragged
-    if _dragged.length != 0
-      console.log('dragged:',_dragged)
-      return
+    # return if _dragged.length != 0
     _matchIds = @_findTopmostEnabled( HPoint.new( x, y ), 'contains', null )
     _focused = @_listeners.focused
     if _matchIds.length == 0
@@ -572,10 +583,10 @@ EventManagerApp = HApplication.extend
     for _viewId in _matchIds
       continue if ~_focused.indexOf(_viewId)
       _ctrl = @_views[_viewId]
-      @_debugHighlight(_ctrl)
       for _focusId in _focused
         @blur( @_views[_focusId] )
         _focused.splice( _focused.indexOf(_focusId), 1 )
+      # @_debugHighlight(_ctrl)
       @focus( _ctrl )
   #
   # Just split to gain namespace:
@@ -665,20 +676,23 @@ EventManagerApp = HApplication.extend
               _area.x-_parent.pageX()-_subX,
               _area.y-_parent.pageY()-_subY
             )
-        else
+        else if _view.parent.hasAncestor( HApplication )
           _searchArea = _area
+        else
+          console.warn('invalid view parent:',_view.parent)
+          continue
         if _view.hasAncestor? and _view.hasAncestor( HView )
           if _view.rect[_matchMethod](_searchArea) and !_view.isHidden
             if ~_arrOfIds.indexOf( _viewId )
               _foundId = _search( _view.viewsZOrder.slice().reverse() )
-              return _foundId if _foundId
+              return _foundId unless _foundId == false
               return _viewId
             else
               _result = _search( _view.viewsZOrder.slice().reverse() )
-              return _result if _result
+              return _result unless _result == false
       return false
     _foundId = _search( HSystem.viewsZOrder.slice().reverse() )
-    return [ _foundId ] if _foundId
+    return [ _foundId ] unless _foundId == false
     return []
   #
   # Finds the topmost drop/hover target within the area specified by rectHover
@@ -868,7 +882,8 @@ EventManagerApp = HApplication.extend
       @status.setButton1( false )
     else
       # there is a separate event for context menu, and only
-      # Firefox fires click separately
+      # Firefox fires click separately.
+      # the handler is contextMenu
       return true
     #
     # Focus check here
@@ -964,7 +979,7 @@ EventManagerApp = HApplication.extend
     @_modifiers(e)
     _stop = true
     @status.setButton1( false )
-    @status.setButton2( false )
+    @status.setButton2( true )
     _focused = @_listeners.focused
     _contextMenuable = @_listeners.byEvent.contextMenu
     for _viewId in _focused
@@ -1054,12 +1069,14 @@ EventManagerApp = HApplication.extend
       _stop = true
     _active = @_listeners.active
     _keyDowners = @_listeners.byEvent.keyDown
+    _keyRepeaters = @_listeners.byEvent.keyRepeat
     _keyDowns = []
-    unless @status.hasKeyDown( _keyCode ) and @_lastKeyDown != _keyCode
-      for _viewId in _active
-        _keyDowns.push( _viewId ) if ~_keyDowners.indexOf( _viewId )
+    _repeating = ( @_lastKeyDown == _keyCode ) and @status.hasKeyDown( _keyCode )
+    # unless @status.hasKeyDown( _keyCode )
+    for _viewId in _keyDowners
+      if !_repeating or ~_keyRepeaters.indexOf( _viewId )
+        _keyDowns.push( _viewId ) if ~_active.indexOf( _viewId )
       @status.addKeyDown( _keyCode )
-    # repeat not implemented yet
     for _viewId in _keyDowns
       _ctrl = @_views[_viewId]
       if _ctrl.keyDown?
@@ -1091,11 +1108,11 @@ EventManagerApp = HApplication.extend
       @status.delKeyDown( _keyCode )
     for _viewId in _keyUppers
       _ctrl = @_views[_viewId]
-      if _ctrl.keyUp?
+      if _ctrl.keyUp? and ~_active.indexOf( _viewId )
         _stop = true if _ctrl.keyUp( _keyCode )
     Event.stop(e) if _stop
   keyPress: (e)->
-    @warn('EventManager#keyPress not implemented')
+    # @warn('EventManager#keyPress not implemented')
   isKeyDown: (_keyCode)->
     @warn('EventManager#isKeyDown() is deprecated, use #status.hasKeyDown() instead')
     @status.hasKeyDown( _keyCode )

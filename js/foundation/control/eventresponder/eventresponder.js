@@ -742,15 +742,11 @@ HEventResponder = HClass.extend({
   **/
   textEnter: function() {},
 
-/** Selection handling; currently under construction
+/** Selection handling. Preferably extend #select and #deSelect.
   **/
   selected: false,
-  select: function(){
-    // console.warn("HControl#select not supported yet.");
-  },
-  deSelect: function(){
-    // console.warn("HControl#deSelect not supported yet.");
-  },
+  select: function(){},
+  deSelect: function(){},
   setSelected: function(_state){
     this.toggleCSSClass(this.elemId, HControl.CSS_SELECTED, _state);
     if( _state ){
