@@ -12,16 +12,8 @@ HMiniMenuItem = HRadioButton.extend({
     mouseUp: true,
     mouseDown: true
   },
-  
-  _activateParentParent: function(){
-    var _parentParent = this.parent.options.logicParent;
-    EVENT.changeActiveControl(_parentParent);
-    // EVENT.changeActiveControl(null);
-    // EVENT.blur( _this );
-  },
 
   gainedActiveStatus: function( _prevActive ){
-    // console.log('menuitem gained active status',_prevActive === this.parent.options.logicParent);
     this.base( _prevActive );
   },
 
@@ -37,7 +29,6 @@ HMiniMenuItem = HRadioButton.extend({
       this.base();
       this._parentLastActivation = _now;
       EVENT.changeActiveControl(null);
-      // this._activateParentParent();
     }
     return true;
   },
