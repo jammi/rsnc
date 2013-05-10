@@ -301,7 +301,6 @@ EventManagerApp = HApplication.extend
       @observe( window, 'resize', 'resize' )
     @observe( window, 'blur', '_domWindowBlur' )
     @observe( window, 'focus', '_domWindowFocus' )
-    # @_legacyStart()
   #
   # Stops EventManager
   stop: ->
@@ -320,56 +319,6 @@ EventManagerApp = HApplication.extend
       @stopObserving( window, 'resize', 'resize' )
     @stopObserving( window, 'blur', '_domWindowBlur' )
     @stopObserving( window, 'focus', '_domWindowFocus' )
-  #
-  ## LEGACY; to be removed
-  #
-  # Set to false, if your app don't need drop events.
-  # Setting this to false, when not needed, improves over-all performance,
-  # because the drop events need constant calculation of where the mouse
-  # curser (or last touch) was against all possible drop targets.
-  enableDroppableChecks: true
-  #
-  # Initializes the members used by the drop-related events.
-  # This method is called from within the EventMangaer and is never called,
-  # if @enableDroppableChecks is false
-  # startDroppable: ->
-  #   @warn "EventManager#startDroppable is deprecated"
-  #   @hovered = [] # Drop-eligible items under the mouse cursor
-  #   @hoverInterval = 200 # Milliseconds between checks
-  #   @hoverTimer = new Date().getTime() # Time since last check was triggered
-  #
-  # Legacy startup, semi-compatible
-  # _legacyStart: ->
-  #   @warn "EventManager#"+'_'+"legacyStart is deprecated"
-  #   @listeners = [] # NOT SUPPORTED
-  #   @focused = @_listeners.focused # DEPRECATED
-  #   @resizeListeners = @_listeners.byEvent.resize # DEPRECATED
-  #   @eventOptions = @_listeners.byId # DEPRECATED
-  #   @dragItems = @_listeners.dragged # DEPRECATED
-  #   @topmostDroppable = null # NOT SUPPORTED
-  #   @textEnterCtrls = @_listeners.byEvent.textEnter # DEPRECATED
-  #   @_coordCache = [] # NOT SUPPORTED
-  #   @_coordCacheFlag = true # NOT SUPPORTED
-  #   @_lastCoordFlushTimeout = null # NOT SUPPORTED
-  #   @activeControl = null # NOT SUPPORTED
-  #   @_lastKeyDown = null # NOT SUPPORTED
-  #   @_origDroppableChecks = @enableDroppablechecks # DEPRECATED
-  #   @startDroppable() if @enableDroppableChecks # DEPRECATED
-  #
-  # Flushes the position cache by elemId. If no elemId is specified,
-  # everything is flushed.
-  coordCacheFlush: (_elemId)->
-    @warn "EventManager#coordCacheFlush is deprecated"
-    if _elemId
-      @_coordCache[_elemId] = null
-    else
-      @_coordCache = []
-  #
-  # Flushed mouseMove timers, actually did more or less all the mouseMove work:
-  flushMouseMove: (x,y)->
-    @warn( "EventManager#flushMouseMove => Unsupported call, don't call it!", _ctrl )
-    return false
-  ## /LEGACY
   #
   # Ensures the type of the object is a HControl
   _ensureValidControl: (_ctrl,_warnMethodName)->
@@ -414,7 +363,6 @@ EventManagerApp = HApplication.extend
     if _ctrl.enabled
       @_listeners.enabled.unshift( _viewId ) unless ~@_listeners.enabled.indexOf(_viewId)
       _elem = ELEM.get( _ctrl.elemId )
-      @observe( _elem, 'mouseover', '_mouseOver' )
       [ x, y ] = @status.crsr
       _matchIds = @_findTopmostEnabled( HPoint.new( x, y ), 'contains', null )
       if ~_matchIds.indexOf( _viewId )
@@ -449,12 +397,9 @@ EventManagerApp = HApplication.extend
         else if _statusItem == 'active'
           _ctrl._lostActiveStatus( null )
         else if _statusItem == 'focused'
-          # _ctrl._mouseOut()
-          @stopObserving( _elem, 'mouseout', '_mouseOut' )
+          @blur( _ctrl )
           _wasFocused = true
         else if _statusItem == 'enabled'
-          unless _wasFocused
-            @stopObserving( _elem, 'mouseover', '_mouseOver' )
           _ctrl.setEnabled( false ) if _ctrl.enabled
         _viewIdx = @_listeners[_statusItem].indexOf(_viewId)
         if ~_viewIdx
@@ -503,12 +448,9 @@ EventManagerApp = HApplication.extend
     for _viewId in @_listeners.byEvent.resize
       _ctrl = @_views[_viewId]
       _ctrl.resize() if _ctrl.resize?
-      ## Deprecate this:
-      if _ctrl.onResize?
-        @warn( "EventManager#resize => The 'onResize' event responder is deprecated. Please rename it to 'resize'." )
-        _ctrl.onResize()
-      ## /Deprecate
-    HSystem._updateFlexibleRects()
+    setTimeout(->
+      HSystem._updateFlexibleRects()
+    , 100 )
   #
   # Finds the next elem with a view_id attribute
   _findViewId: (_elem)->
@@ -538,26 +480,12 @@ EventManagerApp = HApplication.extend
     Event.stop(e) if _stop
     return _ctrl
   #
-  # Enables focused state of enabled HControls by listening to the
-  # view-element-specific mouseover event.
-  _mouseOver: (e)->
-    _ctrl = @_findEventControl(e, '_'+'mouseOver')
-    @focus(_ctrl) if _ctrl
-  #
-  # Disables focused state of enabled HControls by listening to the
-  # view-element-specific mouseout event.
-  _mouseOut: (e)->
-    _ctrl = @_findEventControl(e, '_'+'mouseOut')
-    @blur(_ctrl) if _ctrl
-  #
   # Focuses a control, triggered based on the view-element-specific
   # mouseover event.
   focus: (_ctrl)->
     _viewId = _ctrl.viewId
     unless ~@_listeners.focused.indexOf(_viewId)
       _elem = ELEM.get( _ctrl.elemId )
-      @observe( _elem, 'mouseout', '_mouseOut' )
-      @stopObserving( _elem, 'mouseover', '_mouseOver' )
       @_listeners.focused.unshift(_viewId)
       unless _ctrl.focus?
         @warn( "EventManager#focus => The viewId:#{_viewId} doesn't have a 'focus' method.")
@@ -571,17 +499,52 @@ EventManagerApp = HApplication.extend
     _viewIdx = @_listeners.focused.indexOf(_viewId)
     if ~_viewIdx
       _elem = ELEM.get( _ctrl.elemId )
-      @observe( _elem, 'mouseover', '_mouseOver' )
-      @stopObserving( _elem, 'mouseout', '_mouseOut' )
       @_listeners.focused.splice(_viewIdx,1)
       unless _ctrl.blur?
         @warn( "EventManager#blur => The viewId:#{_viewId} doesn't have a 'blur' method.")
         return false
-      ## Should probably perform additional de-registration on active events
-      ## dependant on focus here.
-      ##
-      ##
       _ctrl.blur()
+
+  _debugHighlight: (_ctrl)->
+    unless @isProduction
+      unless @_debugHighlightT?
+        @_debugHighlightT = ELEM.make(0,'div')
+        @_debugHighlightR = ELEM.make(0,'div')
+        @_debugHighlightB = ELEM.make(0,'div')
+        @_debugHighlightL = ELEM.make(0,'div')
+        for _elemId in [
+          @_debugHighlightT, @_debugHighlightL,
+          @_debugHighlightB, @_debugHighlightR ]
+          ELEM.setStyles( _elemId,
+            position: 'absolute'
+            left: 0
+            top: 0
+            width: 0
+            height: 0
+            background: 'red'
+            zIndex: 20000
+          )
+        for _elemId in [ @_debugHighlightT, @_debugHighlightB ]
+          ELEM.setStyle( _elemId, 'height', '1px' )
+        for _elemId in [ @_debugHighlightL, @_debugHighlightR ]
+          ELEM.setStyle( _elemId, 'width', '1px' )
+      _rect = _ctrl.rect
+      x = _ctrl.pageX()
+      y = _ctrl.pageY()
+      w = _rect.width
+      h = _rect.height
+      for _elemId in [ @_debugHighlightT, @_debugHighlightL ]
+        ELEM.setStyle( _elemId, 'left', x+'px' )
+        ELEM.setStyle( _elemId, 'top', y+'px' )
+      for _elemId in [ @_debugHighlightT, @_debugHighlightB ]
+        ELEM.setStyle( _elemId, 'width', w+'px' )        
+      for _elemId in [ @_debugHighlightL, @_debugHighlightR ]
+        ELEM.setStyle( _elemId, 'height', h+'px' )        
+      ELEM.setStyle( @_debugHighlightB, 'top', (y+h)+'px' )
+      ELEM.setStyle( @_debugHighlightB, 'left', x+'px' )
+      ELEM.setStyle( @_debugHighlightR, 'top', y+'px' )
+      ELEM.setStyle( @_debugHighlightR, 'left', (x+w)+'px' )
+
   #
   # Mouse movement manager. Triggered by the global mousemove event.
   # Delegates the following event responder methods to focused HControl instances:
@@ -594,8 +557,30 @@ EventManagerApp = HApplication.extend
     [ x, y ] = @status.crsr
     Event.stop(e) if @_handleMouseMove( x, y )
   #
+  # Finds new focusable components after the
+  # mouse has been moved (replacement of mouseover/mouseout)
+  _findNewFocus: (x,y)->
+    _dragged = @_listeners.dragged
+    if _dragged.length != 0
+      console.log('dragged:',_dragged)
+      return
+    _matchIds = @_findTopmostEnabled( HPoint.new( x, y ), 'contains', null )
+    _focused = @_listeners.focused
+    if _matchIds.length == 0
+      for _focusId in _focused
+        @blur( @_views[_focusId] )
+    for _viewId in _matchIds
+      continue if ~_focused.indexOf(_viewId)
+      _ctrl = @_views[_viewId]
+      @_debugHighlight(_ctrl)
+      for _focusId in _focused
+        @blur( @_views[_focusId] )
+        _focused.splice( _focused.indexOf(_focusId), 1 )
+      @focus( _ctrl )
+  #
   # Just split to gain namespace:
   _handleMouseMove: ( x, y )->
+    @_findNewFocus(x,y)
     @_delegateMouseMove(x,y)
     _currentlyDragging = @_delegateDrag(x,y)
     return _currentlyDragging
@@ -683,7 +668,7 @@ EventManagerApp = HApplication.extend
         else
           _searchArea = _area
         if _view.hasAncestor? and _view.hasAncestor( HView )
-          if _view.rect[_matchMethod](_searchArea)
+          if _view.rect[_matchMethod](_searchArea) and !_view.isHidden
             if ~_arrOfIds.indexOf( _viewId )
               _foundId = _search( _view.viewsZOrder.slice().reverse() )
               return _foundId if _foundId
@@ -872,7 +857,6 @@ EventManagerApp = HApplication.extend
     @_listeners.dragged = []
     @_cancelTextSelection() unless _endDragIds.length == 0 and _mouseUpIds.length == 0
     Event.stop(e) if _stop
-    ## /jatka
   #
   # Handles mouse button clicks
   # It's different from mouseUp/mouseDown, because it's a different event,

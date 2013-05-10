@@ -741,42 +741,6 @@ HEventResponder = HClass.extend({
   *
   **/
   textEnter: function() {},
-  
-  /** -- DON'T TOUCH _mouseOver, IT IS A LOW-LEVEL HANDLER, use focus() instead ++ **/
-  _mouseOver: function(e) {
-    if (!Event.element) {
-      return;
-    }
-    var _that = Event.element(e);
-    while(_that && _that.ctrl === undefined) {
-      _that = _that.parentNode;
-    }
-    if (!_that) {
-      return;
-    }
-    var _this = _that.ctrl;
-
-    EVENT.focus(_this);
-    Event.stop(e);
-  },
-  
-  /** -- DON'T TOUCH _mouseOut, IT IS A LOW-LEVEL HANDLER, use blur() instead ++ **/
-  _mouseOut: function(e) {
-    if (!Event.element) {
-      return;
-    }
-    var _that = Event.element(e);
-    while(_that && _that.ctrl === undefined) {
-      _that = _that.parentNode;
-    }
-    if (!_that) {
-      return;
-    }
-    var _this = _that.owner;
-    
-    EVENT.blur(_this);
-    Event.stop(e);
-  },
 
 /** Selection handling; currently under construction
   **/
