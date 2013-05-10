@@ -14,13 +14,13 @@ Event = {
 /** Returns the mouse cursor x -coordinate of the event.
   **/
   pointerX: function(e) {
-    return e.pageX || e.clientX + document.documentElement.scrollLeft;
+    return ( e.pageX || e.clientX ) + document.body.scrollLeft;
   },
 
 /** Returns the mouse cursor y -coordinate of the event.
   **/
   pointerY: function(e) {
-    return e.pageY || e.clientY + document.documentElement.scrollTop;
+    return ( e.pageY || e.clientY ) + document.body.scrollTop;
   },
 
 /** Stops event propagation
