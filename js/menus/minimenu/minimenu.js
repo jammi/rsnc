@@ -22,17 +22,17 @@ HMiniMenu = HRadioButtonList.extend({
   },
   
   repositionMenuItems: function(){
-    if(!this.listItems || (this.listItems && !this.listItems.length)){ return; }
     var
     x = this.pageX(),
     y = this.pageY(),
     w = this.rect.width,
-    h = this.listItems.length*this.subComponentHeight,
+    _listItems = this.listItems ? (this.listItems.length ? this.listItems : [] ) : [],
+    h = _listItems.length*this.subComponentHeight,
     i = 0,
     listItem = null;
-    for(;i<this.listItems.length && listItem === null;i++){
-      if(this.listItems[i][0]===this.value){
-        listItem = this.listItems[i];
+    for(;i<_listItems.length && listItem === null;i++){
+      if(_listItems[i][0]===this.value){
+        listItem = _listItems[i];
       }
     }
     y -= (i-1)*this.subComponentHeight;
@@ -47,10 +47,15 @@ HMiniMenu = HRadioButtonList.extend({
         x += this.options.menuItemGeom.left;
       }
     }
-    this.menuItemView.rect.set( x, y, x+w, y+h );
+    var
+    mw = x+w,
+    mh = y+h;
+    this._menuItemViewShowPos = [ x, y ];
+    this._menuItemViewHidePos = [ 0-mw, 0-mh ];
+    this.menuItemView.rect.set( x, y, mw, mh );
+    this.menuItemView.offsetTo( 0-mw, 0-mh );
     this.menuItemView.refresh();
     this.menuItemView.hide();
-    ELEM.setStyle( this.menuItemView.elemId, 'display', 'none' );
   },
   
   click: function(){
@@ -77,18 +82,19 @@ HMiniMenu = HRadioButtonList.extend({
   
   menuShow: function(){
     this.repositionMenuItems();
+    var m = this._menuItemViewShowPos, x=m[0], y=m[1];
+    this.menuItemView.offsetTo( x, y );
     this.menuItemView.bringToFront();
     this.menuItemView.show();
-    ELEM.setStyle( this.menuItemView.elemId, 'display', 'block' );
     return true;
   },
   
   menuHide: function(){
     if( this.menuItemView ){
+      var m = this._menuItemViewHidePos, x=m[0], y=m[1];
+      this.menuItemView.offsetTo( x, y );
       this.menuItemView.sendToBack();
       this.menuItemView.hide();
-      ELEM.setStyle( this.menuItemView.elemId, 'display', 'none' );
-      this.menuItemView.offsetTo(0-this.menuItemView.rect.width,0-this.menuItemView.rect.height);
     }
   },
   
@@ -109,7 +115,6 @@ HMiniMenu = HRadioButtonList.extend({
   gainedActiveStatus: function(_prevActive){
     if( _prevActive && _prevActive.isChildOf( this.menuItemView ) ){
       this.menuHide();
-      // EVENT.changeActiveControl(null);
     }
     this.base(_prevActive);
   },
@@ -148,7 +153,8 @@ HMiniMenu = HRadioButtonList.extend({
       itemStyle.opacity = 0.9;
     }
     this.menuItemView = HView.nu(
-      [ this.rect.left, this.rect.top, this.rect.width, 10 ],
+      // [ this.rect.left, this.rect.top, this.rect.width, 10 ],
+      [ 0-this.rect.width, 0-this.rect.height, this.rect.width, 10 ],
       this.app, {
         visible: false,
         style: itemStyle,
