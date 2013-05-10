@@ -247,6 +247,7 @@ HMorphAnimation = HClass.extend({
     if(typeof this.endAnimation == 'function'){
       this.endAnimation();
     }
+    HSystem._updateFlexibleRects();
   },
   
 /** Extend this method if functionality is desired upon cancellation of animation.
@@ -255,5 +256,6 @@ HMorphAnimation = HClass.extend({
     if(typeof this.cancelAnimation == 'function'){
       this.cancelAnimation();
     }
+    HSystem._updateFlexibleRects();
   }
 });
