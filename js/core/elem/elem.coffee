@@ -218,7 +218,7 @@ ELEM = HClass.extend
   _getVisibleLeftPosition: (_id)->
     _elem = @_elements[_id]
     x = 0
-    while _elem != document
+    while _elem != document.body
       x += _elem.offsetLeft - _elem.scrollLeft
       _elem = _elem.parentNode
     x
@@ -229,13 +229,13 @@ ELEM = HClass.extend
   _getVisibleTopPosition: (_id)->
     _elem = @_elements[_id]
     y = 0
-    while _elem != document
+    while _elem != document.body
       y += _elem.offsetTop - _elem.scrollTop
       _elem = _elem.parentNode
     y
 
   ###
-  Returns the visible position of the element as a [ left, top ] tuble
+  Returns the visible position of the element as a [ left, top ] tuple
   ###
   getVisiblePosition: (_id)->
     [ @_getVisibleLeftPosition(_id), @_getVisibleTopPosition(_id) ]
