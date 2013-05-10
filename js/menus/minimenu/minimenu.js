@@ -26,15 +26,9 @@ HMiniMenu = HRadioButtonList.extend({
     x = this.pageX(),
     y = this.pageY(),
     w = this.rect.width,
-    _listItems = this.listItems ? (this.listItems.length ? this.listItems : [] ) : [],
+    _listItems = this.listItems ? (this.listItems.length ? this.listItems : {length:0} ) : {length:0},
     h = _listItems.length*this.subComponentHeight,
-    i = 0,
-    listItem = null;
-    for(;i<_listItems.length && listItem === null;i++){
-      if(_listItems[i][0]===this.value){
-        listItem = _listItems[i];
-      }
-    }
+    i = 0;
     y -= (i-1)*this.subComponentHeight;
     if(y < 0){
       y = this.subComponentHeight%y;
@@ -57,7 +51,7 @@ HMiniMenu = HRadioButtonList.extend({
     this.menuItemView.refresh();
     this.menuItemView.hide();
   },
-  
+
   click: function(){
     if(!this.active){return false;}
     if( ELEM.getStyle(this.menuItemView.elemId,'visibility',true) === 'hidden' ) {
@@ -82,8 +76,10 @@ HMiniMenu = HRadioButtonList.extend({
   
   menuShow: function(){
     this.repositionMenuItems();
-    var m = this._menuItemViewShowPos, x=m[0], y=m[1];
-    this.menuItemView.offsetTo( x, y );
+    if( this._menuItemViewShowPos ){
+      var m = this._menuItemViewShowPos, x=m[0], y=m[1];
+      this.menuItemView.offsetTo( x, y );
+    }
     this.menuItemView.bringToFront();
     this.menuItemView.show();
     return true;
@@ -91,8 +87,10 @@ HMiniMenu = HRadioButtonList.extend({
   
   menuHide: function(){
     if( this.menuItemView ){
-      var m = this._menuItemViewHidePos, x=m[0], y=m[1];
-      this.menuItemView.offsetTo( x, y );
+      if( this._menuItemViewHidePos ){
+        var m = this._menuItemViewHidePos, x=m[0], y=m[1];
+        this.menuItemView.offsetTo( x, y );
+      }
       this.menuItemView.sendToBack();
       this.menuItemView.hide();
     }
@@ -139,7 +137,9 @@ HMiniMenu = HRadioButtonList.extend({
       _menuItemView.die();
     }
   },
-  
+  menuItemViewRect: function(){
+    return [ 0-this.rect.width, 0-this.rect.height, this.rect.width, 10 ];
+  },
   drawSubviews: function(){
     var
     itemStyle = {
@@ -154,7 +154,7 @@ HMiniMenu = HRadioButtonList.extend({
     }
     this.menuItemView = HView.nu(
       // [ this.rect.left, this.rect.top, this.rect.width, 10 ],
-      [ 0-this.rect.width, 0-this.rect.height, this.rect.width, 10 ],
+      this.menuItemViewRect(),
       this.app, {
         visible: false,
         style: itemStyle,
