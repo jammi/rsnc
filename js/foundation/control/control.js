@@ -308,7 +308,7 @@ HControl = HView.extend({
   **/
   refreshValue: function(){
     if(this.markupElemIds){
-      if(this.markupElemIds['value']){
+      if(this.markupElemIds.value){
         ELEM.setHTML(this.markupElemIds.value,this.value);
       }
     }

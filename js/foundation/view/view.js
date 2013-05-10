@@ -2013,7 +2013,7 @@ HView = UtilMethods.extend({
   **/
   refreshLabel: function(){
     if(this.markupElemIds){
-      if(this.markupElemIds['label']){
+      if(this.markupElemIds.label){
         ELEM.setHTML(this.markupElemIds.label,this.label);
       }
     }

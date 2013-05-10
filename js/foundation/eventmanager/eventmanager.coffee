@@ -462,8 +462,10 @@ EventManagerApp = HApplication.extend
     for _viewId in @_listeners.byEvent.resize
       _ctrl = @_views[_viewId]
       _ctrl.resize() if _ctrl.resize?
-    ELEM.flush()
-    HSystem._updateFlexibleRects()
+    setTimeout(->
+      ELEM.flush()
+      HSystem._updateFlexibleRects()
+    , 100 )
   #
   # Finds the next elem with a view_id attribute
   _findViewId: (_elem)->
@@ -577,16 +579,21 @@ EventManagerApp = HApplication.extend
     # return if _dragged.length != 0
     _matchIds = @_findTopmostEnabled( HPoint.new( x, y ), 'contains', null )
     _focused = @_listeners.focused
-    if _matchIds.length == 0
+    if _matchIds.length == 0 # blur all previously focused
       for _focusId in _focused
-        @blur( @_views[_focusId] )
+        _ctrl = @_views[_focusId]
+        if _ctrl?
+          @blur( _ctrl )
+        _focused.splice( _focused.indexOf(_focusId), 1 )
     for _viewId in _matchIds
       continue if ~_focused.indexOf(_viewId)
       _ctrl = @_views[_viewId]
       for _focusId in _focused
-        @blur( @_views[_focusId] )
+        _focusCtrl = @_views[_focusId]
+        if _focusCtrl?
+          @blur( _focusCtrl )
         _focused.splice( _focused.indexOf(_focusId), 1 )
-      # @_debugHighlight(_ctrl)
+      @_debugHighlight(_ctrl)
       @focus( _ctrl )
   #
   # Just split to gain namespace:
@@ -743,7 +750,7 @@ EventManagerApp = HApplication.extend
         [ x, y ] = @status.crsr
         _ctrl.endDrag( x, y )
       _active.splice( _idx, 1 )
-      @blur(_ctrl) if ~_focused.indexOf(_viewId)
+      @blur(_ctrl) if ~_focused.indexOf(_viewId) and _ctrl?
       _ctrl.lostActiveStatus(_newActive)
     _prevActive
   #
