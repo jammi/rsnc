@@ -29,6 +29,7 @@ HMiniMenu = HRadioButtonList.extend({
     _listItems = this.listItems ? (this.listItems.length ? this.listItems : {length:0} ) : {length:0},
     h = _listItems.length*this.subComponentHeight,
     i = 0;
+    y -= this.rect.height;
     y -= (i-1)*this.subComponentHeight;
     if(y < 0){
       y = this.subComponentHeight%y;

@@ -11,13 +11,13 @@ HCalendarPulldown = HMiniMenu.extend
   calendarRect: ->
     [ x, y ] = [ @pageX(), @pageY() ]
     if @options.calendarHorizontalAlign == 'right'
-      x = x - 200 + 15
+      x = x - 200 + @rect.width
     else
-      x = x + @rect.width - 7
+      x = x + @rect.width
     if @options.calendarVerticalAlign == 'bottom'
-      y = y - 200 + 2
+      y = y - 200
     else
-      y = y + 7
+      y = y
     return [ x, y, 200, 200 ]
   repositionMenuItems: ->
     @menuItemView.setRect( @calendarRect() )
