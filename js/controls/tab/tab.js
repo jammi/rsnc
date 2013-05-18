@@ -232,9 +232,11 @@ HTab = HControl.extend({
   *
   **/
   removeTab: function(_tabIdx){
-    var _selIdx = this.selectIdx,
-        _tabViewId = this.tabs[_tabIdx],
-        _tabLabelElemId = this.tabViews[_tabIdx];
+    var
+    _selIdx = this.selectIdx,
+    _tabViewId = this.tabs[_tabIdx],
+    _tabLabelElemId = this.tabLabels[_tabIdx],
+    _tabLabelWidth, i = 0;
     this.tabs.splice(_tabIdx,1);
     this.tabLabels.splice(_tabIdx,1);
     this.tabLabelBounds.splice(_tabIdx,1);
@@ -256,6 +258,21 @@ HTab = HControl.extend({
     }
     ELEM.del(_tabLabelElemId);
     HSystem.views[_tabViewId].die();
+    
+    //Reset labels positions
+    this.rightmostPx = 0;
+    for(; i < this.tabs.length; i++){
+      _tabLabelElemId = this.tabLabels[i];
+      _tabLabelWidth = ELEM.getIntStyle(_tabLabelElemId,'width');
+      ELEM.setStyle(_tabLabelElemId,this.tabLabelAlign,this.rightmostPx+'px');
+      this.rightmostPx += _tabLabelWidth;
+    }
+    if(this.tabLabelAlign === 'right'){
+      ELEM.setStyle(this.markupElemIds[this.tabLabelParentElem],'width',this.rightmostPx+'px');
+    }
+    else if (this.tabLabelFillBg) {
+      ELEM.setStyle(this.markupElemIds.state,'left',this.rightmostPx+'px');
+    }
   }
 });
 
@@ -315,7 +332,7 @@ GUITreeTabView = HControl.extend({
     if( _value.type === undefined || _value.version === undefined ){
       _value = {
         'type': 'GUITree',
-        'version': 0.9,
+        'version': 1.0,
         'class': 'HView',
         'rect': [0,0, null,null, 0,0],
         'options': { 'style': { 'overflow': 'auto' } },
