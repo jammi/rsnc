@@ -1,7 +1,7 @@
 #### = Description
-  ## HTextControl is a control unit that represents an editable input 
-  ## line of text. Commonly, textcontrol is used as a single text field in 
-  ## the request forms. HTextControl view or theme can be changed; the 
+  ## HTextControl is a control unit that represents an editable input
+  ## line of text. Commonly, textcontrol is used as a single text field in
+  ## the request forms. HTextControl view or theme can be changed; the
   ## default_theme is used by default.
   ##
   ## = Instance variables
@@ -14,11 +14,12 @@ HTextControl = HControl.extend
 
   # allows text selection
   textSelectable: true
-  
+
   defaultEvents:
     textEnter: true
+    click: true
     contextMenu: true
-  
+
   controlDefaults: HControlDefaults.extend
     labelStyle:
       textIndent: 0
@@ -32,7 +33,7 @@ HTextControl = HControl.extend
 
   ## This flag is true, when the text input field has focus.
   hasTextFocus: false
-  
+
   ### = Description
   ## The contextMenu event for text input components is not prevented by default.
   ###
@@ -62,29 +63,32 @@ HTextControl = HControl.extend
       @setStyleOfPart('value','textIndent',_labelWidth+'px')
     else
       @setStyleOfPart('label','left',_labelWidth+'px')
-  
+
   drawSubviews: ->
     ELEM.setStyle(@elemId,'overflow','visible')
     @base()
     if @options.focusOnCreate
       @getInputElement().focus()
       @setSelectionRange( @value.length, @value.length ) if @typeChr(@value) == 's'
-  
+
   lostActiveStatus: ->
     if @markupElemIds? && @markupElemIds.value?
       ELEM.get( @markupElemIds.value ).blur()
       @textBlur()
-  
+
   setStyle: (_name, _value, _cacheOverride)->
     @base(_name, _value, _cacheOverride)
     return unless @markupElemIds? && @markupElemIds.value?
     @setStyleOfPart('value', _name, _value, _cacheOverride)
-  
+
+  click: ->
+    @getInputElement().focus()
+
   setEnabled: (_flag)->
     @base(_flag)
     if @markupElemIds? and @markupElemIds.value?
       ELEM.get(@markupElemIds.value).disabled = !@enabled
-  
+
   _clipboardEventTimer: null
   _getChangeEventFn: ->
     _this = @
@@ -97,12 +101,12 @@ HTextControl = HControl.extend
     _validatedValue = @validateText( @getTextFieldValue() )
     if @_changedFieldValue( _validatedValue, @value )
       @setValue( _validatedValue )
-  
+
   clipboardEvent: ->
     @_updateValueFromField()
     clearTimeout( @_clipboardEventTimer )
     @_clipboardEventTimer = null
-  
+
   _changeEventFn: null
   _clearChangeEventFn: ->
     if @_changeEventFn
@@ -115,7 +119,7 @@ HTextControl = HControl.extend
     @_changeEventFn = @_getChangeEventFn()
     Event.observe( ELEM.get(@markupElemIds.value), 'paste', @_changeEventFn )
     Event.observe( ELEM.get(@markupElemIds.value), 'cut', @_changeEventFn )
-  
+
   ### = Description
   ## Special event for text entry components.
   ## Called when the input field gains focus.
@@ -138,10 +142,10 @@ HTextControl = HControl.extend
       @_updateValueFromField()
       @refreshValue()
     true
-  
+
   idle: ->
     @refreshAfter() if @hasTextFocus and @options.refreshOnIdle and @options.refreshOnInput
-  
+
   refreshValue: ->
     @setTextFieldValue( @value )
 
@@ -151,14 +155,14 @@ HTextControl = HControl.extend
   ###
   validateText: (_value)->
     @fieldToValue(_value)
-  
+
   ### = Description
   ## Returns the input element or null, if no input element created (yet).
   ###
   getInputElement: ->
     return ELEM.get( @markupElemIds.value ) if @markupElemIds and @markupElemIds.value
     null
-  
+
   ### = Description
   ## Returns the value of the input element.
   ###
@@ -168,7 +172,7 @@ HTextControl = HControl.extend
       return _inputElement.value
     else
       return ''
-  
+
   valueToField: (_value)-> _value
   fieldToValue: (_value)-> _value
 
@@ -185,17 +189,17 @@ HTextControl = HControl.extend
     _value = @valueToField(_value)
     _inputElement.value = _value if _inputElement.value != _value.toString()
     @setSelectionRange( _selectionStart, _selectionEnd )
-  
+
   # returns a random number prefixed and suffixed with '---'
   _randomMarker: -> '---'+Math.round((1+Math.random())*10000)+'---'
-  
+
   die: ->
     @getInputElement().blur() if @hasTextFocus
     clearTimeout(@_refreshTimer) if @_refreshTimer
     @_refreshTimer = null
     @_clearChangeEventFn()
     @base()
-  
+
   ### = Description
   ## Returns the selection (or text cursor position) of the input element
   ## as an +Array+ like +[ startOffset, endOffset ]+.
@@ -231,7 +235,7 @@ HTextControl = HControl.extend
     else
       _rangeArr = [ 0, 0 ]
     return _rangeArr
-  
+
   _refreshTimer: null
   _lastFieldValue: null
   refreshAfter: ->
@@ -262,7 +266,7 @@ HTextControl = HControl.extend
   ## = Note
   ## - +_selectionStart+ can also be given as an +Array+
   ##   like +[ startOffset, endOffset ]+.
-  ## - If the +_selectionEnd+ is omitted, no selection is made; the text 
+  ## - If the +_selectionEnd+ is omitted, no selection is made; the text
   ##   cursor is positioned at the startOffset instead.
   ###
   setSelectionRange: ( _selectionStart, _selectionEnd )->
@@ -281,7 +285,7 @@ HTextControl = HControl.extend
     # Other browsers:
     else if _inputElement.selectionStart
       _inputElement.setSelectionRange( _selectionStart, _selectionEnd )
-  
+
   ### = Description
   ## Receives the +textEnter+ event to update the value
   ## based on what's (potentially) entered in the text input field.

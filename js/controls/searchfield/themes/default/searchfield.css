@@ -14,7 +14,7 @@
   white-space: nowrap;
   overflow: hidden;
   #{(
-  (BROWSER_TYPE.firefox||BROWSER_TYPE.ie7||BROWSER_TYPE.ie8||BROWSER_TYPE.ie9||BROWSER_TYPE.opera)?
+  (BROWSER_TYPE.firefox||BROWSER_TYPE.ie7||BROWSER_TYPE.ie8||BROWSER_TYPE.ie9||BROWSER_TYPE.ie10||BROWSER_TYPE.opera)?
     'padding-left:2px;width:85% !important;height:90% !important;':
     'padding:2px;padding-top:4px;right:3px;height:22px;width:auto;'
   )}
@@ -32,7 +32,7 @@
 .default .searchfield_input_parent {
   position: absolute;
   #{(
-  (BROWSER_TYPE.firefox||BROWSER_TYPE.ie7||BROWSER_TYPE.ie8||BROWSER_TYPE.ie9||BROWSER_TYPE.opera)?
+  (BROWSER_TYPE.firefox||BROWSER_TYPE.ie7||BROWSER_TYPE.ie8||BROWSER_TYPE.ie9||BROWSER_TYPE.ie10||BROWSER_TYPE.opera)?
     'left:0;padding-left:1px;top:0;right:4px;bottom:0;':
     'left:-2px;top:-2px;right:-2px;height:24px;'
   )}
@@ -54,7 +54,7 @@
 }
 
 .default .searchfield_e {
-  right: 0px; top: 0px; width: 24px; 
+  right: 0px; top: 0px; width: 24px;
   background-position: -24px 0px;
 }
 
@@ -65,7 +65,7 @@
 }
 
 .default .searchfield_w {
-  left: 0px; top: 0px; width: 24px; 
+  left: 0px; top: 0px; width: 24px;
   background-position: 0px 0px;
 }
 
@@ -101,9 +101,8 @@
   background-position: 0px -48px;
 }
 
-.default .searchfield_help {
+.default > .searchfield_help {
   position: absolute;
-  display: block;
   left: 24px; top: 5px; right: 8px; height: 18px;
   color: #888;
   font-size: 12px;

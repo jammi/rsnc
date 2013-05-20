@@ -1,14 +1,14 @@
 HSearchField = HTextControl.extend
   componentName: 'searchfield'
-  markupElemNames: HTextControl.prototype.markupElemNames.concat( ['help'] )
+  markupElemNames: ['help'].concat( HTextControl.prototype.markupElemNames )
   controlDefaults: HTextControl.prototype.controlDefaults.extend
     helpText: 'Search...'
-  
+
   textFocus: ->
+    @setStyleOfPart( 'help', 'visibility', 'hidden' )
     @base()
-    @setStyleOfPart( 'help', 'display', 'none' )
-    
+
   refreshValue: ->
-    @base()
     if @typeChr( @value ) == 's' and @value.length > 0
-      @setStyleOfPart( 'help', 'display', 'none' )
+      @setStyleOfPart( 'help', 'visibility', 'hidden' )
+    @base()
