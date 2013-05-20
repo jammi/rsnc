@@ -28,7 +28,7 @@ BROWSER_TYPE =
 The DOM Element abstraction engine
 ###
 ELEM = HClass.extend
-  
+
   constructor: null
 
   ###
@@ -83,7 +83,7 @@ ELEM = HClass.extend
       @_nextElemId++
     @_elements[_id] = _elem
     _id
-  
+
   ###
   Initializes cache object helpers
   ###
@@ -94,7 +94,7 @@ ELEM = HClass.extend
     @_attrCache[_id] = {}
     @_elemTodoH[_id] = false
     null
-  
+
   ###
   Adds an existing document element by its id attribute
   ###
@@ -103,7 +103,7 @@ ELEM = HClass.extend
     _id   = @_add( _elem )
     @_initCache( _id )
     _id
-  
+
   ###
   Binds the document element
   ###
@@ -111,26 +111,26 @@ ELEM = HClass.extend
     _id = @_add( _elem )
     @_initCache( _id )
     _id
-  
+
   ###
   Returns an element by its id
   ###
   get: (_id)->
     @_elements[_id]
-  
+
   ###
   Sets the innerHTML contents of the element
   ###
   setHTML: (_id, _html)->
     @_elements[_id].innerHTML = _html unless @_elements[_id].innerHTML == _html
     null
-  
+
   ###
   Returns the innerHTML of the element
   ###
   getHTML: (_id)->
     @_elements[_id].innerHTML
-  
+
   ###
   Deletes an element and its associated metadata
   ###
@@ -144,28 +144,32 @@ ELEM = HClass.extend
     delete @_elemTodoH[_id]
     delete @_elements[_id]
     @_freeElemIds.push(_id)
-    _elem.parentNode.removeChild( _elem )
+    _parent = _elem.parentNode
+    if _parent?
+      _parent.removeChild( _elem )
+    else if !@isProduction
+      console.warn( 'ELEM.del(',_id,'): Invalid parent: ', _parent, " for elem:",_elem )
     null
-  
+
   ###
   Places the source element inside the target element
   ###
   append: (_srcId, _tgtId)->
     @_elements[_tgtId].appendChild @_elements[_srcId]
-  
+
   ###
-  Replaces all styles of an element with a block of css text 
+  Replaces all styles of an element with a block of css text
   ###
   setCSS: (_id, _css)->
     @_elements[_id].style.cssText = _css
     null
-  
+
   ###
   Returns the current css text of an element
   ###
   getCSS: (_id)->
     @_elements[_id].style.cssText
-  
+
   ###
   Returns the visible size of an element as a [ width, height ] tuple
   ###
@@ -183,14 +187,14 @@ ELEM = HClass.extend
       break unless _parent.parentNode
       _parent = _parent.parentNode
     [ w, h ]
-  
+
   ###
   Returns the full offset size of the element as a [ width, height ] tuple
   ###
   getSize: (_id)->
     _elem = @_elements[_id]
     [ _elem.offsetWidth, _elem.offsetHeight ]
-  
+
   ###
   Returns the position of the element as a [ x, y ] tuple
   ###
@@ -211,7 +215,7 @@ ELEM = HClass.extend
   getScrollSize: (_id)->
     _elem = @_elements[_id]
     [ _elem.scrollWidth, _elem.scrollHeight ]
-  
+
   ###
   Calculates the visible left position of an element
   ###
@@ -239,7 +243,7 @@ ELEM = HClass.extend
   ###
   getVisiblePosition: (_id)->
     [ @_getVisibleLeftPosition(_id), @_getVisibleTopPosition(_id) ]
-  
+
   ###
   Returns the opacity on the element as a number equaling or between 0 and 1
   ###
@@ -247,7 +251,7 @@ ELEM = HClass.extend
     _elem = @_elements[_id]
     _opacity = @_getComputedStyle( _elem, 'opacity' )
     parseFloat( _opacity )
-  
+
   ###
   Sets ActiveX alpha filter for IE6-8
   ###
@@ -268,13 +272,13 @@ ELEM = HClass.extend
     else
       @_elements[_id].style.setProperty('opacity', _opacity.toString(), '')
     null
-  
+
   ###
   Wrapper for getStyle, returns an integer number instead of a string
   ###
   getIntStyle: (_id, _key)->
     parseInt( @getStyle(_id, _key), 10 )
-  
+
   ###
   Sets element position ( id, [ x, y ] )
   ###
@@ -313,7 +317,7 @@ ELEM = HClass.extend
     @setStyle( _id, 'width', w+'px' )
     @setStyle( _id, 'height', h+'px' )
     null
-  
+
   ###
   Gets box coordinates [ x, y, width, height )
   ###
@@ -321,7 +325,7 @@ ELEM = HClass.extend
     [ x, y ] = @getPosition( _id )
     [ w, h ] = @getSize( _id )
     [ x, y, w, h ]
-  
+
   ###
   Computes extra size (padding and border size) of element
   ###
@@ -333,7 +337,7 @@ ELEM = HClass.extend
   ###
   _getExtraLeftWidth: (_id)->
     @_getExtraSize( _id, 'left' )
-  
+
   ###
   Returns right-side padding and border size
   ###
@@ -345,25 +349,25 @@ ELEM = HClass.extend
   ###
   _getExtraTopWidth: (_id)->
     @_getExtraSize( _id, 'top' )
-  
+
   ###
   Returns right-side padding and border size
   ###
   _getExtraBottomWidth: (_id)->
     @_getExtraSize( _id, 'bottom' )
-  
+
   ###
   Returns extra width of element (caused by padding and borders)
   ###
   getExtraWidth: (_id)->
     @_getExtraSize( _id, 'left' ) + @_getExtraSize( _id, 'right' )
-  
+
   ###
   Returns extra height of element (caused by padding and borders)
   ###
   getExtraHeight: (_id)->
     @_getExtraSize( _id, 'top' ) + @_getExtraSize( _id, 'bottom' )
-  
+
   ###
   Sets delay between refreshes based on the target frame rate
   ###
@@ -371,7 +375,7 @@ ELEM = HClass.extend
     @_minDelay = 1000/_fps
     @_minDelay = @ELEMTickerInterval if @_minDelay < @ELEMTickerInterval
     null
-  
+
   ###
   Sets slowness (weighted additional multiplier for slow browsers; frame-skip)
   The d-efault 1.0 does not change the FPS, larger numbers gives more time for logic by skipping frames
@@ -379,7 +383,7 @@ ELEM = HClass.extend
   setSlowness: (_slow)->
     @_slowness = _slow
     null
-  
+
   ###
   Sets the idle delay in ms
   This is the maximum time between setting a style or property into the buffer and flushing the buffer to the DOM
@@ -397,7 +401,7 @@ ELEM = HClass.extend
       ELEM.flushLoop( _delay )
     , _timeDelay )
     null
-  
+
   ###
   Computes a default delay time based on various params
   ###
@@ -426,11 +430,11 @@ ELEM = HClass.extend
     @_performFlush()
     @_flushing = false
     null
-  
+
   # Alias for flushLoop
   flush: ->
     @flushLoop()
-  
+
   ###
   Performs the flush of flushLoop
   ###
@@ -453,7 +457,7 @@ ELEM = HClass.extend
     @_flushTime += new Date().getTime()
     @_needFlush = @_elemTodo.length != 0 # unless @_needFlush
     null
-  
+
   ###
   Flushes the attribute cache
   ###
@@ -469,7 +473,7 @@ ELEM = HClass.extend
       _val = _attrCache[_key]
       _elem[_key] = _val
     null
-  
+
   ###
   Gets an element attribute directly from the element
   ###
@@ -490,7 +494,7 @@ ELEM = HClass.extend
       _val = @_getAttrDirect( _id, _key )
       @_attrCache[_id][_key] = _val
     _val
-  
+
   ###
   Sets a named element attribute into the cache and buffer or selectively direct
   ###
@@ -509,7 +513,7 @@ ELEM = HClass.extend
           @_elemTodoH[ _id ] = true
           @_checkNeedFlush()
     true
-  
+
   ###
   Deletes a named element attribute
   ###
@@ -531,7 +535,7 @@ ELEM = HClass.extend
     return null unless @_elements[_id]? # item is deleted
     _classNames = @_elements[_id].className.split(' ')
     return !!~_classNames.indexOf( _className )
-  
+
   ###
   Adds a named CSS className to the element
   ###
@@ -547,7 +551,7 @@ ELEM = HClass.extend
         _elem.className = _classNames.join(' ')
       @_attrCache[_id]['className'] = _elem.className
     null
-  
+
   ###
   Removes a named CSS className of the element
   ###
@@ -575,14 +579,14 @@ ELEM = HClass.extend
         clearTimeout( @_timer)
         @_resetFlushLoop( @_minDelay )
     null
-  
+
   ###
   Low-level style property setter
   ###
   _setElementStyle: (_elem, _key, _value)->
     _elem.style.setProperty( _key, _value, '' )
     null
-  
+
   ###
   Camelizes string (mostly used for IE attribute name conversions)
   ###
@@ -590,7 +594,7 @@ ELEM = HClass.extend
     _str.replace( /((-)([a-z])(\w))/g, ($0, $1, $2, $3, $4)->
       $3.toUpperCase()+$4
     )
-  
+
   ###
   Decamelizes string (used for js property to css property conversion)
   ###
@@ -598,7 +602,7 @@ ELEM = HClass.extend
     _str.replace( /(([A-Z])(\w))/g, ($0, $1, $2, $3)->
       '-'+$2.toLowerCase()+$3
     )
-  
+
   ###
   IE version of _setElementStyle
   ###
@@ -640,7 +644,7 @@ ELEM = HClass.extend
           @_elemTodoH[_id] = true
           @_checkNeedFlush()
     null
-  
+
   ###
   Sets multiple styles at once
   ###
@@ -652,7 +656,7 @@ ELEM = HClass.extend
       for _key, _value of _styles
         @setStyle( _id, _key, _value, _noCache )
     null
-  
+
   ###
   Creates a new element inside another element
   ###
@@ -687,13 +691,13 @@ ELEM = HClass.extend
       _docElem = document.documentElement
       _size = [ _docElem.clientWidth, _docElem.clientHeight ]
     _size
-  
+
   ###
   Returns computed style of element
   ###
   _getComputedStyle: (_elem, _key)->
     document.defaultView.getComputedStyle( _elem, null ).getPropertyValue( _key )
-  
+
   ###
   IE version of _getComputedStyle
   ###
@@ -742,7 +746,7 @@ ELEM = HClass.extend
         console.log( 'invalid style key:',_elem, _key, _cached) unless _key
         @_setElementStyle( _elem, _key, _cached[_key] )
     null
-  
+
   ###
   Final phase of startup, when document is loaded
   ###
@@ -755,7 +759,7 @@ ELEM = HClass.extend
     @_flushDomLoadQueue() until @_initDone
     @_resetFlushLoop( @_minDelay )
     null
-  
+
   ###
   Runs a cmd
   ###
@@ -885,7 +889,7 @@ ELEM = HClass.extend
     _browserType.ipad = _iPad
     @_domWaiter()
     null
-  
+
   ###
   Adds tasks to run when the document load check is completed
   ###
@@ -920,7 +924,7 @@ ELEM = HClass.extend
       ELEM._domLoadStatus = true
     else if document.body
       ELEM._domLoadStatus = true
-    
+
     if ELEM._domLoadStatus
       clearTimeout( @_domLoadTimer )
       @_init()
