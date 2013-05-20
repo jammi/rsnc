@@ -91,7 +91,7 @@ EventManagerApp = HApplication.extend
   #   metaKeyDown  =>  The state of the Meta key.
   #   cmdKeyDown   =>  The state of the Command key (or equivalent, like the Windows key).
   # Note: Will be deprecated in favor of an hash with keys instead of numeric indexes.
-  status: 
+  status:
     0: false
     button1: false
     setButton1: (f)->
@@ -293,7 +293,7 @@ EventManagerApp = HApplication.extend
     _methods.push( 'keyPress' ) unless BROWSER_TYPE.safari or BROWSER_TYPE.ie
     for _methodName in _methods
       if _methodName == 'doubleClick'
-        _eventName = 'dblclick' 
+        _eventName = 'dblclick'
       else
         _eventName = _methodName.toLowerCase()
       @observe( _targetElem, _eventName, _methodName )
@@ -359,7 +359,7 @@ EventManagerApp = HApplication.extend
               _idx = @_listeners.byEvent['keyRepeat'].indexOf(_viewId)
               @_listeners.byEvent['keyRepeat'].splice( _idx, 1 ) if ~_idx
           unless ~@_listeners.byEvent[_key].indexOf(_viewId)
-            @_listeners.byEvent[_key].unshift( _viewId ) 
+            @_listeners.byEvent[_key].unshift( _viewId )
           if _key == 'rectHover' and _value == 'intersects' and
              not ~@_listeners._rectHoverIntersectMode.indexOf( _viewId )
             @_listeners._rectHoverIntersectMode.unshift( _viewId )
@@ -552,9 +552,9 @@ EventManagerApp = HApplication.extend
         ELEM.setStyle( _elemId, 'left', x+'px' )
         ELEM.setStyle( _elemId, 'top', y+'px' )
       for _elemId in [ @_debugHighlightT, @_debugHighlightB ]
-        ELEM.setStyle( _elemId, 'width', w+'px' )        
+        ELEM.setStyle( _elemId, 'width', w+'px' )
       for _elemId in [ @_debugHighlightL, @_debugHighlightR ]
-        ELEM.setStyle( _elemId, 'height', h+'px' )        
+        ELEM.setStyle( _elemId, 'height', h+'px' )
       ELEM.setStyle( @_debugHighlightB, 'top', (y+h)+'px' )
       ELEM.setStyle( @_debugHighlightB, 'left', x+'px' )
       ELEM.setStyle( @_debugHighlightR, 'top', y+'px' )
@@ -779,7 +779,7 @@ EventManagerApp = HApplication.extend
     @_listeners.dragged.unshift( _viewId ) unless ~@_listeners.dragged.indexOf( _viewId )
     _ctrl.startDrag( @status.crsrX, @status.crsrY, @status.button2 )
   #
-  # Cancels text selections, which happen by 
+  # Cancels text selections, which happen by
   _cancelTextSelection: ->
     # Remove possible selections.
     ELEM.get(0).focus()
@@ -1010,11 +1010,11 @@ EventManagerApp = HApplication.extend
       92: 220 # [\|]
       93: 221 # []}]
       39: 222 # ['"]
-      
-      # Numeric keypad keys can't be mapped on Opera, because Opera 
+
+      # Numeric keypad keys can't be mapped on Opera, because Opera
       # doesn't differentiate between the keys on the numeric keypad
       # versus the functionally same keys elsewhere on the keyboard.
-      
+
       # Branded keys:
       # Apple Command keys are same as ctrl, but ctrl is 0; Can't be re-mapped reliably.
       # The Windows Menu key also return 0, so it can't be re-mapped either.
@@ -1025,7 +1025,7 @@ EventManagerApp = HApplication.extend
       59: 186  # [;:]
       61: 187  # [=+]
       109: 189 # [-_]
-      
+
       # Branded keys:
       224: 91 # Apple Command key to left windows key mapping
   #
@@ -1066,6 +1066,31 @@ EventManagerApp = HApplication.extend
     # Other platforms use CTRL as the command key.
     return _keyCode == 17
   #
+  # Special key method handlers for ESC and RETURN, maybe others in the future
+  _defaultKeyActions:
+    '13': 'defaultKey' # return
+    '27': 'escKey' # esc
+  #
+  # Traverses down the parent hierarchy searching for a parent object
+  # that responds true to _methodName. If _ctrl is undefined, use
+  # a special default rule of auto-selecting the active control and
+  # checking all of its siblings before traversing.
+  defaultKey: (_methodName,_ctrl)->
+    if _ctrl?
+      return true if _ctrl[_methodName]? and _ctrl[_methodName]()
+    else # first special rules, check same
+      return null unless @_listeners.active
+      _ctrl = @_views[@_listeners.active[0]]
+      return true if _ctrl[_methodName]? and _ctrl[_methodName]()
+      for _viewId in _ctrl.parent.views
+        continue if _ctrl.viewId == _viewId
+        _ctrl = @_views[_viewId]
+        if _ctrl[_methodName]?
+          return true if _ctrl[_methodName]()
+    if _ctrl.parent?
+      return true if @defaultKey(_methodName,_ctrl.parent)
+    return null
+  #
   # Handles the keyDown event
   keyDown: (e)->
     @_modifiers(e)
@@ -1088,6 +1113,13 @@ EventManagerApp = HApplication.extend
       _ctrl = @_views[_viewId]
       if _ctrl.keyDown?
         _stop = true if _ctrl.keyDown(_keyCode)
+    #
+    # Some keys are special (esc and return) and they have their own
+    # special events: defaultKey and escKey, which aren't limited
+    # to instances of HControl, but any parent object will work.
+    if not _repeating and @_defaultKeyActions[_keyCode.toString()]
+      _defaultKeyMethod = @_defaultKeyActions[_keyCode.toString()]
+      _stop = true if @defaultKey(_defaultKeyMethod)
     @_lastKeyDown = _keyCode
     Event.stop(e) if _stop
   keyUp: (e)->
