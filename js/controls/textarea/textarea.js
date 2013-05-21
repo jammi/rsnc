@@ -11,6 +11,6 @@ var//RSence.Controls
 HTextArea = HTextControl.extend({
 
   componentName: "textarea",
-  defaultKey: function(){return true;} // bypass handler for return presses
+  defaultKey: function(){return false;} // bypass handler for return presses
 
 });

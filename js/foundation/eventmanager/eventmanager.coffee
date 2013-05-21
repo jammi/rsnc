@@ -1082,11 +1082,16 @@ EventManagerApp = HApplication.extend
       return null unless @_listeners.active
       _ctrl = @_views[@_listeners.active[0]]
       return true if _ctrl[_methodName]? and _ctrl[_methodName]()
+      _stop = null
       for _viewId in _ctrl.parent.views
         continue if _ctrl.viewId == _viewId
         _ctrl = @_views[_viewId]
         if _ctrl[_methodName]?
-          return true if _ctrl[_methodName]()
+          _stopStatus = _ctrl[_methodName]()
+          if _stopStatus == false or _stopStatus == true
+            _stop = _stopStatus unless _stop
+        if _stop != null
+          return _stop
     if _ctrl.parent?
       return true if @defaultKey(_methodName,_ctrl.parent)
     return null
