@@ -4,13 +4,13 @@
 ***/
 var//RSence.Core
 Event = {
-  
+
 /** Returns the element of the event.
   **/
   element: function(e) {
     return e.target || e.srcElement;
   },
-  
+
 /** Returns the mouse cursor x -coordinate of the event.
   **/
   pointerX: function(e) {
@@ -35,23 +35,23 @@ Event = {
       e.cancelBubble = true;
     }
   },
-  
+
 /** Returns true if the left mouse butten was clicked.
   **/
   isLeftClick: function(e) {
     // IE: left 1, middle 4, right 2
-    if (BROWSER_TYPE.ie && !BROWSER_TYPE.ie9) {
+    if (BROWSER_TYPE.ie && !BROWSER_TYPE.ie9 && !BROWSER_TYPE.ie10) {
       return (e.button === 1 || e.button === 3 || e.button === 5);
     }
     else {
       return (e.button === 0);
     }
   },
-  
+
 /** List of event observers
   **/
   observers: false,
-  
+
   /* Implementation of observe */
   _observeAndCache: function(_elem, _name, _function, _useCapture) {
     if (!Event.observers) {
@@ -66,7 +66,7 @@ Event = {
       _elem.attachEvent("on" + _name, _function);
     }
   },
-  
+
 /** Flushes the event observer cache.
   **/
   unloadCache: function() {
@@ -83,7 +83,7 @@ Event = {
     }
     Event.observers = false;
   },
-  
+
 /** Starts observing the named event of the element and
   * specifies a callback function.
   **/
@@ -92,7 +92,7 @@ Event = {
     Event._observeAndCache(_elem, _name, _function, _useCapture);
     return _function;
   },
-  
+
 /** Stops observing the named event of the element and
   * removes the callback function.
   **/
@@ -120,7 +120,7 @@ Event = {
       }
     }
   },
-  
+
   // List of ASCII "special characters":
   KEY_BACKSPACE: 8,
   KEY_TAB: 9,
@@ -135,7 +135,7 @@ Event = {
   KEY_END: 35,
   KEY_PAGEUP: 33,
   KEY_PAGEDOWN: 34
-  
+
 };
 
 // Activates the garbage collector of Internet Explorer

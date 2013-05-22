@@ -805,7 +805,7 @@ ELEM = HClass.extend
       _key   = 'filter'
       _value = "progid:DXImageTransform.Microsoft.gradient( startColorstr='#{_gradient.start}', endColorstr='#{_gradient.end}',GradientType=0 )"
     # IE9
-    else if BROWSER_TYPE.ie9 or BROWSER_TYPE.ie10
+    else if BROWSER_TYPE.ie9 # or BROWSER_TYPE.ie10
       # IE9 SVG, needs conditional override of 'filter' to 'none'
       # Also static white-shaded svg, needs a svg source to base64 utility
       _key = 'background'
@@ -816,7 +816,7 @@ ELEM = HClass.extend
       for _step in _gradient.steps
         _svg += """<stop offset="#{_step[0]}%" stop-color="##{_step[1]}" />"""
       _svg += """<stop offset="100%" stop-color="##{_gradient.end}" />"""
-      _svg += _svgSteps.join('')
+      # _svg += _svgSteps.join('')
       _svg += '</linearGradient>'
       _svg += '<rect x="0" y="0" width="1" height="1" fill="url(#gradientie9)" />'
       _svg += '</svg>'
@@ -843,7 +843,7 @@ ELEM = HClass.extend
     else if BROWSER_TYPE.opera
       _key   = 'background'
       _steps = @_standardGradientSteps(_gradient.start,_gradient.steps,_gradient.end).join(',')
-      _value = "-o-linear-gradient(top, )"
+      _value = "-o-linear-gradient(top, #{_steps})"
     else
       # Old browsers
       _key   = 'background'
@@ -875,7 +875,7 @@ ELEM = HClass.extend
       _browserType.ie10 = !!~_ua.indexOf('MSIE 10')
       unless _browserType.ie9
         @sha = SHA.new(8) # SHA1 needed for IE9/10 SVG base64 encoding
-        _browserType.ie9 = _browserType.ie10 # IE 10 is treated like IE 9
+        # _browserType.ie9 = _browserType.ie10 # IE 10 is treated like IE 9
     _browserType.mac = !!~_ua.indexOf('Macintosh')
     _browserType.win = !!~_ua.indexOf('Windows')
     _browserType.firefox = !!~_ua.indexOf('Firefox')
