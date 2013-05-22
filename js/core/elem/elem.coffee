@@ -799,6 +799,7 @@ ELEM = HClass.extend
         _steps.push "#{_step[1]} #{_step[0]}%"
     _steps.push "#{_endColor} 100%"
     return _steps
+  _gradientIdCount: 0
   _linearGradientStyle: (_gradient)->
     # IE6-8
     if BROWSER_TYPE.ie7 or BROWSER_TYPE.ie8
@@ -809,17 +810,19 @@ ELEM = HClass.extend
       # IE9 SVG, needs conditional override of 'filter' to 'none'
       # Also static white-shaded svg, needs a svg source to base64 utility
       _key = 'background'
-      _svg = '<?xml version="1.0" ?>'
-      _svg += '<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1 1" preserveAspectRatio="none">'
-      _svg += '<linearGradient id="gradientie9" gradientUnits="userSpaceOnUse" x1="0%" y1="0%" x2="0%" y2="100%">'
-      _svg += """<stop offset="0%" stop-color="##{_gradient.start}" />"""
+      _svg = """<?xml version="1.0" ?>"""
+      _svg += '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100%" height="100%">'
+      _svg += """<defs><linearGradient id="gradientie#{@_gradientIdCount}" x1="0%" y1="0%" x2="0%" y2="100%">"""
+      _svg += """<stop offset="0%" stop-color="#{_gradient.start}" />"""
+      _svgSteps = ''
       for _step in _gradient.steps
-        _svg += """<stop offset="#{_step[0]}%" stop-color="##{_step[1]}" />"""
-      _svg += """<stop offset="100%" stop-color="##{_gradient.end}" />"""
-      # _svg += _svgSteps.join('')
-      _svg += '</linearGradient>'
-      _svg += '<rect x="0" y="0" width="1" height="1" fill="url(#gradientie9)" />'
+        _svgSteps += """<stop offset="#{_step[0]}%" stop-color="#{_step[1]}" />"""
+      _svg += _svgSteps
+      _svg += """<stop offset="100%" stop-color="#{_gradient.end}" />"""
+      _svg += '</linearGradient></defs>'
+      _svg += """<rect width="100%" height="100%" fill="url(#gradientie#{@_gradientIdCount})" />"""
       _svg += '</svg>'
+      @_gradientIdCount++
       _svg64 = @sha.str2Base64(_svg)
       _value = "url(data:image/svg+xml;base64,#{_svg64})"
     else if BROWSER_TYPE.ie10
@@ -873,9 +876,8 @@ ELEM = HClass.extend
       _browserType.ie8 = !!~_ua.indexOf('MSIE 8')
       _browserType.ie9 = !!~_ua.indexOf('MSIE 9')
       _browserType.ie10 = !!~_ua.indexOf('MSIE 10')
-      unless _browserType.ie9
-        @sha = SHA.new(8) # SHA1 needed for IE9/10 SVG base64 encoding
-        # _browserType.ie9 = _browserType.ie10 # IE 10 is treated like IE 9
+      if _browserType.ie9
+        @sha = SHA.new(16) # SHA1 needed for IE9 SVG base64 encoding
     _browserType.mac = !!~_ua.indexOf('Macintosh')
     _browserType.win = !!~_ua.indexOf('Windows')
     _browserType.firefox = !!~_ua.indexOf('Firefox')

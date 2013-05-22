@@ -804,6 +804,7 @@ EventManagerApp = HApplication.extend
       for _child in _elem.childNodes
         for _className in _ieClassNames
           _addClassName(_elem) if _hasClassName(_elem,_className) and not _hasClassName(_elem,'ieActive')
+        continue if _child.view_id?
         _level += 1
         _patcher(_child)
         _level -= 1
@@ -970,6 +971,7 @@ EventManagerApp = HApplication.extend
           Event.stop(e) if _stop
         ), 50
       )
+    @_ieClassNameUnPatch() if BROWSER_TYPE.ie and @_ieClassNamePatched.length
     Event.stop(e) if _stop
   #
   # Handles doubleClick events

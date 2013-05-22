@@ -40,7 +40,7 @@ Event = {
   **/
   isLeftClick: function(e) {
     // IE: left 1, middle 4, right 2
-    if (BROWSER_TYPE.ie && !BROWSER_TYPE.ie9 && !BROWSER_TYPE.ie10) {
+    if (BROWSER_TYPE.ie && !BROWSER_TYPE.ie8 && !BROWSER_TYPE.ie9 && !BROWSER_TYPE.ie10) {
       return (e.button === 1 || e.button === 3 || e.button === 5);
     }
     else {
