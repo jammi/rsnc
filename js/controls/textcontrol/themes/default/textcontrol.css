@@ -2,7 +2,7 @@
 .default .textcontrol_input {
   position: absolute;
   display: block;
-  font-family: Arial, sans-serif;
+  font-family: Helvetica, Arial, sans-serif;
   font-size: 13px;
   color: #000;
   background-color: transparent;
@@ -54,7 +54,6 @@
 
 .default .active>.textcontrol_bg {
   left: 0; top: 0; right: 0; bottom: 0;
-  -moz-box-shadow: 0 0 3px #333;
   -webkit-box-shadow: 0 0 3px #333;
   box-shadow: 0 0 3px #333;
 }

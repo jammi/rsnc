@@ -23,7 +23,7 @@
 .default > .speechbubble > .text {
   padding-left: 6px; padding-top: 3px; padding-bottom: 3px; padding-right: 6px;
   vertical-align: middle;
-  font-family: Arial, sans-serif;
+  font-family: Helvetica, Arial, sans-serif;
   font-size: 12px; font-weight: bold;
   color: #333;
 }
@@ -75,10 +75,10 @@
   border-color: transparent transparent #efefef transparent;
 }
 .default.orientation_left > .speechbubble > .direction_inner2 {
-  left: -11px; 
+  left: -11px;
   border-width: 0 0 4px 11px;
 }
 .default.orientation_right > .speechbubble > .direction_inner2 {
-  right: -11px; 
+  right: -11px;
   border-width: 0 11px 4px 0;
 }

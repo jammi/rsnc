@@ -1,7 +1,7 @@
 /* tab bar */
 .tab_label {
   position: absolute;
-  top: 0px; left: 0px right: 0px; height: 24px;
+  top: 0; left: 0; right: 0; height: 24px;
   cursor: pointer;
 }
 
@@ -9,7 +9,7 @@
 .tab_label .item_fg,
 .tab_label .item_bg {
   position: absolute;
-  top: 0px; height: 24px;
+  top: 0; height: 24px;
   background-repeat: repeat-x;
 }
 .tab_label,
@@ -22,33 +22,33 @@
 }
 .tab_label_fill_bg {
   position: absolute;
-  top: 0px; left: 0px; right: 0px; height: 24px;
-  background-position: 0px -96px;
+  top: 0; left: 0; right: 0; height: 24px;
+  background-position: 0 -96px;
   background-repeat: repeat-x;
 }
 
 .tab_label .edge_left {
   position: absolute;
-  top: 0px; left: 0px; width: 12px; height: 24px;
-  background-position: 0px 0px;
+  top: 0; left: 0; width: 12px; height: 24px;
+  background-position: 0 0;
 }
 .tab_label .item_bg .edge_left {
-  background-position: -24px 0px;
+  background-position: -24px 0;
 }
 
 .tab_label .edge_right {
   position: absolute;
-  top: 0px; right: 0px; width: 9px; height: 24px;
-  background-position: -12px 0px;
+  top: 0; right: 0; width: 9px; height: 24px;
+  background-position: -12px 0;
 }
 .tab_label .item_bg .edge_right {
-  background-position: -36px 0px;
+  background-position: -36px 0;
 }
 
 .tab_label .tablabel {
   position: absolute;
-  top: 0px; left: 12px; right: 9px; height: 24px;
-  background-position: 0px -24px;
+  top: 0; left: 12px; right: 9px; height: 24px;
+  background-position: 0 -24px;
   background-repeat: repeat-x;
   vertical-align: middle;
   text-align: center;
@@ -56,24 +56,24 @@
   line-height: 26px;
   overflow: hidden;
   text-align: center; vertical-align: middle;
-  font-family: Arial, sans-serif;
+  font-family: Helvetica, Arial, sans-serif;
   font-size: 12px; font-weight: bold;
   color: #333;
 }
 .tab_label .item_bg .tablabel {
-  background-position: 0px -48px;
+  background-position: 0 -48px;
   color: #666;
 }
 
 .tab_bg {
   position: absolute;
-  top: 24px; left: 0px; right: 0px; bottom: 0px;
+  top: 24px; left: 0; right: 0; bottom: 0;
   border-radius: 0 0 3px 3px;
   background-image: #{this.getCssFilePath('tab_border_pattern.png')};
 }
 .tab_fg {
   position: absolute;
-  top: 0px; left: 1px; right: 1px; bottom: 1px;
+  top: 0; left: 1px; right: 1px; bottom: 1px;
   border-radius: 0 0 3px 3px;
   background-image: #{this.getCssFilePath('tab_bg_color.png')};
 }

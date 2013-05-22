@@ -34,7 +34,7 @@ HTab = HControl.extend({
   componentName: "tab",
   refreshOnValueChange: true,
   refreshOnLabelChange: false,
-  
+
   controlDefaults: (HControlDefaults.extend({
     constructor: function(_ctrl){
       this.tabInit(_ctrl);
@@ -46,22 +46,22 @@ HTab = HControl.extend({
       _ctrl.tabLabelStrings = [];
     }
   })),
-  
+
   rightmostPx: 0,
   selectIdx: -1,
-  
+
   // overridden in the template
   tabLabelHeight: 20,
-  
+
   // overridden in the template
   tabLabelLeftEdge: 4,
-  
+
   // overridden in the template
   tabLabelRightEdge: 4,
-  
+
   // overridden in the template
-  fontStyle: 'font-family:Arial,sans-serif;font-size:13px;',
-  
+  fontStyle: 'font-family: Helvetica, Arial, sans-serif;font-size:13px;',
+
   tabLabelHTMLPrefix1: '<div class="edge_left"></div><div class="tablabel" style="width:',
   tabLabelHTMLPrefix2: 'px">',
   tabLabelHTMLSuffix: '</div><div class="edge_right"></div>',
@@ -71,7 +71,7 @@ HTab = HControl.extend({
   tabLabelFillBg: false,
   tabTriggerLink: true,
   tabLabelNoHTMLPrefix: false,
-  
+
 /** = Description
   * refreshValue function
   *
@@ -87,7 +87,7 @@ HTab = HControl.extend({
       }
     }
   },
-  
+
 /** = Description
   * Sets label for the tab.
   *
@@ -98,7 +98,7 @@ HTab = HControl.extend({
   setLabel: function(_label){
     this.label = _label;
   },
-  
+
 /** = Description
   * selectTab function
   *
@@ -127,7 +127,7 @@ HTab = HControl.extend({
     this.selectIdx = _tabIdx;
     this.setValue(_tabIdx);
   },
-  
+
 /** = Description
   * addTab function
   *
@@ -190,7 +190,7 @@ HTab = HControl.extend({
     }
     return _tab;
   },
-  
+
 /** = Description
   * click function
   *
@@ -220,10 +220,10 @@ HTab = HControl.extend({
           }
         }
       }
-      
+
     }
   },
-  
+
 /** = Description
   * removeTab function
   *
@@ -258,7 +258,7 @@ HTab = HControl.extend({
     }
     ELEM.del(_tabLabelElemId);
     HSystem.views[_tabViewId].die();
-    
+
     //Reset labels positions
     this.rightmostPx = 0;
     for(; i < this.tabs.length; i++){
@@ -284,7 +284,7 @@ HTab = HControl.extend({
   * select: true|false, passed on to addTab
   * label: true|false, passed on to addTab
   *
-  * = Returns 
+  * = Returns
   * a new HTabView instance returned by addTab
   *
   **/
