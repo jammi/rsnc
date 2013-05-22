@@ -1,6 +1,6 @@
 HSearchField = HTextControl.extend
   componentName: 'searchfield'
-  markupElemNames: ['help'].concat( HTextControl.prototype.markupElemNames )
+  markupElemNames: HTextControl.prototype.markupElemNames.slice().concat('help')
   controlDefaults: HTextControl.prototype.controlDefaults.extend
     helpText: 'Search...'
 
