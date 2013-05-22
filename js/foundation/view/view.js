@@ -3,7 +3,7 @@
   ** HView is the foundation class for all views. HView is useful for
   ** any type of view and control grouping. It is designed for easy extension
   ** and it's the foundation for HControl and all other controls.
-  ** 
+  **
   ** The major differences between HView and HControl is that HView handles
   ** only visual representation and structurization. In addition to HView's
   ** features, HControl handles labels, values, events, states and such.
@@ -26,36 +26,36 @@ HView = UtilMethods.extend({
 
   isView: true,  // attribute to check if the object is a view
   isCtrl: false, // attribute to check for if the object is a control
-  
+
 /** Component specific theme path.
   **/
   themePath:   null,
-  
+
 /** True, if the component using absolute positioning.
   * False, if the component is using relative positioning.
   **/
   isAbsolute: true,
-  
+
 /** The display mode to use.
   * Defaults to 'block'.
   * The other sane alternative is 'inline'.
   **/
   displayMode: 'block',
-  
+
 /** The visual value of a component, usually a String.
   * See +#setLabel+.
   **/
   label: null,
-  
+
 /** When true, calls the +refreshLabel+ method whenever
   * +self.label+ is changed.
   **/
   refreshOnLabelChange: true,
-  
+
 /** Escapes HTML in the label when true.
   **/
   escapeLabelHTML: false,
-  
+
 /** True, if the coordinates are right-aligned.
   * False, if the coordinates are left-aligned.
   * Uses flexRightOffset if true. Defined with 6-item arrays
@@ -63,7 +63,7 @@ HView = UtilMethods.extend({
   * Can be set directly using the setFlexRight method.
   **/
   flexRight:  false,
-  
+
 /** True, if the coordinates are left-aligned.
   * False, if the coordinates are right-aligned.
   * Uses the X-coordinate of rect, if true.
@@ -72,7 +72,7 @@ HView = UtilMethods.extend({
   * Can be set directly using the setFlexLeft method.
   **/
   flexLeft:   true,
-  
+
 /** True, if the coordinates are top-aligned.
   * False, if the coordinates are bottom-aligned.
   * Uses the Y-coordinate of rect, if true.
@@ -81,7 +81,7 @@ HView = UtilMethods.extend({
   * Can be set directly using the setFlexTop method.
   **/
   flexTop:    true,
-  
+
 /** True, if the coordinates are bottom-aligned.
   * False, if the coordinates are top-aligned.
   * Uses flexBottomOffset if true. Defined with 6-item arrays
@@ -89,61 +89,61 @@ HView = UtilMethods.extend({
   * Can be set directly using the setFlexRight method.
   **/
   flexBottom: false,
-  
+
 /** The amount of pixels to offset from the right edge when
   * flexRight is true. Defined with 6-item arrays
   * for the _rect parameter of setRect or the constructor.
   * Can be set directly using the setFlexRight method.
   **/
   flexRightOffset:  0,
-  
+
 /** The amount of pixels to offset from the bottom edge when
   * flexBottom is true.Defined with 6-item arrays
   * for the _rect parameter of setRect or the constructor.
   * Can be set directly using the setFlexBottom method.
   **/
   flexBottomOffset: 0,
-  
+
 /** The drawn flag is false before the component is visually
   * drawn, it's true after it's drawn.
   **/
   drawn: false,
-  
+
 /** The theme the component is constructed with. By default,
   * uses the HThemeManager.currentTheme specified at the time
   * of construction.
   **/
   theme: null,
-  
+
 /** The preserveTheme flag prevents the view from being redrawn
   * if HThemeManager.currentTheme is changed after the view
   * has been drawn. Is true, if theme has been set.
   **/
   preserveTheme: false,
-  
+
 /** The optimizeWidthOnRefresh flag, when enabled, allows
   * automatic width calculation for components that support
   * that feature.
   **/
-  optimizeWidthOnRefresh: true,
-  
+  optimizeWidthOnRefresh: false,
+
 /** The parent is the +_parent+ supplied to the constructor.
   * This is a complete object reference to the parent's name-space.
   **/
   parent: null,
-  
+
 /** The parents is an array containing parent instances up to
   * the root controller level. The root controller is almost
   * always an instance of HApplication.
   **/
   parents: null,
-  
+
 /** The viewId is the unique ID (serial number) of this view.
   * This means the view can be looked up globally based on its
   * id by using the +HSystem.views+ array.
   **/
   viewId: null,
-  
+
 /** The appId is the unique ID (serial number) of the app process
   * acting as the root controller of the view tree of which this
   * view is a member.
@@ -151,47 +151,47 @@ HView = UtilMethods.extend({
   * id by using the +HSystem.apps+ array.
   **/
   appId: null,
-  
+
 /** The app is the reference of the app process acting as
   * the root controller of the view tree of which this view is a
   * member.
   * This is a complete object reference to the app's name-space.
   **/
   app: null,
-  
+
 /** The views array contains a list of sub-views of this view
   * by id. To access the object reference, use the +HSystem.views+
   * array with the id.
   **/
   views: null,
-  
+
 /** The viewsZOrder array contains a list of sub-views ordered by
   * zIndex. To change the order, use the bringToFront,
   * sendToBack, bringForwards, sendBackwards, bringToFrontOf and
   * sentToBackOf methods.
   **/
   viewsZOrder: null,
-  
+
 /** The isHidden flog reflects the visibility of the view.
   **/
   isHidden: false,
-  
+
 /** The +HRect+ instance bound to +self+ using the +constructor+ or +setRect+.
   **/
   rect: null,
-  
+
 /** An reference to the options block given as the constructor
   * parameter _options.
   **/
   options: null,
-  
+
 /** The viewDefaults is a HViewDefaults object that is extended
   * in the constructor with the options block given. The format of
   * it is an Object.
   * It's only used when not extended via HControl, see HControl#controlDefaults.
   **/
   viewDefaults: HViewDefaults,
-  
+
 /** = Description
   * Constructs the logic part of a HView.
   * The view still needs to be drawn on screen. To do that, call draw after
@@ -215,7 +215,7 @@ HView = UtilMethods.extend({
   * points, like: +( left, top, right, bottom )+.
   * Arrays with 6 items are a bit more complex (and powerful) as they can specify
   * the flexible offsets too.
-  * 
+  *
   * === The array indexes for a +_rect+ configured as an 4-item array:
   * Always left/top aligned, all items must be specified.
   * Index::            Description
@@ -300,10 +300,10 @@ HView = UtilMethods.extend({
     if(!this.isinherited){
       _options = (this.viewDefaults.extend(_options)).nu(this);
     }
-    
+
     this.options = _options;
     this.label = _options.label;
-    
+
     // Moved these to the top to ensure safe theming operation
     if( _options.theme ){
       this.theme = _options.theme;
@@ -316,41 +316,41 @@ HView = UtilMethods.extend({
     else {
       this.preserveTheme = true;
     }
-    
+
     if(_options.visible === false) {
       this.isHidden = true;
     }
-    
+
     // adds the parentClass as a "super" object
     this.parent = _parent;
-    
+
     this.viewId = this.parent.addView(this);
     // the parent addView method adds this.parents
-    
+
     this.appId = this.parent.appId;
     this.app = HSystem.apps[this.appId];
-    
+
     // sub-view ids, index of HView-derived objects that are found in HSystem.views[viewId]
     this.views = [];
-    
+
     // Sub-views in Z order.
     this.viewsZOrder = [];
-    
+
     // Keep the view (and its sub-views) hidden until its drawn.
     this._createElement();
-    
+
     // Set the geometry
     this.setRect(_rect);
-    
+
     // Additional DOM element bindings are saved into this array so they can be
     // deleted from the element manager when the view gets destroyed.
     this._domElementBindings = [];
-    
+
     if(!this.isinherited) {
       this.draw();
     }
   },
-  
+
 /** = Description
   * When the +_flag+ is true, the view will be aligned to the right.
   * The +_px+ offset defines how many pixels from the parent's right
@@ -375,7 +375,7 @@ HView = UtilMethods.extend({
     this.flexRightOffset = _px;
     return this;
   },
-  
+
 /** = Description
   * When the +_flag+ is true, the view will be aligned to the left (default).
   * The +_px+ offset defines how many pixels from the parent's left
@@ -401,7 +401,7 @@ HView = UtilMethods.extend({
     }
     return this;
   },
-  
+
 /** = Description
   * When the +_flag+ is true, the view will be aligned to the top (default).
   * The +_px+ offset defines how many pixels from the parent's top
@@ -427,7 +427,7 @@ HView = UtilMethods.extend({
     }
     return this;
   },
-  
+
 /** = Description
   * When the +_flag+ is true, the view will be aligned to the bottom.
   * The +_px+ offset defines how many pixels from the parent's bottom
@@ -452,10 +452,10 @@ HView = UtilMethods.extend({
     this.flexBottomOffset = _px;
     return this;
   },
-  
+
 /** = Description
   * The +_flag+ enables or disables the absolute positioning mode.
-  * (It's enabled by default). If absolute positioning mode is 
+  * (It's enabled by default). If absolute positioning mode is
   * off, the coordinate system has little or no effect.
   *
   * = Parameters
@@ -471,10 +471,10 @@ HView = UtilMethods.extend({
     this.isAbsolute = _flag;
     return this;
   },
-  
+
 /** = Description
   * The +_flag+ enables or disables the relative positioning mode.
-  * (It's disabled by default). If relative positioning mode is 
+  * (It's disabled by default). If relative positioning mode is
   * on, the coordinate system has little or no effect.
   *
   * = Parameters
@@ -490,7 +490,7 @@ HView = UtilMethods.extend({
     this.isAbsolute = (!_flag);
     return this;
   },
-  
+
 /** = Description
   * Used by html theme templates to get the theme-specific full image path.
   *
@@ -507,7 +507,7 @@ HView = UtilMethods.extend({
     // return HThemeManager._componentGfxPath( _themeName,  this.componentName, this.themePath );
     return HThemeManager.themePaths[_themeName];
   },
-  
+
 /** = Description
   * Used by html theme templates to get the theme-specific full path
   * of the _fileName given.
@@ -524,7 +524,7 @@ HView = UtilMethods.extend({
     // return HThemeManager._componentGfxFile( _themeName,  this.componentName, this.themePath, _fileName );
     return HThemeManager._buildThemePath( _fileName, _themeName );
   },
-  
+
 /** --
   * = Description
   * The _makeElem method does the ELEM.make call to create
@@ -538,7 +538,7 @@ HView = UtilMethods.extend({
     ELEM.setAttr( this.elemId, 'view_id', this.viewId, true );
     ELEM.setAttr( this.elemId, 'elem_id', this.elemId, true );
   },
-  
+
 /** --
   * = Description
   * The _setCSS method does the initial styling of the element.
@@ -556,7 +556,7 @@ HView = UtilMethods.extend({
     _cssStyle += _additional;
     ELEM.setCSS(this.elemId,_cssStyle);
   },
-  
+
 /** --
   * = Description
   * The _getParentElemId method returns the ELEM ID of the parent.
@@ -566,7 +566,7 @@ HView = UtilMethods.extend({
     var _parent = this.parent;
     return ((_parent.elemId === undefined)?0:((_parent._getSubviewId===undefined)?0:_parent._getSubviewId()));
   },
-  
+
   _getSubviewId: function(){
     if(this.markupElemIds&&this.markupElemIds.subview!==undefined){
       return this.markupElemIds.subview;
@@ -596,7 +596,7 @@ HView = UtilMethods.extend({
     this.textSelectable = !!_flag;
     this.updateTextSelectable();
   },
-  
+
 /** --
   * = Description
   * The _createElement method calls the methods required to initialize the
@@ -605,10 +605,10 @@ HView = UtilMethods.extend({
   **/
   _createElement: function() {
     if(!this.elemId) {
-      
+
       this._makeElem(this._getParentElemId());
       this._setCSS('');
-      
+
       // Theme name == CSS class name
       if(this.preserveTheme){
         ELEM.addClassName( this.elemId, this.theme );
@@ -622,7 +622,7 @@ HView = UtilMethods.extend({
       this.updateTextSelectable();
     }
   },
-  
+
 /** = Description
   * The +drawRect+ method refreshes the dimensions of the view.
   * It needs to be called to affect changes in the rect.
@@ -678,12 +678,15 @@ HView = UtilMethods.extend({
       if(this.drawn === false){
         _this._updateZIndex();
       }
-      
+
       _this.drawn = true;
+      if( _this.themeStyle !== undefined ){
+        _this.themeStyle.call(_this);
+      }
     }
     return this;
   },
-  
+
 /** --
   * This method updates the z-index property of the children of self.
   * It's essentially a wrapper for HSystem.updateZIndexOfChildren passed
@@ -693,7 +696,7 @@ HView = UtilMethods.extend({
   _updateZIndex: function() {
     HSystem.updateZIndexOfChildren(this.viewId);
   },
-  
+
 /** --
   * This method updates the z-index property of the siblings of self.
   * It's essentially a wrapper for HSystem.updateZIndexOfChildren passed
@@ -703,11 +706,11 @@ HView = UtilMethods.extend({
   _updateZIndexAllSiblings: function() {
     HSystem.updateZIndexOfChildren(this.parent.viewId);
   },
-  
+
 /** = Description
   * The higher level draw wrapper for drawRect, drawMarkup and drawSubviews.
   * Finally calls refresh.
-  * 
+  *
   * = Returns
   * +self+
   *
@@ -757,7 +760,7 @@ HView = UtilMethods.extend({
     this.refresh();
     return this;
   },
-  
+
 /** = Description
   * Called once, before the layout of the view is initially drawn.
   * Doesn't do anything by itself, but provides an extension point.
@@ -765,7 +768,7 @@ HView = UtilMethods.extend({
   **/
   firstDraw: function(){
   },
-  
+
 /** = Description
   * Called once, when the layout of the view is initially drawn.
   * Doesn't do anything by itself, but provides an extension point for making
@@ -774,32 +777,7 @@ HView = UtilMethods.extend({
   **/
   drawSubviews: function(){
   },
-  
-/** --
-  * Loads the markup from theme manager. If this.preserveTheme is set to true,
-  * the this.theme is used for loading the markup. Otherwise the currently
-  * active theme is used.
-  * ++
-  **/
-  // _loadMarkup: function() {
-  //   var _themeName, _themeData, _markup, _markupFns;
-  //   if (this.preserveTheme) {
-  //     _themeName = this.theme;
-  //   }
-  //   else {
-  //     _themeName = HThemeManager.currentTheme;
-  //   }
-  //   _themeData = HThemeManager.getMarkup( _themeName, this.componentName, this.themePath );
-  //   if(_themeData === false && !this.isProduction){
-  //     console.log('Warning: Markup template for "'+this.componentName+'" using theme "'+_themeName+'" not loaded.');
-  //   }
-  //   _markup = _themeData[0];
-  //   _markupFns = _themeData[1];
-  //   this.markup = _markup;
-  //   this.markupFns = _markupFns;
-  //   return (_markup !== false);
-  // },
-  
+
 /** = Description
   * Replaces the contents of the view's DOM element with html from the theme specific html file.
   *
@@ -808,12 +786,6 @@ HView = UtilMethods.extend({
   **/
   markupElemNames: ['bg', 'label', 'state', 'control', 'value', 'subview'],
   drawMarkup: function() {
-    // ELEM.setStyle(this.elemId, 'display', 'none', true);
-    
-    // continue processing from here on:
-    // var _markupStatus = this._loadMarkup();
-    
-    // this.bindMarkupVariables();
     var _themeName, _markup;
     if (this.preserveTheme) {
       _themeName = this.theme;
@@ -828,17 +800,45 @@ HView = UtilMethods.extend({
       for(var i=0; i < this.markupElemNames.length; i++ ) {
         var _partName = this.markupElemNames[ i ],
             _elemName = _partName + this.elemId,
-            _htmlIdMatch = ' id="' + _elemName + '"';
+            _htmlIdMatch = 'id="' + _elemName + '"';
         if( ~_markup.indexOf( _htmlIdMatch ) ) {
           this.markupElemIds[ _partName ] = this.bindDomElement( _elemName );
         }
       }
+      if( this.themeStyle !== undefined ){
+        this.themeStyle.call(this);
+      }
     }
-    
-    // ELEM.setStyle(this.elemId, 'display', this.displayMode );
     return this;
   },
-  
+
+/** = Description
+  * Sets or unsets the _cssClass into a DOM element that goes by the ID
+  * _elementId.
+  *
+  * = Parameters
+  * +_elementId+:: ID of the DOM element, or the element itself, to be
+  *                modified.
+  * +_cssClass+::  Name of the CSS class to be added or removed.
+  * +_setOn+::     Boolean value that tells should the CSS class be added or
+  *                removed.
+  *
+  * = Returns
+  * +self+
+  *
+  **/
+  toggleCSSClass: function(_elementId, _cssClass, _setOn) {
+    if(_elementId) {
+      if (_setOn) {
+        ELEM.addClassName(_elementId, _cssClass);
+      }
+      else {
+        ELEM.delClassName(_elementId, _cssClass);
+      }
+    }
+    return this;
+  },
+
 /** = Description
   * Replaces the contents of the view's DOM element with custom html.
   *
@@ -853,7 +853,7 @@ HView = UtilMethods.extend({
     ELEM.setHTML( this.elemId, _html );
     return this;
   },
-  
+
 /** = Description
   * Wrapper for setHTML, sets escaped html, if tags and such are present.
   *
@@ -866,7 +866,7 @@ HView = UtilMethods.extend({
   setText: function( _text ) {
     return this.setHTML( this.escapeHTML( _text ) );
   },
-  
+
 /** = Description
   * Method to escape HTML from text.
   *
@@ -895,7 +895,7 @@ HView = UtilMethods.extend({
     [ new RegExp( /</gmi ), '&lt;' ],
     [ new RegExp( /\n/gmi ), '<br>' ]
   ],
-  
+
 /** = Description
   *
   * This method should be extended in order to redraw only specific parts. The
@@ -912,15 +912,18 @@ HView = UtilMethods.extend({
       // constructor when setRect() is initially called.
       this.drawRect();
     }
-    if(this.optimizeWidthOnRefresh) {
-      this.optimizeWidth();
-    }
     if(this.refreshOnLabelChange){
       this.refreshLabel();
     }
+    if( this.themeStyle !== undefined && typeof this.themeStyle === 'function' ){
+      this.themeStyle.call(this);
+    }
+    if(this.optimizeWidthOnRefresh && this.options.pack) {
+      this.optimizeWidth();
+    }
     return this;
   },
-  
+
 /** Gets the size of the parent. If the parent is the document body, uses the browser window size.
   **/
   parentSize: function(){
@@ -958,14 +961,14 @@ HView = UtilMethods.extend({
       return [ _width, _height ];
     }
   },
-  
+
 /** Returns the maximum rect using the #parentSize.
   **/
   maxRect: function(){
     var _parentSize = this.parentSize();
     return [ 0, 0, _parentSize[0], _parentSize[1] ];
   },
-  
+
   minWidth: 0,
   setMinWidth: function(_minWidth){
     if( typeof _minWidth === 'number' ){
@@ -986,7 +989,7 @@ HView = UtilMethods.extend({
       console.log('warning: setMinHeight( '+(typeof _minHeight)+' '+_minHeight+' ) should be a number; value ignored!');
     }
   },
-  
+
 /** = Description
   * Replaces the rect of the component with a new HRect instance and
   * then refreshes the display.
@@ -1033,7 +1036,7 @@ HView = UtilMethods.extend({
           _parentWidth = _parentSize[0];
           _parentHeight = _parentSize[1];
         }
-        
+
         if( !this.isProduction ){
           if( (!_validLeftOffset && !_validRightOffset) ||
               (!_validTopOffset && !_validBottomOffset) ){
@@ -1044,7 +1047,7 @@ HView = UtilMethods.extend({
             console.log(_throwPrefix + 'the (height or width) must be specified unless both (left and top) or (top and bottom) are specified.');
           }
         }
-        
+
         if(_validLeftOffset && _validWidth && !_validRightOffset){
           _right = _leftOffset + _width;
         }
@@ -1083,7 +1086,7 @@ HView = UtilMethods.extend({
             _right = _leftOffset;
           }
         }
-        
+
         if(_validTopOffset && _validHeight && !_validBottomOffset){
           _bottom = _topOffset + _height;
         }
@@ -1142,7 +1145,7 @@ HView = UtilMethods.extend({
           console.log('  rect array:', _rect );
           console.log('---------------------------------------------');
         }
-        
+
       }
       else if (!this.isProduction){
         console.log(_throwPrefix + 'the length has to be either 4 or 6.');
@@ -1155,7 +1158,7 @@ HView = UtilMethods.extend({
     this.refresh();
     return this;
   },
-  
+
 /** = Description
   * Sets any arbitrary style of the main DOM element of the component.
   * Utilizes Element Manager's drawing queue / cache to perform the action.
@@ -1175,7 +1178,7 @@ HView = UtilMethods.extend({
     }
     return this;
   },
-  
+
   setStyles: function(_styles){
     var _stylesObjType = this.typeChr(_styles);
     if(_stylesObjType==='a'){
@@ -1189,7 +1192,7 @@ HView = UtilMethods.extend({
     }
     return this;
   },
-  
+
   setStylesArray: function(_styles){
     var
     _styleItem, _styleKey, _styleValue, i = 0;
@@ -1201,7 +1204,7 @@ HView = UtilMethods.extend({
     }
     return this;
   },
-  
+
   setStylesHash: function(_styles){
     var
     _styleKey, _styleValue;
@@ -1211,7 +1214,7 @@ HView = UtilMethods.extend({
     }
     return this;
   },
-  
+
 /** = Description
   * Returns a style of the main DOM element of the component.
   * Utilizes +ELEM+ cache to perform the action.
@@ -1229,7 +1232,7 @@ HView = UtilMethods.extend({
     }
     return '';
   },
-  
+
 /** = Description
   * Sets a style for a specified markup element that has been bound to this
   * view.
@@ -1255,7 +1258,7 @@ HView = UtilMethods.extend({
     }
     return this;
   },
-  
+
 /** = Description
   * Returns a style of a specified markup element that has been bound to this
   * view.
@@ -1278,7 +1281,7 @@ HView = UtilMethods.extend({
     }
     return ELEM.getStyle(this.markupElemIds[_partName], _name, _force);
   },
-  
+
 /** = Description
   * Sets a style of a specified markup element that has been bound to this
   * view.
@@ -1303,7 +1306,7 @@ HView = UtilMethods.extend({
     }
     return this;
   },
-  
+
 /** = Description
   * Returns a style of a specified markup element that has been bound to this
   * view.
@@ -1325,7 +1328,7 @@ HView = UtilMethods.extend({
     }
     return ELEM.getHTML(this.markupElemIds[_partName]);
   },
-  
+
 /** = Description
   * Sets a element attribute of the view's cell.
   *
@@ -1381,7 +1384,7 @@ HView = UtilMethods.extend({
     }
     return this;
   },
-  
+
 /** = Description
   * Returns a element attribute of a specified markup element that has been bound to this
   * view.
@@ -1438,7 +1441,7 @@ HView = UtilMethods.extend({
     this.isHidden = true;
     return this;
   },
-  
+
 /** = Description
   * Restores the visibility of the component's main DOM element (and its children).
   *
@@ -1452,7 +1455,7 @@ HView = UtilMethods.extend({
     this.isHidden = false;
     return this;
   },
-  
+
 /** = Description
   * Toggles between hide and show.
   *
@@ -1468,7 +1471,7 @@ HView = UtilMethods.extend({
     }
     return this;
   },
-  
+
 /** = Description
   * Call this if you need to remove a component from its parent's views array without
   * destroying the DOM element itself, making it in effect a view without parent.
@@ -1480,10 +1483,10 @@ HView = UtilMethods.extend({
   **/
   remove: function() {
     if( this.parent ) {
-      
+
       var _viewZIdx = this.parent.viewsZOrder.indexOf(this.viewId),
           _viewPIdx = this.parent.views.indexOf(this.viewId);
-      
+
       this.parent.views.splice(_viewPIdx,1);
       HSystem.delView(this.viewId);
       this.parent.viewsZOrder.splice( _viewZIdx, 1 );
@@ -1491,14 +1494,14 @@ HView = UtilMethods.extend({
       if(~_sysUpdateZIndexOfChildrenBufferIndex){
         HSystem._updateZIndexOfChildrenBuffer.splice( _sysUpdateZIndexOfChildrenBufferIndex, 1 );
       }
-      
+
       this._updateZIndexAllSiblings();
       this.parent  = null;
       this.parents = [];
     }
     return this;
   },
-  
+
 /** = Description
   * Deletes the component and all its children.
   * Should normally be called from the parent.
@@ -1527,7 +1530,7 @@ HView = UtilMethods.extend({
       }
       // this._domElementBindings = [];
     }
-    
+
     if( this._ieNoThrough !== null ){
       ELEM.del( this._ieNoThrough );
     }
@@ -1551,7 +1554,7 @@ HView = UtilMethods.extend({
     var _this = this;
     setTimeout(function(){_this.die();},10);
   },
-  
+
 /** Recursive idle poller. Should be extended if functionality is desired.
   **/
   // onIdle: function() {
@@ -1559,7 +1562,7 @@ HView = UtilMethods.extend({
   //     HSystem.views[this.views[i]].onIdle();
   //   }
   //},
-  
+
 /** Used by addView to build a parents array of parent classes.
   **/
   buildParents: function(_viewId){
@@ -1571,12 +1574,12 @@ HView = UtilMethods.extend({
     }
     _view.parents.push(this);
   },
-  
+
 /** = Description
-  * Adds a sub-view / component to the view. Called from inside the 
-  * HView#constructor and should be automatic for all components that accept 
-  * the 'parent' parameter, usually the second argument, after the HRect. May 
-  * also be used to attach a freely floating component (removed with remove) 
+  * Adds a sub-view / component to the view. Called from inside the
+  * HView#constructor and should be automatic for all components that accept
+  * the 'parent' parameter, usually the second argument, after the HRect. May
+  * also be used to attach a freely floating component (removed with remove)
   * to another component.
   *
   * = Parameter
@@ -1589,13 +1592,13 @@ HView = UtilMethods.extend({
   addView: function(_view) {
     var _viewId = HSystem.addView(_view);
     this.views.push(_viewId);
-    
+
     this.buildParents(_viewId);
     this.viewsZOrder.push(_viewId);
-    
+
     return _viewId;
   },
-  
+
 /** = Description
   * Call this if you need to remove a child view from this view without
   * destroying its element, making it in effect a view without parent.
@@ -1612,7 +1615,7 @@ HView = UtilMethods.extend({
     this.app.removeView( _viewId ); // no reason to duplicate this functionality here
     return this;
   },
-  
+
 /** = Description
   * Call this if you need to remove a child view from this view, destroying its
   * child elements recursively and removing all DOM elements too.
@@ -1627,7 +1630,7 @@ HView = UtilMethods.extend({
     HSystem.views[_viewId].die();
     return this;
   },
-  
+
 /** = Description
   * Returns bounds rectangle that defines the size and coordinate system
   * of the component. This should be identical to the rectangle used in
@@ -1640,13 +1643,13 @@ HView = UtilMethods.extend({
   bounds: function() {
     // Could be cached.
     var _bounds = new HRect(this.rect);
-    
+
     _bounds.offsetTo(0,0);
-    
+
     return _bounds;
   },
-  
-  
+
+
 /** = Description
   * This method resizes the view, without moving its left and top sides.
   * It adds horizontal coordinate units to the width and vertical units to
@@ -1706,7 +1709,7 @@ HView = UtilMethods.extend({
   },
 
 /** = Description
-  * This method moves the view to a new coordinate. It adjusts the 
+  * This method moves the view to a new coordinate. It adjusts the
   * left and top components of the frame rectangle accordingly.
   * Since a View's frame rectangle must be aligned on screen pixels, only
   * integral values should be passed to this method. Values with
@@ -1731,10 +1734,10 @@ HView = UtilMethods.extend({
     this.drawRect();
     return this;
   },
-  
+
 /** = Description
   * Alias method for offsetTo.
-  * 
+  *
   * = Returns
   * +self+
   *
@@ -1743,7 +1746,7 @@ HView = UtilMethods.extend({
     this.offsetTo.apply(this, arguments);
     return this;
   },
-  
+
 /** = Description
   * This method re-positions the view without changing its size.
   * It adds horizontal coordinate units to the x coordinate and vertical
@@ -1769,7 +1772,7 @@ HView = UtilMethods.extend({
     this.drawRect();
     return this;
   },
-  
+
 /** = Description
   * Alias method for offsetBy.
   *
@@ -1798,7 +1801,7 @@ HView = UtilMethods.extend({
     }
     return this;
   },
-  
+
 /** = Description
   * Brings itself to the front of the given view by changing its Z-Index.
   * Only works on sibling views.
@@ -1818,7 +1821,7 @@ HView = UtilMethods.extend({
     }
     return this;
   },
-  
+
 /** = Description
   * Sends itself to the back of the given view by changing its Z-Index.
   * Only works on sibling views.
@@ -1838,7 +1841,7 @@ HView = UtilMethods.extend({
     }
     return this;
   },
-  
+
 /** = Description
   * Sends itself one step backward by changing its Z-Index.
   *
@@ -1855,7 +1858,7 @@ HView = UtilMethods.extend({
     }
     return this;
   },
-  
+
 /** = Description
   * Brings itself one step forward by changing its Z-Index.
   *
@@ -1872,7 +1875,7 @@ HView = UtilMethods.extend({
     }
     return this;
   },
-  
+
 
 /** = Description
   * Sends the view to the back by changing its Z-Index.
@@ -1905,7 +1908,7 @@ HView = UtilMethods.extend({
     // Returns the z-order of this item as seen by the parent.
     return this.parent.viewsZOrder.indexOf(this.viewId);
   },
-  
+
 /** = Description
   * Measures the characters encoded in length bytes of the string - or,
   * if no length is specified, the entire string up to the null character,
@@ -1938,44 +1941,44 @@ HView = UtilMethods.extend({
     if (!_wrap){
       _extraCss += 'white-space:nowrap;';
     }
-    
     var
     _stringParent = ELEM.make(_elemId,'div'),
     _stringElem = ELEM.make(_stringParent,'span');
     ELEM.setCSS(_stringElem, "visibility:hidden;"+_extraCss);
     ELEM.setHTML(_stringElem, _string);
+    ELEM.flushLoop();
     var _visibleSize=ELEM.getSize(_stringElem);
     ELEM.del(_stringElem); ELEM.del(_stringParent);
     return [_visibleSize[0]+_visibleSize[0]%2,_visibleSize[1]+_visibleSize[1]%2];
   },
-  
+
 /** Returns the string width
   **/
   stringWidth: function(_string, _length, _elemId, _extraCss){
     return this.stringSize(_string, _length, _elemId, false, _extraCss)[0];
   },
-  
+
   /** Returns the string height.
     **/
   stringHeight: function(_string, _length, _elemId, _extraCss){
     return this.stringSize(_string, _length, _elemId, true, _extraCss)[1];
   },
-  
+
 /** Returns the X coordinate that has the scrolled position calculated.
   **/
   pageX: function() {
     return ELEM._getVisibleLeftPosition( this.elemId );
   },
-  
+
 /** Returns the Y coordinate that has the scrolled position calculated.
   **/
   pageY: function() {
     return ELEM._getVisibleTopPosition( this.elemId );
   },
-  
+
 /** = Description
-  * Sets the label on a control component: the text that's displayed in 
-  * HControl extensions. Visual functionality is implemented in component 
+  * Sets the label on a control component: the text that's displayed in
+  * HControl extensions. Visual functionality is implemented in component
   * theme templates and refreshLabel method extensions.
   *
   * Avoid extending directly, extend +refreshLabel+ instead.
@@ -2000,7 +2003,7 @@ HView = UtilMethods.extend({
     }
     return this;
   },
-  
+
 /** = Description
   * Called when the +self.label+ has been changed. By default
   * tries to update the label element defined in the theme of
@@ -2019,13 +2022,13 @@ HView = UtilMethods.extend({
     }
     return this;
   },
-  
+
 /** Returns the HPoint that has the scrolled position calculated.
   **/
   pageLocation: function() {
     return new HPoint(this.pageX(), this.pageY());
   },
-  
+
 /** = Description
   * An abstract method that derived classes may implement, if they are able to
   * resize themselves so that their content fits nicely inside.
@@ -2035,20 +2038,20 @@ HView = UtilMethods.extend({
   optimizeWidth: function() {
 
   },
-  
-  
+
+
 /** = Description
   * Binds a DOM element to the +ELEM+ cache. This is a wrapper for
   * the ELEM#elem_bind that keeps track of the bound elements and
   * frees them from the element manager when the view is destroyed.
-  * 
+  *
   * = Parameters
   * +_domElementId+:: The value of the DOM element's id attribute that is
   *                   to be bound to the element cache.
-  * 
+  *
   * = Returns
   * The element index id of the bound element.
-  * 
+  *
   **/
   bindDomElement: function(_domElementId) {
     var _cacheId = ELEM.bindId(_domElementId);
@@ -2057,17 +2060,17 @@ HView = UtilMethods.extend({
     }
     return _cacheId;
   },
-  
-  
+
+
 /** = Description
   * Removes a DOM element from the +ELEM+ cache. This is a wrapper
   * for the ELEM#elem_del. This is used for safely removing DOM
   * nodes from the cache.
-  * 
+  *
   * = Parameters
-  * +_elementId+:: The id of the element in the element manager's cache 
+  * +_elementId+:: The id of the element in the element manager's cache
   *                that is to be removed from the cache.
-  * 
+  *
   **/
   unbindDomElement: function(_elementId) {
     var _indexOfElementId = this._domElementBindings.indexOf(_elementId);
@@ -2076,8 +2079,8 @@ HView = UtilMethods.extend({
       this._domElementBindings.splice(_indexOfElementId, 1);
     }
   },
-  
-  
+
+
 /** = Description
   * Finds a string from the locale of the component.
   * The attrPath is a string or array to find an object.
@@ -2088,7 +2091,7 @@ HView = UtilMethods.extend({
   *       otherLabel: 'Other Label',
   *     }
   *   };
-  * 
+  *
   * To get the defaultLabel, call getLocaleString like this:
   *   this.getLocaleString( 'FooComponent', 'strings.defaultLabel' );
   * ..or:
@@ -2100,7 +2103,7 @@ HView = UtilMethods.extend({
   * +_componentClassName+:: The name of the item in HLocale.components
   * +_attrPath+::     The object path to the string. String or Array.
   * +_default+::      The default object to return if nothing matched.
-  * 
+  *
   **/
   getLocaleString: function( _componentClassName, _attrPath, _default ){
     if( _default === undefined ){
@@ -2179,10 +2182,9 @@ HView = UtilMethods.extend({
     }
     return false;
   }
-  
-  
+
+
 });
 
-HView.implement(HMarkupView);
 HView.implement(HMorphAnimation);
 
