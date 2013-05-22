@@ -784,6 +784,40 @@ EventManagerApp = HApplication.extend
     # Remove possible selections.
     ELEM.get(0).focus()
   #
+  # Patches IE classes that match css :active with .ieActive classes
+  _ieClassNamePatched: []
+  _ieClassNamePatch: (_viewId)->
+    _elemId = @_views[_viewId].elemId
+    _elem = ELEM.get( _elemId )
+    _ieClassNamePatched = @_ieClassNamePatched
+    _ieClassNames = HThemeManager._ieActiveCssClassMatch
+    _hasClassName = (_elem,_className)->
+      ~_elem.className.split(' ').indexOf(_className)
+    _addClassName = (_elem)->
+      _classNames = _elem.className.trim().split(' ')
+      _classNames.push('ieActive')
+      _elem.className = _classNames.join(' ')
+      _ieClassNamePatched.push(_elem)
+    _level = 0
+    _patcher = (_elem)->
+      return if _level > 10
+      for _child in _elem.childNodes
+        for _className in _ieClassNames
+          _addClassName(_elem) if _hasClassName(_elem,_className) and not _hasClassName(_elem,'ieActive')
+        _level += 1
+        _patcher(_child)
+        _level -= 1
+    _patcher(_elem)
+  _ieClassNameUnPatch: ->
+    _ieClassNamePatched = @_ieClassNamePatched
+    @_ieClassNamePatched = []
+    _delClassName = (_elem)->
+      _classNames = _elem.className.split(' ')
+      _classNames.splice( _classNames.indexOf( 'ieActive' ), 1 )
+      _elem.className = _classNames.join(' ')
+    for _elem in _ieClassNamePatched
+      _delClassName(_elem)
+  #
   # Mouse button press manager. Triggered by the global mouseDown event.
   # Delegates the following event responder methods to active HControl instances:
   # - mouseDown
@@ -825,6 +859,9 @@ EventManagerApp = HApplication.extend
         _dragged.unshift( _viewId )
         _stop = true if _ctrl.startDrag( x, y, _leftClick )
     @_cancelTextSelection() unless _startDragIds.length == 0 and _mouseDownIds.length == 0
+    if BROWSER_TYPE.ie
+      for _viewId in _focused
+        @_ieClassNamePatch(_viewId)
     Event.stop(e) if _stop
   #
   # Mouse button press manager. Triggered by the global mouseDown event.
@@ -877,6 +914,7 @@ EventManagerApp = HApplication.extend
     @_listeners.hovered = []
     @_listeners.dragged = []
     @_cancelTextSelection() unless _endDragIds.length == 0 and _mouseUpIds.length == 0
+    @_ieClassNameUnPatch() if BROWSER_TYPE.ie and @_ieClassNamePatched.length
     Event.stop(e) if _stop
   #
   # Handles mouse button clicks

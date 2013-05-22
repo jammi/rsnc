@@ -1,16 +1,16 @@
 HThemeManager = HClass.extend
-  
+
   allInOneCSS: true # temporary solution until new theme is crafted
 
   currentTheme: 'default'
 
   constructor: null
-  
+
   # Properties by theme name
   currentThemePath: null
   themePaths: {}
   themes: []
-  
+
   # Set the graphics loading path of the the themeName
   setThemePath: (_clientPrefix)->
     @currentThemePath = _clientPrefix
@@ -31,20 +31,20 @@ HThemeManager = HClass.extend
     _clientThemePath = [ @currentThemePath, _themeName ].join('/') + '/gfx/'
     @themePaths[_themeName] = _clientThemePath
     @setupAllInOneCSS(_themeName) if @allInOneCSS
-  
+
   # CSS Templates and CSS Template methods per theme name
   themeCSSTemplates: {}
 
   # Sets the css template data per theme, all at once
   setThemeCSSTemplates: (_themeName, _themeCSS)->
-    @themeCSSTemplates[_themeName] = _themeCSS 
+    @themeCSSTemplates[_themeName] = _themeCSS
 
   # HTML Templates and HTML Template methods per theme name
   themeHTMLTemplates: {}
 
   # Sets the css template data per theme, all at once
   setThemeHTMLTemplates: (_themeName, _themeHTML)->
-    @themeHTMLTemplates[_themeName] = _themeHTML 
+    @themeHTMLTemplates[_themeName] = _themeHTML
 
   # Set the theme data, this is called by the serverside client_pkg suite
   installThemeData: (_themeName, _themeCSS, _themeHTML)->
@@ -90,8 +90,6 @@ HThemeManager = HClass.extend
       return ''
     return '' unless @themeHTMLTemplates[_themeName][_componentName]?
     [_tmplJS, _tmplHTML] = @themeHTMLTemplates[_themeName][_componentName]
-    # console.log( 'tmplJS:', _tmplJS )
-    # console.log( 'tmplHTML:', _tmplHTML )
     _rect   = _view.rect
     _callArgs = [_view.elemId.toString(), _rect.width, _rect.height]
     _tmplHTML = _tmplHTML.replace(/\]I\[/g,_callArgs[0]).replace(/\]W\[/g,_callArgs[1]).replace(/\]H\[/g,_callArgs[2])
@@ -116,6 +114,16 @@ HThemeManager = HClass.extend
     # console.log('tmplHTML:',_tmplHTML) if _componentName == 'tab'
     return _tmplHTML
 
+  gradientCSS: ->
+    _colors = []
+    _colors.push( _color ) for _color in arguments
+    _gradient = ELEM._linearGradientCSS(
+      start: _colors.shift()
+      end: _colors.pop()
+      steps: _colors
+    )
+    # console.log(_gradient)
+    return _gradient
   buildCSSTemplate: ( _context, _themeName, _componentName )->
     unless @themeCSSTemplates[_themeName]?
       console.log('Theme not installed:',_themeName)
@@ -124,8 +132,6 @@ HThemeManager = HClass.extend
     [_tmplJS, _tmplCSS] = @themeCSSTemplates[_themeName][_componentName]
     return _tmplCSS if _tmplJS.length == 0
     [_variableMatch, _assignmentMatch] = [@_variableMatch, @_assignmentMatch]
-    # console.log( 'tmplJS:', _tmplJS )
-    # console.log( 'tmplCSS:', _tmplCSS )
     @getThemeGfxFile = (_fileName)-> @_buildThemePath(_fileName,_themeName)
     @getCssFilePath = (_fileName)->
       "url(#{@_buildThemePath(_fileName,_themeName)})"
@@ -145,7 +151,6 @@ HThemeManager = HClass.extend
       _tmplCSS = _tmplCSS.replace( _variableMatch, _callValue( RegExp.$1 ) )
     delete @getCssFilePath
     delete @getThemeGfxFile
-    # console.log('tmplCSS:',_tmplCSS)
     return _tmplCSS
 
   resourcesFor: (_view, _themeName, _noHTML)->
@@ -166,7 +171,7 @@ HThemeManager = HClass.extend
       for _ancestor in _view.ancestors
         break unless _ancestor.componentName?
         @resourcesFor( _ancestor, _themeName, true )
-    return @buildHTMLTemplate( _view, _themeName, _componentName )
+    @buildHTMLTemplate( _view, _themeName, _componentName )
 
   freeResourcesFor: (_view, _themeName, _noRecursion)->
     _themeName = @currentTheme unless _themeName?
@@ -178,26 +183,34 @@ HThemeManager = HClass.extend
       break unless _ancestor.componentName?
       @freeResourcesFor( _ancestor, _themeName )
 
+  _ieActiveCssRe: /\.([_a-zA-Z0-9]+?)\:active/gm
+  _ieActiveCssClassMatch: []
+  _ieActivePatch: (_cssText)->
+    _ieActiveCssClassMatch = @_ieActiveCssClassMatch
+    _cssText.replace( @_ieActiveCssRe, (_all,_class)->
+      _ieActiveCssClassMatch.push(_class)
+      ".#{_class}.ieActive"
+    )
+
   # Creates a new cascading style sheet element and set its content with css. Returns the element.
   useCSS: (_cssText)->
     if BROWSER_TYPE.ie
-      # Internet Explorer (at least 6.x; check what 7.x does)
       _style         = document.createStyleSheet()
-      _style.cssText = _cssText
+      _style.cssText = @_ieActivePatch(_cssText)
     else
       # Common, standard <style> tag generation in <head>
       _style        = document.createElement('style')
       _style.type   = 'text/css'
       _style.media  = 'all'
-      
+
       _head = document.getElementsByTagName('head')[0]
-      _head.appendChild(_style)
-      
+
       if BROWSER_TYPE.safari
         # This is how to do it in KHTML browsers
         _style.appendChild( document.createTextNode(_cssText) )
       else
         # This works for others (add more checks, if problems with new browsers)
         _style.textContent = _cssText
+      _head.appendChild(_style)
 
       _style
