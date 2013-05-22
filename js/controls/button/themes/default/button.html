@@ -1,7 +1,17 @@
 <div class="button_control" id="control]I[">
-  <div class="button_edge_left"></div>
-  <div class="button_center"></div>
-  <div class="button_edge_right"></div>
+  <div class="button_bg" id="bg]I["></div>
   <div class="button_label" id="label]I[">#{this.label}</div>
-  <div class="button_antiselect"></div>
 </div>
+${#!coffee
+@labelPadding = 12
+@themeStyle = ->
+  _labelHeight = (@rect.height-4)+'px'
+  _fontSize = Math.floor(@rect.height*0.5)+'px'
+  for [_key,_value] in [
+      ['height',_labelHeight],
+      ['lineHeight',_labelHeight],
+      ['fontSize',_fontSize] ]
+    @setStyleOfPart('label',_key,_value)
+  _radius = Math.floor(@rect.height / 6)+'px'
+  @setStyleOfPart('bg','borderRadius',_radius)
+}

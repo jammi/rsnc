@@ -1,27 +1,33 @@
-<div class="uploader">
-  <iframe id="iframe#{this.elemId}" name="upload_target_#{this.elemId}" src="/U/iframe_html" class="uploader_iframe"></iframe>
-  <div class="upload_progress" id="upload_progress#{this.elemId}">
-    <div id="progress_label#{this.elemId}" class="progress_message">#{this.label}</div>
-    <div id="progress_indicator#{this.elemId}" class="progress_indicator"></div>
-  </div>
-  <div class="button_control" id="button#{this.elemId}">
-    <div class="button_edge_left"></div>
-    <div class="button_center"></div>
-    <div class="button_edge_right"></div>
-    <div class="button_label" id="button_label]I[">#{this.label}</div>
-    <div class="button_antiselect"></div>
-  </div>
-  <div class="button_control ack_button" id="ack_button#{this.elemId}">
-    <div class="button_edge_left"></div>
-    <div class="button_center"></div>
-    <div class="button_edge_right"></div>
-    <div class="button_label">#{this.getLocaleString('HUploader.strings.ok')}</div>
-    <div class="button_antiselect"></div>
-  </div>
-  <form id="form#{this.elemId}" name="upload_form_#{this.elemId}" enctype="multipart/form-data" method="POST" action="/U/NoUploadKey" target="upload_target_#{this.elemId}" class="uploader_form">
-    <div class="uploader_file_wrap">
-      <input align="right" id="file#{this.elemId}"  name="file_data" type="file" onchange="HSystem.views[#{this.viewId}].upload();" class="uploader_file" size="1" />
-    </div>
-    <input id="value#{this.elemId}" name="value_id"  type="hidden" value="NoUploadValue" />
-  </form>
+<iframe id="iframe]I[" name="upload_target_]I[" src="/U/iframe_html" class="uploader_iframe"></iframe>
+<div class="upload_progress" id="upload_progress]I[">
+  <div id="progress_label]I[" class="progress_message">#{this.label}</div>
+  <div id="progress_indicator]I[" class="progress_indicator"></div>
 </div>
+<div class="button_control ack_button" id="ack_button]I[" style="left: auto; right: 0; width: 48px;">
+  <div class="button_bg" id="ack_bg]I["></div>
+  <div class="button_label" id="ack_button_label]I[">#{this.getLocaleString('HUploader.strings.ok')}</div>
+</div>
+<div class="button_control" id="button]I[">
+  <div class="button_bg" id="bg]I["></div>
+  <div class="button_label" id="button_label]I[">#{this.label}</div>
+<form id="form]I[" name="upload_form_]I[" enctype="multipart/form-data" method="POST" action="/U/NoUploadKey" target="upload_target_]I[" class="uploader_form">
+  <div class="uploader_file_wrap">
+    <input align="right" id="file]I["  name="file_data" type="file" onchange="HSystem.views[#{this.viewId}].upload();" class="uploader_file" size="1" />
+  </div>
+  <input id="value]I[" name="value_id"  type="hidden" value="NoUploadValue" />
+</form>
+</div>
+${#!coffee
+@themeStyle = ->
+  _labelHeight = (@rect.height-4)+'px'
+  _fontSize = Math.floor(@rect.height*0.5)+'px'
+  for [_key,_value] in [
+      ['height',_labelHeight],
+      ['lineHeight',_labelHeight],
+      ['fontSize',_fontSize] ]
+    for _labelElem in ['progress_label','ack_button_label','button_label']
+      @setStyleOfPart(_labelElem,_key,_value)
+  _radius = Math.floor(@rect.height / 6)+'px'
+  for _bgElem in ['bg','ack_bg']
+    @setStyleOfPart(_bgElem,'borderRadius',_radius)
+}

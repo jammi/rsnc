@@ -13,24 +13,24 @@
 
   # The core package, loaded by default using a script tag in index_html
   core:
-    
+
     # RSence.*
     - rsence_ns
-    
+
     - locale_settings    # HLocaleSettings
-    
+
     # RSence.Core
     - class             # HClass
     - sha               # SHA
     - elem              # ELEM
     - event             # Event
     - util_methods      # UtilMethods
-    
+
     # RSence.Foundation
     - system            # HSystem
     - valueresponder    # HValueResponder
     - application       # HApplication
-    
+
     # COMM
     - comm              # COMM
     - queue             # COMM.Queue
@@ -47,7 +47,6 @@
     - point             # HPoint
     - rect              # HRect
     - thememanager      # HThemeManager
-    - markupview        # HMarkupView
     - morphanimation    # HMorphAnimation
     - viewdefaults      # HViewDefaults
     - view              # HView
@@ -64,7 +63,8 @@
 
   # The default collection of simple control widgets (components)
   controls:
-    - button            # HButton & HClickValueButton
+    - button            # HButton
+    - clickbutton       # HClickButton (HClickValueButton)
     - checkbox          # HCheckbox
     - onoffbutton       # HOnOffButton
     - radiobutton       # HRadioButton
@@ -120,7 +120,7 @@
     - minimenuitem        # HMiniMenuItem
     - popupmenu           # HPopupMenu
     - menuitem            # HMenuItem
-  
+
   tables:
     - table               # HTable
 

@@ -1,89 +1,56 @@
 
-.button_control,
-.button_edge_left,
-.button_center,
-.button_edge_right,
-.button_label,
-.button_antiselect {
+.default > .button_control,
+.default > .button_control > .button_bg,
+.default > .button_control > .button_label {
   position: absolute;
-  top: 0px; height: 24px;
 }
-
-.button_control {
-  left: 0px; right: 0px;
+.default > .button_control {
   cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
 }
-.disabled .button_control {
+.default.disabled > .button_control {
   cursor: default;
 }
-
-.button_edge_left,
-.button_center,
-.button_edge_right {
-  background-repeat: repeat-x;
-  background-image: #{this.getCssFilePath('button_parts1.png')};
+.default > .button_control > .button_bg {
+  top: 2px; left: 2px; right: 2px; bottom: 3px;
+  border: 1px solid #e0e0e0;
+  border-top: 0; border-left: 0;
+  box-shadow: 0px 0px 3px #333;
+  #{this.gradientCSS('#fcfcfc',[45,'#fff'],[55,'#fdfdfd'],[75,'#f3f3f3'],'#f0f0f0')}
 }
-
-.button_edge_left {
-  left: 0px; width: 6px;
-  background-position: 0px 0px;
+.default.disabled > .button_control > .button_bg {
+  border-color: #ddd;
+  box-shadow: 0px 0px 3px #666;
+  opacity: 0.75;
+  #{this.gradientCSS('#d6d6d6',[66,'#d0d0d0'],[71,'#d3d3d3'],'#ccc')}
 }
-.disabled > .button_control > .button_edge_left {
-  background-position: 0px -144px;
-}
-.enabled > .button_control:hover > .button_edge_left {
-  background-position: 0px -48px;
-}
-.enabled > .button_control:active > .button_edge_left {
-  background-position: 0px -96px;
-}
-
-.button_edge_right {
-  right: 0px; width: 6px;
-  background-position: -42px 0px;
-}
-.disabled > .button_control > .button_edge_right {
-  background-position: -42px -144px;
-}
-.enabled > .button_control:hover > .button_edge_right {
-  background-position: -42px -48px;
-}
-.enabled > .button_control:active > .button_edge_right {
-  background-position: -42px -96px;
-}
-
-.button_center {
-  left: 6px; right: 6px;
-  background-position: 0px -24px;
-}
-.disabled > .button_control > .button_center {
-  background-position: 0px -168px;
-}
-.enabled > .button_control:hover > .button_center {
-  background-position: 0px -72px;
-}
-.enabled > .button_control:active > .button_center {
-  background-position: 0px -120px;
-}
-
-.button_label {
-  left: 6px; right: 6px; top: 2px;
-  height: 20px; line-height: 20px;
+.default > .button_control > .button_label {
+  left: 6px; right: 6px; top: 2px; bottom: auto;
   text-align: center; vertical-align: middle;
-  font-family: Arial, sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: Helvetica, Arial, sans-serif;
+  text-shadow: 0 0 2px #fff;
   font-size: 12px; font-weight: bold;
   color: #333;
 }
-.disabled > .button_control > .button_label {
+.default.disabled > .button_control > .button_label {
   color: #999;
 }
-.enabled > .button_control:hover > .button_label {
+.default.enabled > .button_control:hover > .button_bg {
+  box-shadow: 0px 0px 3px #000;
+  #{this.gradientCSS('#f6f6f6',[66,'#fff'],[71,'#fcfcfc'],'#f0f0f0')}
+}
+.default.enabled > .button_control:hover > .button_label {
   color: #000;
 }
-.enabled > .button_control:active > .button_label {
-  color: #000;
+.default.enabled > .button_control:active > .button_bg {
+  border: 1px solid #fff;
+  border-bottom: 0; border-right: 0;
+  box-shadow: 0px 0px 3px #000;
+  #{this.gradientCSS('#e6e6e6',[29,'#f0f0f0'],[33,'#f6f6f6'],'#fff')}
 }
-
-.button_antiselect {
-  left: 0px; right: 0px;
+.default.enabled > .button_control:active > .button_label {
+  color: #000;
 }

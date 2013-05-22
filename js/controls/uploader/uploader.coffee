@@ -22,6 +22,7 @@ HUploader = HControl.extend
   uploadState: false
   uploadKey: false
   markupElemNames: [
+    'bg',
     'form',
     'file',
     'iframe',
@@ -31,12 +32,14 @@ HUploader = HControl.extend
     'button',
     'button_label',
     'value',
-    'ack_button'
+    'ack_button',
+    'ack_bg',
+    'ack_button_label'
   ]
 
   defaultEvents:
     click: true
-  
+
   setUploadKey: (_uploadKey, _label)->
     @setStyleOfPart( 'upload_progress', 'visibility', 'hidden' )
     @setStyleOfPart( 'progress_indicator', 'visibility', 'hidden' )
@@ -47,7 +50,7 @@ HUploader = HControl.extend
     @setAttrOfPart( 'form', 'action', '/U/'+_uploadKey, true )
     @setAttrOfPart( 'file', 'value', '', true )
     @uploadKey = _uploadKey
-  
+
   setProgressState: (_state, _label)->
     @setStyleOfPart( 'upload_progress', 'visibility', 'inherit' )
     if _state == 3
@@ -61,7 +64,7 @@ HUploader = HControl.extend
     @setStyleOfPart( 'form', 'visibility', 'hidden' )
     if _state == 1
       @elemOfPart( 'form' ).submit()
-  
+
   setErrorState: (_label)->
     @setStyleOfPart( 'progress_indicator', 'visibility', 'hidden' )
     @setStyleOfPart( 'ack_button', 'visibility', 'inherit' )
@@ -83,7 +86,7 @@ HUploader = HControl.extend
           @setProgressState( _state, _label )
         else if _state < 0
           @setErrorState( _label )
-  
+
   refreshValue: ->
     return unless typeof @value == 'string'
     return unless ~@value.indexOf(':::')
@@ -95,9 +98,9 @@ HUploader = HControl.extend
     )
   upload: ->
     @setValue( '1:::'+@uploadKey )
-  
+
   getNewUploadKey: ->
     @setValue( '4:::'+@uploadKey )
-  
+
   click: ->
     @getNewUploadKey() if @uploadState == 3 or @uploadState < 0

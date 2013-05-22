@@ -7,11 +7,7 @@ var//RSence.Controls
 HCheckbox = HButton.extend({
 
   componentName: 'checkbox',
-  
-  defaultEvents: {
-    click: true
-  },
-  
+
 /** Toggles the value checked / unchecked.
   **/
   click: function(){
@@ -20,10 +16,15 @@ HCheckbox = HButton.extend({
 /** SetStyle function for HCheckBox
   **/
   setStyle: function(_name,_value,_bypass){
-    this.setStyleOfPart('label',_name,_value,_bypass);
+    if(_bypass || !this.markupElemIds.label){
+      this.base(_name,_value,_bypass);
+    }
+    else {
+      this.setStyleOfPart('label',_name,_value);
+    }
   },
-  
-/**Toggles the checked/unchecked css-class status 
+
+/**Toggles the checked/unchecked css-class status
   according to the trueness of the value.**/
   refreshValue: function(){
     if(this.markupElemIds.control){
