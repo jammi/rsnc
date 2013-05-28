@@ -14,6 +14,17 @@ HMiniMenu = HRadioButtonList.extend({
     click: true,
     resize: true
   },
+  
+  controlDefaults: HRadioButtonList.prototype.controlDefaults.extend({
+    itemStyle: {
+      'background-color': '#f6f6f6',
+      'border': '1px solid #999',
+      'overflow': 'auto',
+      'overflow-x': 'hidden',
+      'display': 'none',
+      'opacity': 1
+    }
+  }),
 
   subComponentHeight: 15,
 
@@ -142,23 +153,12 @@ HMiniMenu = HRadioButtonList.extend({
     return [ 0-this.rect.width, 0-this.rect.height, this.rect.width, 10 ];
   },
   drawSubviews: function(){
-    var
-    itemStyle = {
-      'background-color': '#f6f6f6',
-      'border': '1px solid #999',
-      'overflow': 'auto',
-      'overflow-x': 'hidden',
-      'display': 'none'
-    };
-    if(!BROWSER_TYPE.ie){
-      itemStyle.opacity = 0.9;
-    }
     this.menuItemView = HView.nu(
       // [ this.rect.left, this.rect.top, this.rect.width, 10 ],
       this.menuItemViewRect(),
       this.app, {
         visible: false,
-        style: itemStyle,
+        style: this.options.itemStyle,
         logicParent: this
       }
     );
