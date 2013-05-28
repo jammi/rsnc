@@ -22,8 +22,9 @@ HThemeManager = HClass.extend
     for _componentName of @themeCSSTemplates[_themeName]
       _cssText += @buildCSSTemplate(@, _themeName, _componentName)
     _style = @useCSS( _cssText )
-    _cssTitle = 'rsence/'+_themeName
-    _style.title = _cssTitle
+    # Causes issues in Firefox:
+    # _cssTitle = 'rsence/'+_themeName
+    # _style.title = _cssTitle
 
   setupThemePath: (_themeName)->
     return unless @currentThemePath?
@@ -48,7 +49,7 @@ HThemeManager = HClass.extend
 
   # Set the theme data, this is called by the serverside client_pkg suite
   installThemeData: (_themeName, _themeCSS, _themeHTML)->
-    @themes << _themeName unless ~@themes.indexOf(_themeName)
+    @themes.push(_themeName) unless ~@themes.indexOf(_themeName)
     @setThemeCSSTemplates(_themeName, _themeCSS)
     @setThemeHTMLTemplates(_themeName, _themeHTML)
     @setupThemePath(_themeName)
@@ -204,13 +205,13 @@ HThemeManager = HClass.extend
       _style.media  = 'all'
 
       _head = document.getElementsByTagName('head')[0]
+      _head.appendChild(_style)
 
-      if BROWSER_TYPE.safari
+      if BROWSER_TYPE.safari or BROWSER_TYPE.firefox or BROWSER_TYPE.opera
         # This is how to do it in KHTML browsers
         _style.appendChild( document.createTextNode(_cssText) )
       else
-        # This works for others (add more checks, if problems with new browsers)
+        # This works for many others (add more checks, if problems with new browsers)
         _style.textContent = _cssText
-      _head.appendChild(_style)
 
       _style
