@@ -44,6 +44,11 @@ HTimeSheet = HControl.extend({
     allowDoubleClickCreate: true,
     minDragSize: 5,       // minimum amount of pixels dragged required for accepting a drag
     hourOffsetTop: -4,    // Theme settings; don't enter in options
+    dummyValue: {
+      label: '',
+      start: 0,
+      color: '#000000'
+    },
     constructor: function( _ctrl ){
       if( this.defaultLabel === undefined ){
         this.defaultLabel = _ctrl.localeStrings.newItemLabel;
@@ -220,14 +225,8 @@ HTimeSheet = HControl.extend({
     var
     _options = this.options,
     _minDuration = Math.round(3600/_options.notchesPerHour),
-    _dummyValue = {
-      // id: 'new',
-      label: '',
-      start: 0,
-      duration: _minDuration,
-      // locked: false,
-      color: '#cc0000'
-    };
+    _dummyValue = HVM.clone( this.options.dummyValue );
+    _dummyValue['duration'] = _minDuration;
     this.dragPreviewRect = this.rectFromValue({start:_options.timeStart,duration:_minDuration});
     this.minDuration = _minDuration;
     this.dragPreview = HTimeSheetItem.nu(
