@@ -35,6 +35,13 @@ HButton = HControl.extend
   click: ->
     console.log('no click action defined in HButton') if !@isProduction
 
+  refresh: ->
+    @base()
+    if @options.defaultKeyClick
+      @toggleCSSClass(@elemId,'action',true)
+    else
+      @toggleCSSClass(@elemId,'action',false)
+
   labelPadding: 0
   optimizeWidth: ->
     _labelWidth = @stringWidth(@label,null,@markupElemIds.label)
