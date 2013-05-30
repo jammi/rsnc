@@ -92,7 +92,7 @@ HTable = HControl.extend
         _width += _halfBorderWidth
       _top = _borderLeftOffset
       for _row, _rowNum in @_rows
-        @_bgCells << ELEM.make(
+        @_bgCells.push ELEM.make(
           _parent, 'div',
           styles:
             backgroundColor: @_cellBgColorOf(_rowNum,_colNum)
