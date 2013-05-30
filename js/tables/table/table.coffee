@@ -77,7 +77,7 @@ HTable = HControl.extend
     _height = 24-_heightOffset
     _topAdd = 24
     _halfBorderWidth = Math.floor(_borderSize*0.5)
-    _widthOffset = 6-_borderSize-_halfBorderWidth
+    _widthOffset = _borderSize-_halfBorderWidth - 2
     _borderLeftOffset = 0-_halfBorderWidth
     for _colView, _colNum in @colViews
       [ _left, _width ] = @headerSizes[_colNum]
@@ -87,7 +87,7 @@ HTable = HControl.extend
         _width -= _halfBorderWidth if _borderSize % 2 == 1
       else
         _left += _borderLeftOffset-_widthOffset
-        _left -= _borderSize if _borderSize > 1
+        #_left -= _borderSize if _borderSize > 1
         _width += _widthOffset
         _width += _halfBorderWidth
       _top = _borderLeftOffset
@@ -108,10 +108,9 @@ HTable = HControl.extend
     _sizes = []
     _autoWidths = []
     _sortFns = []
-    _left = 6
+    _left = 0
     _table = @
     for _headerCol, i in @options.headerCols
-      _left += 6
       _elemId = ELEM.make( @markupElemIds.header, 'div' )
       @options.sortDescending[i] = false unless @options.sortDescending[i]?
       ELEM.addClassName(_elemId,'table_header_column')
@@ -123,9 +122,9 @@ HTable = HControl.extend
         else
           _headerCol += '&#9650;'
         _headerCol += '</div>'
-        _width = -6 #26
+        _width = 0 #26
       else
-        _width = -6 #26
+        _width = 0 #26
         # ELEM.setStyle(_elemId,'font-weight','normal',true)
       if @options.colWidths[i]?
         if @options.colWidths[i] == 'auto'
@@ -153,11 +152,13 @@ HTable = HControl.extend
       ELEM.setStyle(_elemId,'left',_left+_plusLeft+'px')
       _sizes[i][0] = _left+_plusLeft
       if _autoWidths.indexOf(i) != -1
-        _width = _autoWidth - 6
+        _width = _autoWidth
         # _width += 20 if i == @options.sortCol
         _sizes[i][1] = _width
         _plusLeft += _autoWidth
       ELEM.setStyle(_elemId,'width',_width+'px')
+      if @options.headerStyles? and @options.headerStyles[i]?
+        ELEM.setStyles( _elemId, @options.headerStyles[i] )
     @_destroyHeader()
     ELEM.flush()
     @headerCols = _elemIds
@@ -166,7 +167,7 @@ HTable = HControl.extend
   resize: ->
     @drawHeader()
     for _colNum in [0..@headerCols.length-1]
-      _left = @headerSizes[_colNum][0]
+      _left = @headerSizes[_colNum][0] + 1
       _width = @headerSizes[_colNum][1]
       @colViews[_colNum].rect.offsetTo( _left, 0 )
       @colViews[_colNum].rect.setWidth( _width )
@@ -264,7 +265,7 @@ HTable = HControl.extend
     else
       _colViews = []
       for _colNum in [0..@headerCols.length-1]
-        _left = @headerSizes[_colNum][0]
+        _left = @headerSizes[_colNum][0] + 1
         _width = @headerSizes[_colNum][1]
         _colViews[_colNum] = HView.nu( [ _left, 0, _width, 1 ], @ )
       @colViews = _colViews
