@@ -680,12 +680,16 @@ HTimeSheet = HControl.extend({
 
   // Optimizes the left and right position of each timesheet item to fit
   _updateTimelineRects: function(){
+    var _availWidth = ( this.rect.width - this.options.itemOffsetRight - this.options.itemOffsetLeft );
+    if( BROWSER_TYPE.firefox ) {
+      _availWidth -= 16;
+    }
+
     var
     // loop indexes:
     i, j, k, l,
     _options = this.options,
     _rect = this.rect,
-    _availWidth = ( _rect.width - _options.itemOffsetRight - _options.itemOffsetLeft ),
     _left = _options.itemOffsetLeft,
     // get a list of timesheet items sorted by height (larger to smaller order)
     _items = this._sortedTimeSheetItems(),
