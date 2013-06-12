@@ -22,7 +22,7 @@ RSence =
    user-select: text;
 }
 ''')
-  
+
   # Call this method from the index page for
   # client-only features
   clientConf: (_clientPrefix)->
@@ -38,7 +38,7 @@ RSence =
     RSence.clientConf( _clientPrefix )
     COMM.AutoSyncStarter.start()
     null
-  
+
   # Storage for guiTrees, cantains
   # JSONRenderer instances by plugin name.
   guiTrees: {}
@@ -50,3 +50,7 @@ RSence =
       _guiTree.die()
       _guiTrees[_guiName] = null
       delete _guiTrees[_guiName]
+
+  # Passthrough hook for setting locale data
+  setLocaleData: (_localeData)->
+    HLocale.setData(_localeData)
