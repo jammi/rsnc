@@ -8,22 +8,21 @@ HLocale.components.HTimeSheet = {
 
 var//RSence.DateTime
 HTimeSheet = HControl.extend({
-  
+
   debug: false,
-  
-  localeStrings: HLocale.components.HTimeSheet.strings,
+
   componentName: 'timesheet',
   markupElemNames: [
     'label', 'value', 'timeline'
   ],
-  
+
   defaultEvents: {
     draggable: true,
     click: true,
     doubleClick: true,
     resize: true
   },
-  
+
   controlDefaults: HControlDefaults.extend({
     timeStart: 0,      // 1970-01-01 00:00:00
     timeEnd:   86399,  // 1970-01-01 23:59:59
@@ -48,36 +47,36 @@ HTimeSheet = HControl.extend({
       label: '',
       start: 0,
       color: '#000000'
-    },
-    constructor: function( _ctrl ){
-      if( this.defaultLabel === undefined ){
-        this.defaultLabel = _ctrl.localeStrings.newItemLabel;
-      }
     }
   }),
-  
+
+  customOptions: function( _options ){
+    this.localeStrings = HLocale.components.HTimeSheet.strings;
+    if( _options.defaultLabel === undefined ){ _options.defaultLabel = this.localeStrings.newItemLabel; }
+  },
+
   themeSettings: function( _itemOffsetLeft, _itemOffsetTop, _itemOffsetRight, _itemOffsetBottom, _hourOffsetTop ){
     if( this.options.hideHours ){
       ELEM.addClassName( this.elemId, 'nohours' );
       this.options.itemOffsetLeft = 0;
     }
     else if( _itemOffsetLeft !== undefined ) {
-      this.options.itemOffsetLeft = _itemOffsetLeft;      
+      this.options.itemOffsetLeft = _itemOffsetLeft;
     }
     if( _itemOffsetTop !== undefined ) {
-      this.options.itemOffsetTop = _itemOffsetTop;      
+      this.options.itemOffsetTop = _itemOffsetTop;
     }
     if( _itemOffsetRight !== undefined ) {
-      this.options.itemOffsetRight = _itemOffsetRight;      
+      this.options.itemOffsetRight = _itemOffsetRight;
     }
     if( _itemOffsetBottom !== undefined ) {
-      this.options.itemOffsetBottom = _itemOffsetBottom;      
+      this.options.itemOffsetBottom = _itemOffsetBottom;
     }
     if( _hourOffsetTop !== undefined ) {
-      this.options.hourOffsetTop = _hourOffsetTop;      
+      this.options.hourOffsetTop = _hourOffsetTop;
     }
   },
-  
+
   autoLabel: function(){
     var
     _locale = HLocale.dateTime,
@@ -87,15 +86,15 @@ HTimeSheet = HControl.extend({
       this.refreshLabel();
     }
   },
-  
+
   clearHours: function(){
     for( var i = 0; i < this.hourItems.length; i++ ){
       ELEM.del( this.hourItems[i] );
     }
   },
-  
+
   drawHours: function(){
-    
+
     var
     _parentElemId = this.markupElemIds.timeline,
     _dateStart  = new Date( this.options.timeStart * 1000 ),
@@ -119,11 +118,11 @@ HTimeSheet = HControl.extend({
     _pxPerNotch = _pxPerHour / _notchesPerHour,
     _notchItem,
     _notchTop;
-    
+
     ELEM.setStyle( _parentElemId, 'visibility', 'hidden', true );
-    
+
     ELEM.setStyle( this.markupElemIds.value, 'bottom', _bottomPos+'px' );
-    
+
     if( this['hourItems'] !== undefined ){
       this.clearHours();
     }
@@ -157,11 +156,11 @@ HTimeSheet = HControl.extend({
         this.hourItems.push( _notchItem );
       }
     }
-    
+
     ELEM.setStyle( this.markupElemIds.timeline, 'visibility', 'inherit' );
-    
+
   },
-  
+
   // extra hook for refreshing; updates label and hours before doing common things
   refresh: function(){
     if( this.drawn ){
@@ -172,25 +171,25 @@ HTimeSheet = HControl.extend({
     }
     this.base();
   },
-  
+
   // set the timezone offset (in seconds)
   setTzOffset: function( _tzOffset ){
     this.options.tzOffset = _tzOffset;
     this.refresh();
   },
-  
+
   // set the start timestamp of the timesheet
   setTimeStart: function( _timeStart ){
     this.options.timeStart = _timeStart;
     this.refresh();
   },
-  
+
   // set the end timestamp of the timesheet
   setTimeEnd: function( _timeEnd ){
     this.options.timeEnd = _timeEnd;
     this.refresh();
   },
-  
+
   // sets the range of timestams of the timesheet
   setTimeRange: function( _timeRange ){
     if( (_timeRange instanceof Array) && (_timeRange.length === 2) ){
@@ -206,7 +205,7 @@ HTimeSheet = HControl.extend({
       this.setTimeEnd(   _timeRange.timeEnd   );
     }
   },
-  
+
   // sets the timestamp of the timesheet
   setDate: function( _date ){
     var
@@ -218,7 +217,7 @@ HTimeSheet = HControl.extend({
     this.setTimeRange( _newTimeRange );
     this.refresh();
   },
-  
+
   // draw decorations
   drawSubviews: function(){
     this.drawHours();
@@ -240,7 +239,7 @@ HTimeSheet = HControl.extend({
     );
     this.dragPreview.setStyleOfPart('state','color','#fff');
   },
-  
+
   // event listener for clicks, simulates double clicks in case of not double click aware browser
   click: function( x, y, b ){
     var
@@ -282,7 +281,7 @@ HTimeSheet = HControl.extend({
       this.prevClickTime = false;
     }
   },
-  
+
   // creates an item on click
   clickCreate: function(x,y){
     var
@@ -298,7 +297,7 @@ HTimeSheet = HControl.extend({
       this.dragPreview.hide();
     }
   },
-  
+
   // event listener for double clicks
   doubleClick: function(x,y){
     this.prevClickTime = false;
@@ -319,7 +318,7 @@ HTimeSheet = HControl.extend({
     }
     this.doubleClickSimCreated = false;
   },
-  
+
   // update the preview area
   refreshDragPreview: function( _startTime, _endTime ){
     this.dragPreviewRect.setTop( this.timeToPx( _startTime, true ) );
@@ -332,7 +331,7 @@ HTimeSheet = HControl.extend({
     this.dragPreview.value.duration = _endTime - _startTime;
     this.dragPreview.refreshValue();
   },
-  
+
   // drag & drop event listeners, used for dragging new timesheet items
   startDrag: function( x, y, b ){
     // console.log('st');
@@ -343,7 +342,7 @@ HTimeSheet = HControl.extend({
     this.dragPreview.show();
     return true;
   },
-  
+
   drag: function( x, y, b ){
     // console.log('dr');
     var
@@ -361,7 +360,7 @@ HTimeSheet = HControl.extend({
     this.refreshDragPreview( _startTime, _endTime );
     return true;
   },
-  
+
   endDrag: function( x, y, b ){
     // console.log('ed');
     var
@@ -391,7 +390,7 @@ HTimeSheet = HControl.extend({
     }
     return false;
   },
-  
+
   // a resize triggers refresh, of which the important part is refreshValue, which triggers redraw of the time sheet items
   resize: function(){
     this.base();
@@ -436,12 +435,12 @@ HTimeSheet = HControl.extend({
     }
     return false;
   },
-  
+
 /** = Description
   * Sets the editor given as parameter as the editor of instance.
   *
   * = Parameters
-  * +_editor+:: 
+  * +_editor+::
   *
   **/
   setEditor: function( _editor ){
@@ -457,7 +456,7 @@ HTimeSheet = HControl.extend({
     this.editor = null;
     this.base();
   },
-  
+
   // converts pixels to time
   pxToTime: function( _px, _noSnap ){
     var
@@ -486,23 +485,23 @@ HTimeSheet = HControl.extend({
 
   // converts time to pixels
   timeToPx: function( _time, _snap ){
-    
+
     if( _snap ){
       _time = this.snapTime( _time );
     }
-    
+
     var
     _options = this.options,
     _timeStart = _options.timeStart,
     _timeEnd   = _options.timeEnd;
-    
+
     if( _time < _timeStart ){
       _time = _timeStart;
     }
     if( _time > _timeEnd ){
       _time = _timeEnd;
     }
-    
+
     var
     _timeRange = _timeEnd - _timeStart,
     _itemOptions = this.itemOptions,
@@ -566,7 +565,7 @@ HTimeSheet = HControl.extend({
 
   // calls createTimeSheetItem with each value of the timesheet value array
   drawTimeSheetItems: function(){
-    
+
     var
     _data = this.value,
     i = 0,
@@ -634,11 +633,11 @@ HTimeSheet = HControl.extend({
     _overlaps = [],
     _testRects = this._getTestRects( _items ),
     i,j;
-    
+
     for( i = 0; i < _items.length; i++){
       _overlaps[i] = 0;
     }
-    
+
     for( i = 0; i < _items.length - 1; i++ ){
       for( j = i + 1; j < _items.length; j++ ){
         if( _items[i].rect.intersects( _testRects[j] ) ){
@@ -649,7 +648,7 @@ HTimeSheet = HControl.extend({
     }
     return Math.max.apply( Math, _overlaps );
   },
-  
+
   _getTestRects: function( _items ){
     var _rects = [];
     for( var i = 0; i < _items.length; i++){
@@ -707,7 +706,7 @@ HTimeSheet = HControl.extend({
     _colWidth,
     _overlaps,
     _testRects;
-    
+
     // No overlapping; nothing to do
     if( _overlapCount === 0 ){
       return false;
@@ -831,7 +830,7 @@ but not used and not guaranteed to be preserved:
   *
   **/
   refreshValue: function(){
-    
+
     if(!this.itemOptions){
       return;
     }
@@ -849,5 +848,5 @@ but not used and not guaranteed to be preserved:
       this.drawTimeline();
     }
   }
-  
+
 });
