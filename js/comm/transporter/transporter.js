@@ -15,7 +15,7 @@
 ***/
 //var//RSence.COMM
 COMM.Transporter = HApplication.extend({
-  
+
 /** Sets up the default settings upon construction.
   **/
   constructor: function(){
@@ -42,7 +42,7 @@ COMM.Transporter = HApplication.extend({
       }
     }
   },
-  
+
 /** Tries to (re)connect to the server as often as possible,
   * mandated essentially by the priority of its
   * HApplication instance.
@@ -50,7 +50,7 @@ COMM.Transporter = HApplication.extend({
   onIdle: function(){
     this.sync();
   },
-  
+
 /** (Re)sets the priority of itself, effects how
   * frequently +onIdle+ is called.
   * Usually set by the server.
@@ -58,7 +58,7 @@ COMM.Transporter = HApplication.extend({
   poll: function(_pri){
     HSystem.reniceApp(this.appId,_pri);
   },
-  
+
 /** Returns the last transaction error of itself. Used by +sync+
   * to report js errors to the server.
   * If no error, returns an empty string.
@@ -68,15 +68,15 @@ COMM.Transporter = HApplication.extend({
   //   return _this._clientEvalError?'&err_msg=' +
   //          COMM.Values._encodeString(_this._clientEvalError):'';
   // },
-  
+
   parseResponseArray: function( _responseText ){
     return this.decodeObject( _responseText );
   },
-  
+
   _nativeParseResponseArray: function( _responseText ){
     return JSON.parse( _responseText );
   },
-  
+
   setValues: function( _values ){
     if(!_values instanceof Object){
       console.log("Invalid values block: ", _values );
@@ -84,21 +84,29 @@ COMM.Transporter = HApplication.extend({
     }
     var
     i = 0,
+    _value,
+    _valueType,
     _valueManager = COMM.Values,
     _itemtype,
     _valueId,
     _valueData;
     if(_values['new'] instanceof Array){
       for(i=0;i<_values['new'].length;i++){
-        _valueId = _values['new'][i][0];
-        _valueData = _values['new'][i][1];
-        _valueManager.create( _valueId, _valueData );
+        _value = _values['new'][i];
+        _valueId = _value[0];
+        _valueData = _value[1];
+        _valueType = 0;
+        if( _value.length === 3 ){
+          _valueType = _value[2];
+        }
+        _valueManager.create( _valueId, _valueData, _valueType );
       }
     }
     if(_values.set instanceof Array){
       for(i=0;i<_values.set.length;i++){
-        _valueId = _values.set[i][0];
-        _valueData = _values.set[i][1];
+        _value = _values.set[i];
+        _valueId = _value[0];
+        _valueData = _value[1];
         _valueManager.s( _valueId, _valueData );
       }
     }
@@ -109,7 +117,7 @@ COMM.Transporter = HApplication.extend({
       }
     }
   },
-  
+
 /** = Description
   * Handles synchronization responses.
   *
@@ -169,7 +177,7 @@ COMM.Transporter = HApplication.extend({
       _this._serverInterruptView = false;
     }
   },
-  
+
 /** Sets the +busy+ flag to false and resynchronizes immediately,
   * if COMM.Values contain any unsynchronized values.
   **/
@@ -294,7 +302,7 @@ COMM.Transporter = HApplication.extend({
       _this._serverInterruptView._setCustomColor(_customColor);
     }
   },
-  
+
 /** Called by the XMLHttpRequest, when there was a failure in communication.
   **/
   failure: function(_resp){
@@ -308,7 +316,7 @@ COMM.Transporter = HApplication.extend({
       _this.failMessage('Transporter Error','Transporter was unable to complete the synchronization request.');
     }
   },
-  
+
 /** Starts requests.
   **/
   sync: function(){
