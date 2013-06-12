@@ -17,7 +17,7 @@
   ***/
 var//RSence.Lists
 HListItems = HValueResponder.extend({
-  
+
   constructor: function( _rect, _parent, _options ){
     if( _rect.hasAncestor && _rect.hasAncestor( HView ) ){
       _options = _parent;
@@ -43,7 +43,7 @@ HListItems = HValueResponder.extend({
       }
     }
   },
-  
+
   die: function() {
     var _this = this;
     if(_this.valueObj){
@@ -52,7 +52,7 @@ HListItems = HValueResponder.extend({
     }
     _this.value = null;
   },
-  
+
 /** = Description
   * Iterates through this.value array and calls
   * the setListItems function of the parent class.
@@ -82,7 +82,7 @@ HListItemControl = HControl.extend({
         i = 0;
     for ( ; i < _listItemsIn.length ; i++ ){
       _row = _listItemsIn[i];
-      _rowType = COMM.Values.type( _row );
+      _rowType = this.typeChr( _row );
       // console.log('row:',_row,' rowType:',_rowType);
       // hashes
       if ( _rowType === 'h' ) {
@@ -108,6 +108,28 @@ HListItemControl = HControl.extend({
       }
     }
     return _listItems;
+  },
+
+  isValueInList: function(_value){
+    var i=0, _row, _rowType, _listItems = this.listItems;
+    if(!_listItems){
+      !this.isProduction && console.log("No listItems");
+      return false;
+    }
+    for( ; i<_listItems.length; i++ ){
+      _row = _listItems[i];
+      _rowType = this.typeChr( _row );
+      if( _rowType === 'h' ){
+        if( _row.value === _value ){ return true; }
+      }
+      else if( _rowType === 'a' ){
+        if( _row[0] === _value ){ return true; }
+      }
+      else if( ~['s','n'].indexOf(_rowType) ){
+        if( _row === _value ){ return true; }
+      }
+    }
+    return false;
   },
 
   setListItems: function( _listItems ){
