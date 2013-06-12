@@ -35,17 +35,12 @@ HTab = HControl.extend({
   refreshOnValueChange: true,
   refreshOnLabelChange: false,
 
-  controlDefaults: (HControlDefaults.extend({
-    constructor: function(_ctrl){
-      this.tabInit(_ctrl);
-    },
-    tabInit: function(_ctrl){
-      _ctrl.tabs = [];
-      _ctrl.tabLabels = [];
-      _ctrl.tabLabelBounds = [];
-      _ctrl.tabLabelStrings = [];
-    }
-  })),
+  customOptions: function(_options){
+    this.tabs = [];
+    this.tabLabels = [];
+    this.tabLabelBounds = [];
+    this.tabLabelStrings = [];
+  },
 
   rightmostPx: 0,
   selectIdx: -1,
@@ -60,7 +55,10 @@ HTab = HControl.extend({
   tabLabelRightEdge: 4,
 
   // overridden in the template
-  fontStyle: 'font-family: Helvetica, Arial, sans-serif;font-size:13px;',
+  fontStyle: {
+    fontFamily: 'Helvetica, Arial, sans-serif',
+    fontSize: '13px'
+  },
 
   tabLabelHTMLPrefix1: '<div class="edge_left"></div><div class="tablabel" style="width:',
   tabLabelHTMLPrefix2: 'px">',
@@ -69,7 +67,7 @@ HTab = HControl.extend({
   tabLabelElementTagName: 'div',
   tabLabelAlign: 'left',
   tabLabelFillBg: false,
-  tabTriggerLink: true,
+  tabTriggerLink: false,
   tabLabelNoHTMLPrefix: false,
 
 /** = Description
@@ -77,14 +75,14 @@ HTab = HControl.extend({
   *
   **/
   refreshValue: function(){
-    var _value = this.value;
+    var _this = this;
     if(typeof _value === 'number'){
-      var _index = parseInt(_value,10);
-      if(_index<this.tabs.length){
-        if(_index!==this.selectIdx){
-          this.selectTab(_index);
+      this.pushTask( function(){
+        var _index = parseInt(_this.value,10);
+        if( _index < _this.tabs.length && _index !== _this.selectIdx){
+          _this.selectTab(_index);
         }
-      }
+      });
     }
   },
 
@@ -138,55 +136,51 @@ HTab = HControl.extend({
   **/
   addTab: function(_tabLabel,_doSelect,_viewClass,_viewClassOptions){
     var
-    _tabIdx=this.tabs.length,
+    _this = this,
+    _tabIdx = _this.tabs.length,
     _tabLabelHTML = '',
-    _labelTextWidth = this.stringWidth( _tabLabel, null, 0, this.fontStyle ),
-    _labelWidth = _labelTextWidth+this.tabLabelLeftEdge+this.tabLabelRightEdge,
-    _tabLabelElemId = ELEM.make(this.markupElemIds[this.tabLabelParentElem],this.tabLabelElementTagName),
+    _labelTextWidth = _this.stringWidth( _tabLabel, null, 0, _this.fontStyle ),
+    _labelWidth = _labelTextWidth+_this.tabLabelLeftEdge+_this.tabLabelRightEdge,
+    _tabLabelElemId = ELEM.make(_this.markupElemIds[_this.tabLabelParentElem],_this.tabLabelElementTagName),
     _tab;
     if( _viewClass === undefined ){
-      _tab = HTabView.nu( [0,this.tabLabelHeight,null,null,0,0], this);
+      _tab = HTabView.nu( [0,_this.tabLabelHeight,null,null,0,0], _this);
     }
     else {
-      _tab = _viewClass.nu( [0,this.tabLabelHeight,null,null,0,0], this, _viewClassOptions );
+      _tab = _viewClass.nu( [0,_this.tabLabelHeight,null,null,0,0], _this, _viewClassOptions );
     }
-    _tabIdx = this.tabs.length;
-    if(this.tabLabelNoHTMLPrefix){
+    _tabIdx = _this.tabs.length;
+    if(_this.tabLabelNoHTMLPrefix){
       _tabLabelHTML = _tabLabel;
     }
     else {
-      _tabLabelHTML = this.tabLabelHTMLPrefix1+_labelTextWidth+this.tabLabelHTMLPrefix2+_tabLabel+this.tabLabelHTMLSuffix;
+      _tabLabelHTML = _this.tabLabelHTMLPrefix1+_labelTextWidth+_this.tabLabelHTMLPrefix2+_tabLabel+_this.tabLabelHTMLSuffix;
     }
     _tab.hide();
     ELEM.addClassName(_tabLabelElemId,'item_bg');
     ELEM.setStyle(_tabLabelElemId,'width',_labelWidth+'px');
-    ELEM.setStyle(_tabLabelElemId,this.tabLabelAlign,this.rightmostPx+'px');
+    ELEM.setStyle(_tabLabelElemId,_this.tabLabelAlign,_this.rightmostPx+'px');
     ELEM.setHTML(_tabLabelElemId,_tabLabelHTML);
-    this.tabLabelStrings.push(_tabLabel);
-    if(this.tabTriggerLink&&this.tabLabelElementTagName==='a'){
-      ELEM.setAttr(_tabLabelElemId,'href','javascript:HSystem.views['+this.viewId+'].selectTab('+_tabIdx+');');
+    _this.tabLabelStrings.push(_tabLabel);
+    if(_this.tabTriggerLink && !_this.isProduction){
+      console.log('HTab.options.tabTriggerLink is no longer supported')
     }
-    else if (this.tabTriggerLink && !BROWSER_TYPE.ie7){
-      var _this = this;
-      Event.observe( ELEM.get(_tabLabelElemId), 'click', function(){ _this.selectTab(_tabIdx); } );
+    _this.tabTriggerLink = false;
+    _this.setClick(true);
+    _this.tabLabelBounds.push([_this.rightmostPx,_this.rightmostPx+_labelWidth]);
+    _this.rightmostPx+=_labelWidth;
+    if(_this.tabLabelAlign === 'right'){
+      ELEM.setStyle(_this.markupElemIds[_this.tabLabelParentElem],'width',_this.rightmostPx+'px');
     }
-    else {
-      this.tabTriggerLink = false;
-      this.setClick(true);
-      this.tabLabelBounds.push([this.rightmostPx,this.rightmostPx+_labelWidth]);
+    else if (_this.tabLabelFillBg) {
+      ELEM.setStyle(_this.markupElemIds.state,'left',_this.rightmostPx+'px');
     }
-    this.rightmostPx+=_labelWidth;
-    if(this.tabLabelAlign === 'right'){
-      ELEM.setStyle(this.markupElemIds[this.tabLabelParentElem],'width',this.rightmostPx+'px');
-    }
-    else if (this.tabLabelFillBg) {
-      ELEM.setStyle(this.markupElemIds.state,'left',this.rightmostPx+'px');
-    }
-    this.tabs.push(_tab.viewId);
-    this.tabLabels.push(_tabLabelElemId);
+    _this.tabs.push(_tab.viewId);
+    _this.tabLabels.push(_tabLabelElemId);
     _tab.tabIndex = _tabIdx;
-    if(_doSelect || (this.value === _tabIdx)){
-      this.selectTab(_tabIdx);
+
+    if(_doSelect || (_this.value === _tabIdx)){
+      _this.selectTab(_tabIdx);
     }
     return _tab;
   },
@@ -195,26 +189,26 @@ HTab = HControl.extend({
   * click function
   *
   * = Parameters
-  * +_x+::
-  * +_y+::
+  * +x+::
+  * +y+::
   *
   **/
-  click: function(_x,_y){
+  click: function(x,y){
     if(this.tabTriggerLink){
       this.setClickable(false);
       return;
     }
-    _x -= this.pageX();
-    _y -= this.pageY();
-    if(_y<=this.tabLabelHeight){
+    x -= this.pageX();
+    y -= this.pageY();
+    if(y<=this.tabLabelHeight){
       if (this.tabLabelAlign === 'right') {
-        _x = this.rect.width - _x;
+        x = this.rect.width - x;
       }
-      if(_x<=this.rightmostPx){
+      if(x<=this.rightmostPx){
         var i=0,_labelBounds;
         for(i;i<this.tabLabelBounds.length;i++){
           _labelBounds = this.tabLabelBounds[i];
-          if(_x<_labelBounds[1] && _x>=_labelBounds[0]){
+          if(x<_labelBounds[1] && x>=_labelBounds[0]){
             this.selectTab(i);
             return;
           }
@@ -296,7 +290,7 @@ HTabItem = {
       _parent = _rect;
     }
     else {
-      console.warn && console.warn( "Warning: the rect constructor argument of HTabItem is deprecated." );
+      console.warn( "Warning: the rect constructor argument of HTabItem is deprecated." );
     }
     return _parent.addTab( _options.label, _options.select );
   },
