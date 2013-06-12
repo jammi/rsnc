@@ -3,8 +3,7 @@
 .popupmenu_edge_left,
 .popupmenu_center,
 .popupmenu_edge_right,
-.popupmenu_label,
-.popupmenu_antiselect {
+.popupmenu_label {
   position: absolute;
   top: 0px; height: 23px;
 }
@@ -59,8 +58,4 @@
 }
 .disabled .popupmenu_control {
   opacity: 0.6;
-}
-
-.popupmenu_antiselect {
-  left: 0px; right: 0px;
 }

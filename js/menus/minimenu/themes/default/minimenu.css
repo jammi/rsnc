@@ -3,8 +3,7 @@
 .minimenu_edge_left,
 .minimenu_center,
 .minimenu_edge_right,
-.minimenu_label,
-.minimenu_antiselect {
+.minimenu_label {
   position: absolute;
   top: 0px; height: 15px;
 }
@@ -56,8 +55,4 @@
 }
 .disabled .minimenu_control {
   opacity: 0.8;
-}
-
-.minimenu_antiselect {
-  left: 0px; right: 0px;
 }

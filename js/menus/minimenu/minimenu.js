@@ -5,16 +5,18 @@
   ***/
 var//RSence.Menus
 HMiniMenu = HRadioButtonList.extend({
-  
+
   componentName: 'minimenu',
-  
+
   defaultEvents: {
     draggable: true,
     mouseUp: true,
     click: true,
     resize: true
   },
-  
+
+  markupElemNames: [ 'bg', 'control', 'label' ],
+
   controlDefaults: HRadioButtonList.prototype.controlDefaults.extend({
     itemStyle: {
       'background-color': '#f6f6f6',
@@ -31,7 +33,7 @@ HMiniMenu = HRadioButtonList.extend({
   resize: function(){
     this.repositionMenuItems();
   },
-  
+
   repositionMenuItems: function(){
     var
     x = this.pageX(),
@@ -66,14 +68,15 @@ HMiniMenu = HRadioButtonList.extend({
 
   click: function(){
     if(!this.active){return false;}
-    if( ELEM.getStyle(this.menuItemView.elemId,'visibility',true) === 'hidden' ) {
+    if( !this._menuShown || this._menuShowTime+500 > this.msNow() ) {
       this.menuShow();
-    }else{
+    }
+    else{
       this.menuHide();
     }
     return false;
   },
-  
+
   refreshValue: function(){
     this.base();
     if(this.listItems && this.listItems.length !== 0 && this.valueMatrix !== undefined ) {
@@ -85,19 +88,42 @@ HMiniMenu = HRadioButtonList.extend({
       }
     }
   },
-  
+
+  _menuShowTime: 0,
+  _menuShown: false,
   menuShow: function(){
+    if(this._menuShown){
+      return false;
+    }
+    this._menuShown = true;
+    this._menuShowTime = this.msNow();
     this.repositionMenuItems();
     if( this._menuItemViewShowPos ){
       var m = this._menuItemViewShowPos, x=m[0], y=m[1];
       this.menuItemView.offsetTo( x, y );
     }
     this.menuItemView.bringToFront();
+    var _menu = this;
+    this.pushTask( function(){
+      _menu._hideElemId = ELEM.make( 0 );
+      ELEM.setStyles( _menu._hideElemId, {
+        position: 'absolute', left: 0, top: 0, right: 0, bottom: 0//, backgroundColor: '#000', opacity: 0.2
+      } );
+      Event.observe( ELEM.get( _menu._hideElemId ), 'mousedown', function(e){_menu.menuHide();EVENT.mouseDown(e);return false;} );
+      ELEM.setStyle( _menu._hideElemId, 'z-index', ELEM.getStyle(_menu.menuItemView.elemId,'z-index')-1 );
+    } );
     this.menuItemView.show();
     return true;
   },
-  
+
   menuHide: function(){
+    if( this._hideElemId ) {
+      ELEM.del( this._hideElemId );
+      this._hideElemId = null;
+      delete this._hideElemId;
+    }
+    this._menuShown = false;
+    this._menuShowTime = 0;
     if( this.menuItemView ){
       if( this._menuItemViewHidePos ){
         var m = this._menuItemViewHidePos, x=m[0], y=m[1];
@@ -107,21 +133,21 @@ HMiniMenu = HRadioButtonList.extend({
       this.menuItemView.hide();
     }
   },
-  
+
   startDrag: function(x,y){
-    this.dragStart = [x,y];
+    this.dragStart = [x,y,this.msNow()];
     if(!this.active){return false;}
     this.menuShow();
     return false;
   },
-  
+
   lostActiveStatus: function(_newActive){
     if( _newActive && !_newActive.isChildOf( this.menuItemView ) ){
       this.menuHide();
     }
     this.base(_newActive);
   },
-  
+
   gainedActiveStatus: function(_prevActive){
     if( _prevActive && _prevActive.isChildOf( this.menuItemView ) ){
       this.menuHide();
@@ -130,8 +156,8 @@ HMiniMenu = HRadioButtonList.extend({
   },
 
   endDrag: function(x,y){
-    if( (Math.round(this.dragStart[0]*0.2)===Math.round(x*0.2)) &&
-        (Math.round(this.dragStart[1]*0.2)===Math.round(y*0.2))
+    if(((Math.round(this.dragStart[0]*0.2)===Math.round(x*0.2)) &&
+        (Math.round(this.dragStart[1]*0.2)===Math.round(y*0.2)))
     ){
       this.menuShow();
     }
@@ -140,8 +166,13 @@ HMiniMenu = HRadioButtonList.extend({
     }
     return false;
   },
-  
+
   die: function(){
+    if( this._hideElemId ) {
+      ELEM.del( this._hideElemId );
+      this._hideElemId = null;
+      delete this._hideElemId;
+    }
     this.valueMatrix = null;
     var _menuItemView = this.menuItemView;
     this.base();
@@ -163,7 +194,7 @@ HMiniMenu = HRadioButtonList.extend({
       }
     );
   },
-  
+
   setListItems: function(_listItems){
     this.base(_listItems);
     this.valueMatrix = this.menuItemView.valueMatrix;
@@ -173,7 +204,7 @@ HMiniMenu = HRadioButtonList.extend({
       this.menuShow();
     }
   },
-  
+
   createComponent: function( i, _label ){
     return HMiniMenuItem.nu(
       [ 0, (i*this.subComponentHeight), null, this.subComponentHeight, 0, null ],
@@ -182,5 +213,5 @@ HMiniMenu = HRadioButtonList.extend({
       }
     );
   }
-  
+
 });
