@@ -9,17 +9,17 @@
 ***/
 //var//RSence.COMM
 COMM.Queue = HApplication.extend({
-  
+
 /** The constructor takes no arguments and starts queue flushing automatically.
   **/
   constructor: function(){
-    
+
     // The queue itself, is packed with anonymous functions
     this.commandQueue = [];
-    
+
     // Flag to signal the pause and resume status.
     this.paused = false;
-    
+
     // Run with priority 10; not too demanding but not too sluggish either
     this.base(10);
 
@@ -30,7 +30,7 @@ COMM.Queue = HApplication.extend({
       this._headElem = document.getElementsByTagName('head')[0];
     }
   },
-  
+
 /** Checks periodically, if the queue needs flushing.
   **/
   onIdle: function(){
@@ -38,7 +38,7 @@ COMM.Queue = HApplication.extend({
     // empty and the state is not resumed:
     !this.paused && this.commandQueue.length !== 0 && this.flush();
   },
-  
+
 /** = Description
   * Pauses the queue.
   *
@@ -51,7 +51,7 @@ COMM.Queue = HApplication.extend({
   pause: function(){
     this.paused = true;
   },
-  
+
 /** = Description
   * Resumes queue flushing.
   *
@@ -64,7 +64,7 @@ COMM.Queue = HApplication.extend({
     this.paused = false;
     this.flush();
   },
-  
+
 /** A Group of localizable strings; errors and warnings.
   **/
   STRINGS: {
@@ -87,7 +87,7 @@ COMM.Queue = HApplication.extend({
     ].join('');
     return _errorText;
   },
-  
+
 /** = Description
   * Flushes the queue until stopped.
   *
@@ -96,23 +96,25 @@ COMM.Queue = HApplication.extend({
   *
   **/
   flush: function(){
-    var i = 0, // current index in the for-loop.
-        _item, // the current item to execute
-        _function, // the function to run
-        _arguments, // the arguments of the function
-        _len = this.commandQueue.length; // the length of the queue
-    
+    var
+    i = 0, // current index in the for-loop.
+    _item, // the current item to execute
+    _function, // the function to run
+    _arguments, // the arguments of the function
+    _startTime = this.msNow(),
+    _len = this.commandQueue.length; // the length of the queue
+
     // Iterates through the items.
     for(;i<_len;i++){
-      
-      // Checks that the queue hasn't been paused.
+
+      // Checks that the queue hasn't been paused
       if(this.paused){
         break; // stops flushing, if paused.
       }
-      
+
       // The first item in the queue is removed from the queue.
       _item = this.commandQueue.shift();
-      
+
       // Execute the item, with arugments if the item
       try{
         if(typeof _item === 'function'){
@@ -124,18 +126,24 @@ COMM.Queue = HApplication.extend({
           _function.apply(this,_arguments);
         }
       }
-      
+
       // Displays an error message in the Javascript console, if failure.
       catch(e){
         this.clientException( e, _item );
       }
+
+      if(this.msNow()-_startTime>250){
+        var _this = this; _this.pause();
+        setTimeout(function(){_this.resume();},0);
+        break;
+      }
     }
   },
-  
+
 /** = Description
   * Adds an item to the beginning of the queue.
   *
-  * Use to make the given +_function+ with its 
+  * Use to make the given +_function+ with its
   * optional +_arguments+ the next item to flush.
   *
   * = Parameters:
@@ -151,11 +159,11 @@ COMM.Queue = HApplication.extend({
       this.commandQueue.unshift(_function);
     }
   },
-  
+
 /** = Description
   * Adds an item to the end of the queue.
   *
-  * Use to make the given +_function+ with its 
+  * Use to make the given +_function+ with its
   * optional +_arguments+ the last item to flush.
   *
   * = Parameters:
@@ -170,26 +178,6 @@ COMM.Queue = HApplication.extend({
     else {
       this.commandQueue.push(_function);
     }
-  },
-  
-/** Like +unshift+, but uses the code block as a string to be
-  * passed on as an evaluated anonymous function.
-  **/
-  unshiftEval: function(_evalStr,_arguments){
-    var _function;
-    console.log('WARNING: COMM.unshiftEval is deprecated; Update your code!');
-    eval('_function = function(){'+_evalStr+'}');
-    this.unshift(_function);
-  },
-  
-/** Like +push+, but uses the code block as a string to be
-  * passed on as an evaluated anonymous function.
-  **/
-  pushEval: function(_evalStr){
-    var _function;
-    console.log('WARNING: COMM.pushEval is deprecated; Update your code!');
-    eval('_function = function(){'+_evalStr+'}');
-    this.push(_function);
   },
 
   _scripts: {},
