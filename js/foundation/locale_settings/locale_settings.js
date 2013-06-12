@@ -1,8 +1,15 @@
 
 var
-HLocale = {
+HLocale = (UtilMethods.extend({
+  setData: function(_locale){
+    this.updateObject(_locale,this);
+  },
   components: {
-    
+
+  },
+  general: {
+    decimalSeparator: '.',
+    thousandsSeparator: ''
   },
   compUnits: {
     strings: {
@@ -87,13 +94,18 @@ HLocale = {
       dateDelimitter: '.',
       timeDelimitter: ':',
       timeMsDelimitter: '.',
-      rangeDelimitter: ' ... '
+      rangeDelimitter: ' ... ',
+      dateFormat: 'YYYY-MM-DD',
+      timeFormat: 'HH:mm:ss',
+      dateTimeFormat: 'YYYY-MM-DD HH:mm:ss'
     },
     settings: {
       zeroPadTime: true,
       AMPM: false
     },
     defaultOptions: {
+      useUTC: true,
+      tzMinutes: 0,
       longWeekDay: false,
       shortWeekDay: false,
       shortYear: false,
@@ -110,11 +122,10 @@ HLocale = {
       for( _key in _default ){
         _options[_key] = _default[_key];
       }
-      if( !_custom ){
-        _custom = {};
-      }
-      for( _key in _custom ){
-        _options[_key] = _custom[_key];
+      if( _custom ){
+        for( _key in _custom ){
+          _options[_key] = _custom[_key];
+        }
       }
       return _options;
     },
@@ -129,7 +140,7 @@ HLocale = {
       _this = HLocale.dateTime,
       _date = new Date( _dateTimeEpoch * 1000 ),
       _strings = _this.strings,
-      _wday = _date.getUTCDay();
+      _wday = _this.options().useUTC?_date.getUTCDay():_date.getDay();
       return _strings.weekDaysShort[ _wday ];
     },
     formatLongWeekDay: function( _dateTimeEpoch ){
@@ -137,26 +148,26 @@ HLocale = {
       _this = HLocale.dateTime,
       _date = new Date( _dateTimeEpoch * 1000 ),
       _strings = _this.strings,
-      _wday = _date.getUTCDay();
+      _wday = _this.options().useUTC?_date.getUTCDay():_date.getDay();
       return _strings.weekDaysLong[ _wday ];
     },
     formatDate: function( _dateTimeEpoch, _options ){
+      _options = this.options( _options );
       var
       _this = HLocale.dateTime,
       _date = new Date( _dateTimeEpoch * 1000 ),
       _strings = _this.strings,
-      _wday = _date.getUTCDay(),
-      _dateString = _date.getUTCDate() + _strings.dateDelimitter + (_date.getUTCMonth() + 1) + _strings.dateDelimitter;
-      
-      _options = _this.options( _options );
-      
+      _wday = _options.useUTC?_date.getUTCDay():_date.getDay(),
+      _dateString = _options.useUTC?(_date.getUTCDate() + _strings.dateDelimitter + (_date.getUTCMonth() + 1) + _strings.dateDelimitter):
+                                    (_date.getDate() + _strings.dateDelimitter + (_date.getMonth() + 1) + _strings.dateDelimitter);
+
       if( _options.fullYear ){
-        _dateString += _date.getUTCFullYear();
+        _dateString += _options.useUTC?_date.getUTCFullYear():_date.getFullYear();
       }
       else if( _options.shortYear ){
-        _dateString += date.getUTCYear();
+        _dateString += _options.useUTC?_date.getUTCYear():_date.getYear();
       }
-      
+
       if( _options.longWeekDay ){
         return _strings.weekDaysLong[_wday] + ' ' + _dateString;
       }
@@ -166,18 +177,18 @@ HLocale = {
       return _dateString;
     },
     formatTime: function( _dateTimeEpoch, _options ){
+      _options = this.options( _options );
       var
       _this = HLocale.dateTime,
       _date = new Date( _dateTimeEpoch * 1000 ),
       _strings = _this.strings,
-      _timeString = _this.zeroPadTime( _date.getUTCHours() ) + _strings.timeDelimitter + _this.zeroPadTime( _date.getUTCMinutes() );
-      
-      _options = _this.options( _options );
-      
+      _timeString = _options.useUTC?(_this.zeroPadTime( _date.getUTCHours() ) + _strings.timeDelimitter + _this.zeroPadTime( _date.getUTCMinutes() )):
+                                    (_this.zeroPadTime( _date.getHours() ) + _strings.timeDelimitter + _this.zeroPadTime( _date.getMinutes() ));
+
       if( _options.seconds ){
-        _timeString += _strings.timeDelimitter + _this.zeroPadTime( _date.getUTCSeconds() );
+        _timeString += _strings.timeDelimitter + _this.zeroPadTime( _options.useUTC?_date.getUTCSeconds():_date.getSeconds() );
         if( _options.milliSeconds ){
-          _timeString += _strings.timeMsDelimitter + _date.getUTCMilliseconds();
+          _timeString += _strings.timeMsDelimitter + _options.useUTC?_date.getUTCMilliseconds():_date.getMilliseconds;
         }
       }
       return _timeString;
@@ -187,4 +198,4 @@ HLocale = {
       return _this.formatDate( _dateTimeEpoch, _options ) + ' ' + _this.formatTime( _dateTimeEpoch, _options );
     }
   }
-};
+})).nu();
