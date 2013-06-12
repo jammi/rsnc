@@ -1,16 +1,16 @@
 
 /*** = Description
   ** HImageView is a control unit intended to display images on the screen
-  ** through the HTML <IMG> tag. The HImageView class is a container 
+  ** through the HTML <IMG> tag. The HImageView class is a container
   ** to visualize
-  ** images loaded via URL. It supports scaling via two class methods, 
-  ** scaleToFit and scaleToOriginal. If the image is unable to be loaded, 
+  ** images loaded via URL. It supports scaling via two class methods,
+  ** scaleToFit and scaleToOriginal. If the image is unable to be loaded,
   ** a default blank image will be rendered.
   **
   ***/
 var//RSence.Controls
 HImageView = HControl.extend({
-  
+
   getImgSrc: function(){
     var _value = (this.value!==null)?this.value:(this.options.valueObj?this.options.valueObj.value:this.options.value);
     if (!_value){
@@ -18,12 +18,12 @@ HImageView = HControl.extend({
     }
     return _value;
   },
-  
-  controlDefaults: (HControlDefaults.extend({
+
+  controlDefaults: HControlDefaults.extend({
     scaleToFit: true,
     value: null
-  })),
-  
+  }),
+
   _makeScaleToFit: function(_parentId){
     this.elemId = ELEM.make( _parentId, 'img', {
       attrs: [
@@ -48,10 +48,10 @@ HImageView = HControl.extend({
       this._makeScaleToOriginal(_parentId);
     }
   },
-  
+
 /** = Description
   * Used to refresh HImageView if the this.value is changed.
-  * 
+  *
   **/
   refreshValue: function(){
     var _src = this.getImgSrc();
@@ -67,7 +67,7 @@ HImageView = HControl.extend({
       }
     }
   },
-  
+
 /** = Description
   * Refreshesh the label of HImageView.
   *
@@ -78,7 +78,7 @@ HImageView = HControl.extend({
     }
     ELEM.setAttr(this.elemId,'title',this.label);
   },
-  
+
 /** = Description
   * Changes the size of the image element so that it fits in the rectangle of
   * the view.
@@ -91,8 +91,8 @@ HImageView = HControl.extend({
       this.options.scaleToFit=true;
     }
   },
-  
-  
+
+
 /** = Description
   * Resizes the image element to its original dimesions. If the image is larger
   * than the rectangle of this view, clipping will occur.
@@ -107,5 +107,5 @@ HImageView = HControl.extend({
   }
 
 
-  
+
 });

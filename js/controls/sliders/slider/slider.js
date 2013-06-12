@@ -1,12 +1,12 @@
 
 /*** = Description
-  ** HSlider is a control unit that enables the user to choose a value in a range of values. 
-  ** Sliders support both dragging the handle and clicking the mouse anywhere on the slider 
-  ** to move the handle towards the mouse, as well as keyboard support 
-  ** after the handle is in active mode. There are two types of sliders: vertical and horizontal. 
-  ** Naturally, sliders are commonly used as colour mixers, volume controls, 
-  ** graphical equalizers and seekers in media applications. 
-  ** A typical slider is a drag-able thumb along vertical or horizontal line. 
+  ** HSlider is a control unit that enables the user to choose a value in a range of values.
+  ** Sliders support both dragging the handle and clicking the mouse anywhere on the slider
+  ** to move the handle towards the mouse, as well as keyboard support
+  ** after the handle is in active mode. There are two types of sliders: vertical and horizontal.
+  ** Naturally, sliders are commonly used as colour mixers, volume controls,
+  ** graphical equalizers and seekers in media applications.
+  ** A typical slider is a drag-able thumb along vertical or horizontal line.
   **
   ** = Instance variables
   ** +minValue+::       The smallest allowed value.
@@ -24,31 +24,31 @@
 ***/
 var//RSence.Controls
 HSlider = HControl.extend({
-  
+
   componentName: "slider",
-  
+
   defaultEvents: {
     draggable: true,
     keyDown: 'repeat',
     keyUp: true,
     mouseWheel: true
   },
-  
-  controlDefaults: (HControlDefaults.extend({
+
+  controlDefaults: HControlDefaults.extend({
     minValue: 0,
     maxValue: 1,
     roundValue: false,
     inverseAxis: false
-  })),
-  
+  }),
+
   refreshOnValueChange: false,
-  
+
   _isVertical: false,
-  
-  
+
+
 /** = Description
   * Sets the current value of the object and moves the slider thumb to the correct position.
-  * 
+  *
   * = Parameters
   * +_value+:: A numeric value to be set to the object.
   *
@@ -71,7 +71,7 @@ HSlider = HControl.extend({
     }
     return this;
   },
-  
+
 /** = Description
   * Draws the rectangle and the markup of this object on the screen.
   *
@@ -84,65 +84,65 @@ HSlider = HControl.extend({
     }
     this.refresh();
   },
-  
-  
+
+
 /** = Description
   * This gets called automatically when the user starts to drag the slider thumb.
   * Extend this method if you want something special to happen when the dragging starts.
-  * 
+  *
   * = Parameters
-  * +_x+:: The X coordinate of the point where the drag started.
-  * +_y+:: The Y coordinate of the point where the drag started.
-  *  
+  * +x+:: The X coordinate of the point where the drag started.
+  * +y+:: The Y coordinate of the point where the drag started.
+  *
   **/
-  startDrag: function(_x,_y){
+  startDrag: function(x,y){
     var _originalPosition = ELEM.getVisiblePosition(this.elemId, true);
     this._originX = _originalPosition[0];
     this._originY = _originalPosition[1];
-    
-    this.drag(_x,_y);
+
+    this.drag(x,y);
   },
-  
-  
+
+
 /** = Description
   * This gets called automatically when the user stops dragging the slider thumb.
   * Extend this method if you want something special to happen when the dragging ends.
-  * 
+  *
   * = Parameters
-  * +_x+:: The X coordinate of the point where the drag ended.
-  * +_y+:: The Y coordinate of the point where the drag ended.
+  * +x+:: The X coordinate of the point where the drag ended.
+  * +y+:: The Y coordinate of the point where the drag ended.
   *
   **/
-  endDrag: function(_x,_y){
-    this.drag(_x,_y);
+  endDrag: function(x,y){
+    this.drag(x,y);
   },
-  
-  
+
+
 /** = Description
   * This gets called periodically while the user drags the slider thumb.
   * Extend this method if you want something special to happen while dragging.
-  * 
+  *
   * = Parameters
-  * +_x+:: The X coordinate of the point where the user is currently dragging.
-  * +_y+:: The Y coordinate of the point where the user is currently dragging.
+  * +x+:: The X coordinate of the point where the user is currently dragging.
+  * +y+:: The Y coordinate of the point where the user is currently dragging.
   *
   **/
-  drag: function(_x,_y){
-    _x -= this._originX;
-    _y -= this._originY;
-    
-    var _rawVal = this._isVertical?_y:_x,
+  drag: function(x,y){
+    x -= this._originX;
+    y -= this._originY;
+
+    var _rawVal = this._isVertical?y:x,
         _value = this._pos2value(_rawVal);
-    
+
     this.setValue(_value);
   },
-  
-  
+
+
 /** = Description
-  * This gets called when the user presses a key down while this control is 
+  * This gets called when the user presses a key down while this control is
   * active. The default behaviour is to move the thumb with arrow keys, page up,
   * page down, home and end.
-  * 
+  *
   * = Parameters
   * +_keycode+:: The keycode of the key that was pressed down.
   *
@@ -173,11 +173,11 @@ HSlider = HControl.extend({
     }
     return true;
   },
-  
-  
+
+
 /** = Description
   * This gets called when the user releases a key while this control is active.
-  * 
+  *
   * = Parameters
   * +_keycode+:: The keycode of the key that was released.
   *
@@ -185,10 +185,10 @@ HSlider = HControl.extend({
   keyUp: function(_keycode) {
     return true;
   },
-  
-  
+
+
 /** = Description
-  * This gets called when the mouse wheel is used and the component 
+  * This gets called when the mouse wheel is used and the component
   * instance has focus.
   *
   * = Parameters
@@ -207,12 +207,12 @@ HSlider = HControl.extend({
     if ( this.options.inverseAxis ) {
       _valueChange = 0 - _valueChange;
     }
-    
+
     var _value = (this.maxValue - this.minValue) * _valueChange;
     this.setValue( this.value + _value);
   },
-  
-  
+
+
   // --private method++
   _moveThumb: function(_valueChange, _rate) {
     if (this.active) {
@@ -221,15 +221,15 @@ HSlider = HControl.extend({
     }
 
   },
-  
+
   thumbSize: 21,
   // -- private method ++
   _initThumb: function() {
     this._thumbElemId = this.markupElemIds.control;
     this.drawThumbPos();
   },
-  
-  
+
+
   // -- private method ++
   _value2px: function() {
     var _pxrange;
@@ -247,8 +247,8 @@ HSlider = HControl.extend({
     _pxvalue = parseInt(_intvalue, 10)+'px';
     return _pxvalue;
   },
-  
-  
+
+
   // -- private method ++
   _pos2value: function(_mousePos) {
     var _pxrange;
@@ -270,20 +270,20 @@ HSlider = HControl.extend({
       return this.minValue + ((_mousePos / _pxrange) * (this.maxValue - this.minValue));
     }
   },
-  
-  
+
+
   // -- private method ++
   drawThumbPos: function() {
     var _whichprop = this._isVertical?'top':'left',
         _propval   = this._value2px();
     ELEM.setStyle(this._thumbElemId,_whichprop,_propval);
-    this.setOrientation(this.options['orientation']||this.prevOrientation);
+    this.setOrientation(this.options.orientation||this.prevOrientation);
   },
-  
+
   prevOrientation: 'c',
-  
+
   orientations: ['n','s','c'],
-  
+
 /** = Description
   * Changes the thumb graphic. Possible orientations by default are
   * north ('n'), south ('s'), west ('w'), east('e') and center ('c').
@@ -301,14 +301,9 @@ HSlider = HControl.extend({
     if(_orientation === this.prevOrientation){
       return;
     }
-    if(this['markupElemIds']===undefined){
-      return;
-    }
-    if(this.markupElemIds['control']===undefined){
-      return;
-    }
-    var _toggleCSS = this.toggleCSSClass,
-        _ctrlId    = this.markupElemIds.control,
+    if(this.markupElemIds===undefined){ return; }
+    if(this.markupElemIds['control']===undefined){ return; }
+    var _ctrlId    = this.markupElemIds.control,
         _orientations = this.orientations,
         _iOrientation = '',
         _cssClassName = '',
@@ -319,9 +314,9 @@ HSlider = HControl.extend({
       _iOrientation = _orientations[i];
       _activeOrientation = (_orientation===_iOrientation);
       _cssClassName = (_orientation==='c')?_componentName+'_'+'thumb':_componentName+'_'+'thumb'+'_'+_iOrientation;
-      _toggleCSS( _ctrlId, _cssClassName, _activeOrientation );
+      this.toggleCSSClass( _ctrlId, _cssClassName, _activeOrientation );
     }
-    
+
     this.prevOrientation = _orientation;
   }
 });

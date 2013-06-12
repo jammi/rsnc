@@ -11,47 +11,47 @@
   ** +mouseDown+::           Called when the mouse button is pushed down
   ** +mouseUp+::             Called when the mouse button is released
   ** +mouseWheel+::          Called when the mouse wheel is used
-  ** +startDrag+::           Called when the mouse button 
+  ** +startDrag+::           Called when the mouse button
   **                         is pressed (and item is draggable).
-  ** +endDrag+::             Called when the mouse button 
+  ** +endDrag+::             Called when the mouse button
   **                         is released (and item is draggable).
-  ** +drag+::                Called when the mouse is moved and mouse button 
+  ** +drag+::                Called when the mouse is moved and mouse button
   **                         is down (and item is draggable).
-  ** +drop+::                Called when a draggable item is released 
+  ** +drop+::                Called when a draggable item is released
   **                         on the droppable.
-  ** +startHover+::          Called when a draggable item is moved 
+  ** +startHover+::          Called when a draggable item is moved
   **                         over the droppable.
   ** +hover+::               Called while a dragged item is moved between
   **                         startHover and endHover.
-  ** +endHover+::            Called when a draggable item is moved out 
+  ** +endHover+::            Called when a draggable item is moved out
   **                         of the droppable.
-  ** +keyDown+::             Called when the user presses a key, and 
+  ** +keyDown+::             Called when the user presses a key, and
   **                         the control is active.
-  ** +keyUp+::               Called when the user releases a key, and 
+  ** +keyUp+::               Called when the user releases a key, and
   **                         the control is active.
-  ** +textEnter+::           Called when the user releases a key regardless 
+  ** +textEnter+::           Called when the user releases a key regardless
   **                         if the control is active or not.
   ** +gainedActiveStatus+::  Called when the component gets activated.
   ** +lostActiveStatus+::    Called when the component gets deactivated.
 ***/
 var//RSence.Foundation
 HEventResponder = HClass.extend({
-  
+
 /** Default event listeners.
   **/
   defaultEvents: {
   },
-  
+
 /** = Description
   * The event responder interface for +HControl+.
-  * Registers the events defined by boolean properties of 
-  * the events object to the control instance. The event manager 
+  * Registers the events defined by boolean properties of
+  * the events object to the control instance. The event manager
   * handles the event mapping and abstraction itself.
-  * NOTE startDrag vs mouseDown and endDrag vs mouseUp events 
+  * NOTE startDrag vs mouseDown and endDrag vs mouseUp events
   * conflict, if both are set simultaneously.
   *
   * = Parameters
-  * +_events+::  A +{ event: state }+ Object structure, sets events based on the 
+  * +_events+::  A +{ event: state }+ Object structure, sets events based on the
   *              keys and the flag. All states are Booleans (true or false).
   *              A true state means the event listening for the event is
   *              enabled and a false state means the event listening is disabled.
@@ -159,9 +159,9 @@ HEventResponder = HClass.extend({
   },
 
 /** = Description
-  * Enables the HControl instance, if the enabled flag is true, and disables 
-  * it if enabled is false. A disabled HControl won't respond events. 
-  * Component themes reflect the disabled state typically with 
+  * Enables the HControl instance, if the enabled flag is true, and disables
+  * it if enabled is false. A disabled HControl won't respond events.
+  * Component themes reflect the disabled state typically with
   * a dimmer appearance.
   *
   * = Parameters
@@ -172,7 +172,7 @@ HEventResponder = HClass.extend({
   *
   **/
   setEnabled: function(_flag) {
-    
+
     var
     _this = this,
     _elemId = this.elemId,
@@ -181,33 +181,33 @@ HEventResponder = HClass.extend({
     _views = _this.views,
     _view,
     _viewsLen = _views.length;
-    
+
     // Enable/disable the children first.
     for (; i < _viewsLen; i++) {
       _view = _sysViews[_views[i]];
       _view['setEnabled'] && _view.setEnabled(_flag);
     }
-    
+
     if (_this.enabled === _flag) {
       // No change in enabled status, do nothing.
       return this;
     }
-    
+
     _this.enabled = _flag;
-    
+
     if(_flag) {
       EVENT.reg(_this, _this.events);
     }
     else {
       EVENT.unreg(_this);
     }
-    
+
     // Toggle the CSS class: enabled/disabled
     _this.toggleCSSClass(_elemId, HControl.CSS_ENABLED, _flag);
     _this.toggleCSSClass(_elemId, HControl.CSS_DISABLED, !_flag);
     return this;
   },
-  
+
 /** = Description
   * Alias for #setEnabled(true)
   *
@@ -215,7 +215,7 @@ HEventResponder = HClass.extend({
   enable: function(){
     return this.setEnabled(true);
   },
-  
+
 /** = Description
   * Alias for #setEnabled(false)
   *
@@ -223,9 +223,9 @@ HEventResponder = HClass.extend({
   disable: function(){
     return this.setEnabled(false);
   },
-  
+
 /** = Description
-  * Alternative flag setter for the mouseMove event type. If set to true, 
+  * Alternative flag setter for the mouseMove event type. If set to true,
   * starts listening to mouseDown events when the component has focus.
   *
   * = Parameters
@@ -243,7 +243,7 @@ HEventResponder = HClass.extend({
   },
 
 /** = Description
-  * Alternative flag setter for the click event type. If set to true, 
+  * Alternative flag setter for the click event type. If set to true,
   * starts listening to click events when the component has focus.
   *
   * = Parameters
@@ -259,9 +259,9 @@ HEventResponder = HClass.extend({
     this.setEvents();
     return this;
   },
-  
+
 /** = Description
-  * Registers or releases event listening for mouseDown events depending on 
+  * Registers or releases event listening for mouseDown events depending on
   * the value of the flag argument.
   *
   * = Parameters
@@ -277,9 +277,9 @@ HEventResponder = HClass.extend({
     this.setEvents();
     return this;
   },
-  
+
 /** = Description
-  * Registers or releases event listening for doubleClick events depending on 
+  * Registers or releases event listening for doubleClick events depending on
   * the value of the flag argument.
   *
   * = Parameters
@@ -295,9 +295,9 @@ HEventResponder = HClass.extend({
     this.setEvents();
     return this;
   },
-  
+
 /** = Description
-  * Registers or releases event listening for contextMenu events depending on 
+  * Registers or releases event listening for contextMenu events depending on
   * the value of the flag argument.
   *
   * = Parameters
@@ -313,9 +313,9 @@ HEventResponder = HClass.extend({
     this.setEvents();
     return this;
   },
-  
+
 /** = Description
-  * Registers or releases event listening for mouseUp events depending on the 
+  * Registers or releases event listening for mouseUp events depending on the
   * value of the flag argument.
   *
   * = Parameters
@@ -331,9 +331,9 @@ HEventResponder = HClass.extend({
     this.setEvents();
     return this;
   },
-  
+
 /** = Description
-  * Alternative flag setter for the mouseWheel event type. If set to true, 
+  * Alternative flag setter for the mouseWheel event type. If set to true,
   * starts listening to mouseWheel events when the component has focus.
   *
   * = Parameters
@@ -349,13 +349,13 @@ HEventResponder = HClass.extend({
     this.setEvents();
     return this;
   },
-  
+
 /** = Description
-  * Registers or releases event listening for startDrag, drag and 
+  * Registers or releases event listening for startDrag, drag and
   * endDrag -events depending on the value of the flag argument.
   *
   * = Parameters
-  * +_flag+:: Set the startDrag, drag and endDrag event listening 
+  * +_flag+:: Set the startDrag, drag and endDrag event listening
   *           on/off (true/false) for the component instance.
   *
   * = Returns
@@ -367,13 +367,13 @@ HEventResponder = HClass.extend({
     this.setEvents();
     return this;
   },
-  
+
 /** = Description
-  * Registers or releases event listening for startHover, drop and 
+  * Registers or releases event listening for startHover, drop and
   * endHover -events depending on the value of the flag argument.
   *
   * = Parameters
-  * +_flag+:: Set the startHover, drop and endHover event listening 
+  * +_flag+:: Set the startHover, drop and endHover event listening
   *           on/off (true/false) for the component instance.
   *
   * = Returns
@@ -385,10 +385,10 @@ HEventResponder = HClass.extend({
     this.setEvents();
     return this;
   },
-  
-  
+
+
 /** = Description
-  * Registers or releases event listening for keyDown events depending on the 
+  * Registers or releases event listening for keyDown events depending on the
   * value of the flag argument.
   *
   * = Parameters
@@ -405,10 +405,10 @@ HEventResponder = HClass.extend({
     this.setEvents();
     return this;
   },
-  
-  
+
+
 /** = Description
-  * Registers or releases event listening for keyUp events depending on 
+  * Registers or releases event listening for keyUp events depending on
   * the value of the flag argument.
   *
   * = Parameters
@@ -424,9 +424,9 @@ HEventResponder = HClass.extend({
     this.setEvents();
     return this;
   },
-  
+
 /** = Description
-  * Registers or releases event listening for textEnter events 
+  * Registers or releases event listening for textEnter events
   * depending on the value of the flag argument.
   *
   * = Returns
@@ -438,34 +438,34 @@ HEventResponder = HClass.extend({
     this.setEvents();
     return this;
   },
-  
+
 /** Same as +setClickable+
   **/
   setClick: function(_flag) {
     return this.setClickable(_flag);
   },
-  
+
 /** Same as +setDoubleClickable+
   **/
   setDoubleClick: function(_flag) {
     return this.setDoubleClickable(_flag);
   },
-  
+
 /** = Description
   * Default focus event responder method. Does nothing by default.
   * Called when the component gets focus.
   *
   **/
   focus: function() {},
-  
+
 /** = Description
   * Default blur event responder method. Does nothing by default.
   * Called when the component loses focus.
   *
   **/
   blur: function() {},
-  
-  
+
+
 /** = Description
   * Default gainedActiveStatus event responder method. Does nothing by default.
   * Called when the component gains active status; both focused and clicked.
@@ -477,11 +477,11 @@ HEventResponder = HClass.extend({
   *
   **/
   gainedActiveStatus: function(_lastActiveControl) {
-    
+
     var
     _parents = this.parents,
     _parentIdx = _parents.length-1;
-    
+
     if ( (HSystem.windowFocusMode === 1) && ( _parentIdx > 1 ) ) {
       for( ; _parentIdx > 0; _parentIdx-- ){
         // Send gainedActiveStatus to HWindow parent(s)
@@ -490,18 +490,18 @@ HEventResponder = HClass.extend({
         }
       }
     }
-    
+
   },
-  
+
   // A low-level handler for active status, don't extend this.
   _gainedActiveStatus: function(_lastActiveControl) {
     if(this.enabled) {
-      this.toggleCSSClass(this.elemId, HControl.CSS_ACTIVE, true);
+      this.setCSSClass(HControl.CSS_ACTIVE);
     }
     return this.gainedActiveStatus(_lastActiveControl);
   },
-  
-  
+
+
 /** = Description
   * Default lostActiveStatus event responder method. Does nothing by default.
   * Called when the component loses active status; another component was
@@ -516,19 +516,19 @@ HEventResponder = HClass.extend({
   lostActiveStatus: function(_newActiveControl) {
     return true;
   },
-  
+
   // --A low-level handler for lost active status, don't extend this.++
   _lostActiveStatus: function(_newActiveControl) {
     if( this.lostActiveStatus(_newActiveControl) !== false ){
       if(this.enabled) {
-        this.toggleCSSClass(this.elemId, HControl.CSS_ACTIVE, false);
+        this.unsetCSSClass(HControl.CSS_ACTIVE);
       }
       return true;
     }
     return false;
   },
-  
-  
+
+
 /** = Description
   * Default mouseMove event responder method. Does nothing by default.
   * Called whenever the mouse cursor is moved regardless if the
@@ -540,72 +540,72 @@ HEventResponder = HClass.extend({
   *
   **/
   mouseMove: function(x,y) {},
-  
-  
+
+
 /** = Description
   * Default click event responder method. Does nothing by default.
   *
   * = Parameters
-  * +x+::              The horizontal coordinate units (px) of the 
+  * +x+::              The horizontal coordinate units (px) of the
   *                    mouse cursor position.
-  * +y+::              The vertical coordinate units (px) of the 
+  * +y+::              The vertical coordinate units (px) of the
   *                    mouse cursor position.
   * +_isLeftButton+::  Boolean flag; false if the right(context) mouse
   *                    button is pressed.
   *
   **/
   click: function(x,y,_isLeftButton){},
-  
+
 /** = Description
   * Default click event responder method. Does nothing by default.
   *
   * = Parameters
-  * +x+::              The horizontal coordinate units (px) of the 
+  * +x+::              The horizontal coordinate units (px) of the
   *                    mouse cursor position.
-  * +y+::              The vertical coordinate units (px) of the 
+  * +y+::              The vertical coordinate units (px) of the
   *                    mouse cursor position.
   * +_isLeftButton+::  Boolean flag; false if the right(context) mouse
   *                    button is pressed.
   *
   **/
   doubleClick: function(x,y,_isLeftButton){},
-  
+
 /** = Description
   * Default contextMenu event responder method. Does nothing by default.
   * Extend to return true to allow the default action of the browser.
   *
   **/
   contextMenu: function(x,y,_isLeftButton){},
-  
+
 /** = Description
   * Default mouseDown event responder method. Does nothing by default.
   *
   * = Parameters
-  * +x+::              The horizontal coordinate units (px) of the 
+  * +x+::              The horizontal coordinate units (px) of the
   *                    mouse cursor position.
-  * +y+::              The vertical coordinate units (px) of the 
+  * +y+::              The vertical coordinate units (px) of the
   *                    mouse cursor position.
   * +_isLeftButton+::  Boolean flag; false if the right(context) mouse
   *                    button is pressed.
   *
   **/
   mouseDown: function(x,y,_isLeftButton) {},
-  
-  
+
+
 /** = Description
   * Default mouseDown event responder method. Does nothing by default.
   *
   * = Parameters
-  * +x+::              The horizontal coordinate units (px) of the 
+  * +x+::              The horizontal coordinate units (px) of the
   *                    mouse cursor position.
-  * +y+::              The vertical coordinate units (px) of the 
+  * +y+::              The vertical coordinate units (px) of the
   *                    mouse cursor position.
   * +_isLeftButton+::  Boolean flag; false if the right(context) mouse
   *                    button is pressed.
   *
   **/
   mouseUp: function(x,y,_isLeftButton) {},
-  
+
 /** = Description
   * Default mouseWheel event responder method. Does nothing by default.
   *
@@ -615,7 +615,7 @@ HEventResponder = HClass.extend({
   *
   **/
   mouseWheel: function(_delta) {},
-  
+
 /** = Description
   * Default startDrag event responder method. Sets internal flags by default.
   * This is the preferred method to extend if you want to do something
@@ -627,7 +627,7 @@ HEventResponder = HClass.extend({
   *
   **/
   startDrag: function(x, y) {},
-  
+
 /** = Description
   * Default drag event responder method. Does nothing by default.
   * This is the preferred method to extend while a drag method is ongoing.
@@ -642,8 +642,8 @@ HEventResponder = HClass.extend({
     this.doDrag(x,y);
   },
   doDrag: function(x, y) {},
-  
-  
+
+
 /** = Description
   * Default endDrag event responder method. Sets internal flags by default.
   * This is the preferred method to extend if you want to do something
@@ -659,7 +659,7 @@ HEventResponder = HClass.extend({
 
 /** = Description
   * Default drop event responder method. Does nothing by default.
-  * Extend the drop method, if you want to do something 
+  * Extend the drop method, if you want to do something
   * when this instance is the target of another instance's endDrag event.
   * Called when a dragged component instance is dropped on the target instance.
   *
@@ -674,7 +674,7 @@ HEventResponder = HClass.extend({
 
 /** = Description
   * Default startHover event responder method. Does nothing by default.
-  * Extend the startHover method, if you want to do something 
+  * Extend the startHover method, if you want to do something
   * when this instance is the target of another instance's drag event.
   * Called when a dragged component instance is dragged over
   * the target instance.
@@ -687,14 +687,14 @@ HEventResponder = HClass.extend({
     this.onHoverStart(obj);
   },
   onHoverStart: function(obj) {},
-  
+
   hover: function(obj){
 
   },
 
 /** = Description
   * Default endHover event responder method. Does nothing by default.
-  * Extend the endHover method, if you want to do something 
+  * Extend the endHover method, if you want to do something
   * when this instance is no longer the target of another instance's
   * drag event. Called when a dragged component instance is dragged
   * away from the target instance.
@@ -707,7 +707,7 @@ HEventResponder = HClass.extend({
     this.onHoverEnd(obj);
   },
   onHoverEnd: function(obj) {},
-  
+
 /** = Description
   * Default keyDown event responder method. Does nothing by default.
   * Extend the keyDown method, if you want to do something
@@ -718,7 +718,7 @@ HEventResponder = HClass.extend({
   *
   **/
   keyDown: function(_keycode) {},
-  
+
 /** = Description
   * Default keyUp event responder method. Does nothing by default.
   * Extend the keyUp method, if you want to do something
@@ -729,7 +729,7 @@ HEventResponder = HClass.extend({
   *
   **/
   keyUp: function(_keycode) {},
-  
+
 /** = Description
   * Default textEnter event responder method. Does nothing by default.
   * Extend the textEnter method, if you want to do something

@@ -1,29 +1,29 @@
 
 /*** = Description
   ** HSheet is a container component that toggles its visibility
-  ** based on its value. When the value is 0, it's visible, otherwise 
+  ** based on its value. When the value is 0, it's visible, otherwise
   ** it's hidden. It expands to fill its parent view.
-  ** 
+  **
   ** Its rect specifies the relative size and position of the centered inner
   ** sheet, which acts as a subview.
-  ** 
+  **
   ** It's practical when combined with button values.
-  ** 
+  **
   ** Also see HAlertSheet and HConfirmSheet components.
-  ** 
+  **
   ***/
 var//RSence.Controls
 HSheet = HControl.extend({
-  
+
   componentName: 'sheet',
 
   defaultEvents: {
     resize: true
   },
-  
+
 /** = Description
   * Shows of hides HSheet depending on the value.
-  * If the value is 0 the HSheet#show() will be called. 
+  * If the value is 0 the HSheet#show() will be called.
   * Otherwise HSheet#hide() is called.
   *
   **/
@@ -37,7 +37,7 @@ HSheet = HControl.extend({
   },
 
 /** = Description
-  * Draws the sheet rectangle once it has been created and 
+  * Draws the sheet rectangle once it has been created and
   * if it has not been set as hidden by constructor.
   *
   * = Returns
@@ -104,7 +104,7 @@ HSheet = HControl.extend({
   //   ELEM.del( this._dimmerElem );
   //   this.base();
   // },
-  markupElemNames: [ 'dimmer', 'state', 'subview' ],
+  markupElemNames: [ 'dimmer', 'state', 'subview', 'bg' ],
 
   centerRect: function(){
     // console.log('centerRect');
@@ -134,6 +134,6 @@ HSheet = HControl.extend({
     this.centerRect();
     this.base();
   }
-  
+
 });
 

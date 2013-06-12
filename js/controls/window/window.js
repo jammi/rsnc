@@ -9,13 +9,13 @@
   ***/
 var//RSence.Controls
 HWindow = HDynControl.extend({
-  
+
   componentName:      'window',
-  
+
 /** = Description
   * In addition to the standard HControl#constructor options,
   * the following properties can be set:
-  * 
+  *
   * Key::         Description
   * +minX+::      The minimum X-coordinate allowed to be dragged or resized to.
   *               Defaults to +0+.
@@ -45,7 +45,7 @@ HWindow = HDynControl.extend({
   *               Defaults to +[ 16, 16 ]+
   * +noResize+::  A flag (when true) disables all resizing and only allows
   *               moving. Does not disable the (-) and (+) buttons.
-  * +fullWindowMove+:: A flag (when true) enables the full HWindow area 
+  * +fullWindowMove+:: A flag (when true) enables the full HWindow area
   *                    responds to drag events. By default it's false,
   *                    meaning only the title bar is draggable.
   * +closeButton+:: A flag (when true) enables the close button of HWindow.
@@ -54,13 +54,13 @@ HWindow = HDynControl.extend({
   *                 the HWindow instance.
   * +collapseButton+:: A flag (when true) enables the collapse (or minimize)
   *                    button of the HWindow instance. By default it's
-  *                    disabled. When enabled, extend the 
+  *                    disabled. When enabled, extend the
   *                    HWindow#windowCollapse method, which by default
   *                    zooms the window to its +minSize+.
   * +minimizeButton+:: An alias for +collapseButton+
   * +zoomButton+:: A flag (when true) enables the zoom (or maximize)
   *                button of the HWindow instance. By default it's
-  *                disabled. When enabled, extend the 
+  *                disabled. When enabled, extend the
   *                HWindow#windowZoom method, which by default zooms the
   *                contents of the HWindow to fit or the +maxSize+ depending
   *                on which is smaller.
@@ -68,41 +68,7 @@ HWindow = HDynControl.extend({
   * +maximizeButton+:: An alias for +zoomButton+
   *
   **/
-  controlDefaults: (HDynControl.prototype.controlDefaults.extend({
-    constructor: function(_ctrl){
-      var _winSize = ELEM.windowSize(),
-          _winWidth = _winSize[0],
-          _winHeight = _winSize[1];
-      if(!this.minSize){
-        this.minSize = [96,54];
-      }
-      if(!this.maxSize){
-        this.maxSize = _winSize;
-      }
-      if(!this.maxX){
-        this.maxX = _winWidth-this.minSize[0];
-      }
-      if(!this.maxY){
-        this.maxY = _winHeight-this.minSize[1];
-      }
-      if(!this.events){
-        this.events = {
-          draggable: true
-        };
-      }
-      if(!this.resizeNW){
-        this.resizeNW = [ 6, 6 ];
-      }
-      if(!this.resizeNE){
-        this.resizeNE = [ 6, 6 ];
-      }
-      if(!this.resizeSW){
-        this.resizeSW = [ 6, 6 ];
-      }
-      if(!this.resizeSE){
-        this.resizeSE = [ 25, 25 ];
-      }
-    },
+  controlDefaults: HDynControl.prototype.controlDefaults.extend({
     maxX: 'auto',
     maxY: 'auto',
     maxSize: 'auto',
@@ -117,8 +83,29 @@ HWindow = HDynControl.extend({
     zoomButton: false,
     resizeButton: false,
     maximizeButton: false
-  })),
-  
+  }),
+
+  customOptions: function(_options){
+    var
+    _winSize = ELEM.windowSize(),
+    _winWidth = _winSize[0],
+    _winHeight = _winSize[1];
+    if(!_options.minSize){   _options.minSize = [96,54];  }
+
+    if(!_options.maxSize){   _options.maxSize = _winSize; }
+    if(!_options.maxX   ){   _options.maxX = _winWidth-_options.minSize[0]; }
+    if(!_options.maxY   ){   _options.maxY = _winHeight-_options.minSize[1];   }
+
+    if(!_options.resizeNW){  _options.resizeNW = [ 6, 6 ]; }
+    if(!_options.resizeNE){  _options.resizeNE = [ 6, 6 ]; }
+    if(!_options.resizeSW){  _options.resizeSW = [ 6, 6 ]; }
+    if(!_options.resizeSE){  _options.resizeSE = [ 25, 25 ]; }
+  },
+
+  defaultEvents: {
+    draggable: true
+  },
+
   draw: function(){
     var _drawn = this.drawn;
     this.base();
@@ -181,7 +168,7 @@ HWindow = HDynControl.extend({
     this.base(_state);
     this.refreshWidgetStates();
   },
-  
+
   // -- overrides the drag rules to adapt to the !fullWindowMove as well
   // as disabling draggability in window button areas. ++
 
@@ -210,7 +197,7 @@ HWindow = HDynControl.extend({
     }
     return _rectRules;
   },
-  
+
   maxRect: function(){
     var _rect = this.base(), _opts = this.options;
     if(_rect[2]<_opts.minSize[0]){
@@ -230,29 +217,29 @@ HWindow = HDynControl.extend({
 
   hasWindowFocus: false,
 
-/** Reports to HSystem that this window has the focus and the 
-  * previously active window needs to blur 
+/** Reports to HSystem that this window has the focus and the
+  * previously active window needs to blur
   **/
   gainedActiveStatus: function(){
     HSystem.windowFocus(this);
   },
-  
+
 /** HSystem calls this method, whenever this window is allowed to be focused
   **/
   windowFocus: function(){
     this.hasWindowFocus = true;
     this.toggleCSSClass(this.elemId, 'inactive', false);
   },
-  
-/** HSystem calls this method, whenever this window needs to lose its 
-  * focus (another window focused) 
+
+/** HSystem calls this method, whenever this window needs to lose its
+  * focus (another window focused)
   **/
   windowBlur: function(){
     this.hasWindowFocus = false;
     this.toggleCSSClass(this.elemId, 'inactive', true);
     this.setStyle('cursor','default');
   },
-  
+
 /** This method gets called, whenever the close button has been clicked
   **/
   windowClose: function(){
@@ -274,8 +261,8 @@ HWindow = HDynControl.extend({
     }
     this.makeRectRules();
   },
-  
-/** This method gets called, whenever the collapse (minimize) button has 
+
+/** This method gets called, whenever the collapse (minimize) button has
   * been clicked
   **/
   windowCollapse: function(_rectOnly){
@@ -308,8 +295,8 @@ HWindow = HDynControl.extend({
     }
     this.makeRectRules();
   },
-  
-/** This method gets called, whenever the zoom (maximize/restore) 
+
+/** This method gets called, whenever the zoom (maximize/restore)
   * button has been clicked
   **/
   windowZoom: function(){

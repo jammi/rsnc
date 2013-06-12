@@ -2,10 +2,10 @@
 var//RSence.Controls
 HValidatorView = HControl.extend({
 
-  controlDefaults: (HControlDefaults.extend({
+  controlDefaults: HControlDefaults.extend({
     value: false,
     valueField: false
-  })),
+  }),
 
   setRect: function(_rect) {
     var _options = this.options;
@@ -19,7 +19,7 @@ HValidatorView = HControl.extend({
     }
     this.base(_rect);
   },
-  
+
 /** = Description
   * Ensures the value set is a Boolean.
   *
@@ -51,5 +51,5 @@ HValidatorView = HControl.extend({
     ELEM.setStyle(_elemId,'background-position',_x+'px '+_y+'px');
   }
 
-  
+
 });

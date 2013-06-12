@@ -29,12 +29,12 @@ HCheckbox = HButton.extend({
   refreshValue: function(){
     if(this.markupElemIds.control){
       if(this.value){
-        this.toggleCSSClass(this.markupElemIds.control, 'checked', true);
-        this.toggleCSSClass(this.markupElemIds.control, 'unchecked', false);
+        this.setCSSClass('control', 'checked');
+        this.unsetCSSClass('control', 'unchecked');
       }
       else{
-        this.toggleCSSClass(this.markupElemIds.control, 'checked', false);
-        this.toggleCSSClass(this.markupElemIds.control, 'unchecked', true);
+        this.unsetCSSClass('control', 'checked');
+        this.setCSSClass('control', 'unchecked');
       }
     }
   }

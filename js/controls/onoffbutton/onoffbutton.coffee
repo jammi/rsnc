@@ -5,11 +5,11 @@ HOnOffButton = HCheckbox.extend
   controlDefaults: HControlDefaults.extend
     label: 'ON'
     labelOff: 'OFF'
-    constructor: (_ctrl)->
-      if @label instanceof Array
-        @labelOff = @label[1]
-        @label = @label[0]
-      _ctrl.labelOff = @labelOff
+  customOptions: (_options)->
+    if _options.label instanceof Array
+      _options.labelOff = _options.label[1]
+      _options.label = _options.label[0]
+    @labelOff = _options.labelOff
   markupElemNames: [ 'label', 'offlabel', 'control', 'onvalue', 'offvalue' ]
   refreshLabel: ->
     @base()

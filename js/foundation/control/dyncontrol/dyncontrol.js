@@ -16,17 +16,17 @@
 ***/
 var//RSence.Foundation
 HDynControl = HControl.extend({
-  
+
   preserveTheme: true,
-  
+
   defaultEvents: {
     draggable: true
   },
-  
+
 /** = Description
   * In addition to the standard HControl#constructor options,
   * the following properties can be set:
-  * 
+  *
   * Key::         Description
   * +minX+::      The minimum X-coordinate allowed to be dragged or resized to.
   *               Defaults to +0+.
@@ -58,36 +58,7 @@ HDynControl = HControl.extend({
   *               moving.
   *
   **/
-  controlDefaults: (HControlDefaults.extend({
-    constructor: function(_ctrl){
-      var _winSize = ELEM.windowSize(),
-          _winWidth = _winSize[0],
-          _winHeight = _winSize[1];
-      if(!this.minSize){
-        this.minSize = [24,54];
-      }
-      if(!this.maxSize){
-        this.maxSize = _winSize;
-      }
-      if(!this.maxX){
-        this.maxX = _winWidth-this.minSize[0];
-      }
-      if(!this.maxY){
-        this.maxY = _winHeight-this.minSize[1];
-      }
-      if(!this.resizeNW){
-        this.resizeNW = [ 1, 1 ];
-      }
-      if(!this.resizeNE){
-        this.resizeNE = [ 1, 1 ];
-      }
-      if(!this.resizeSW){
-        this.resizeSW = [ 1, 1 ];
-      }
-      if(!this.resizeSE){
-        this.resizeSE = [ 1, 1 ];
-      }
-    },
+  controlDefaults: HControlDefaults.extend({
     minX:      0,
     minY:      0,
     maxX:      null,
@@ -103,14 +74,31 @@ HDynControl = HControl.extend({
     resizeSW:  null,
     resizeSE:  null,
     noResize:  false
-  })),
-  
+  }),
+
+  customOptions: function(_options){
+    var
+    _winSize = ELEM.windowSize(),
+    _winWidth = _winSize[0],
+    _winHeight = _winSize[1];
+    if(!_options.minSize){   _options.minSize = [24,54];  }
+
+    if(!_options.maxSize){   _options.maxSize = _winSize; }
+    if(!_options.maxX   ){   _options.maxX = _winWidth-_options.minSize[0]; }
+    if(!_options.maxY   ){   _options.maxY = _winHeight-_options.minSize[1];   }
+
+    if(!_options.resizeNW){  _options.resizeNW = [ 1, 1 ]; }
+    if(!_options.resizeNE){  _options.resizeNE = [ 1, 1 ]; }
+    if(!_options.resizeSW){  _options.resizeSW = [ 1, 1 ]; }
+    if(!_options.resizeSE){  _options.resizeSE = [ 1, 1 ]; }
+  },
+
   draw: function(){
     this.base();
     this._initActionFns();
     this._initActionFlag();
   },
-  
+
   /* Method for checking the change is within the limits */
   _checkConstraints: function(_leftChange,_topChange){
     var _this = this, _rect = _this.rect,
@@ -158,12 +146,12 @@ HDynControl = HControl.extend({
     }
     _this.drawRect();
   },
-  
+
   /* Method for returning the coordinate difference as a HPoint instance */
   _diffPoint: function(x,y){
     return this._startPoint.subtract(x,y);
   },
-  
+
 /** = Description
   * Sub-event method responder when the north-west (left-top) corner is being
   * moved to resize the view.
@@ -181,7 +169,7 @@ HDynControl = HControl.extend({
     _this.rect.setLeftTop(_this._startRect.leftTop.subtract(_dp));
     _this._checkConstraints(1,1);
   },
-  
+
 /** = Description
   * Sub-event method responder when the north-east (right-top) corner is being
   * moved to resize the view.
@@ -199,7 +187,7 @@ HDynControl = HControl.extend({
     _this.rect.setRightTop(_this._startRect.rightTop.subtract(_dp));
     _this._checkConstraints(0,1);
   },
-  
+
 /** = Description
   * Sub-event method responder when the south-west (left-bottom) corner is being
   * moved to resize the view.
@@ -217,7 +205,7 @@ HDynControl = HControl.extend({
     _this.rect.setLeftBottom(_this._startRect.leftBottom.subtract(_dp));
     _this._checkConstraints(1,0);
   },
-  
+
 /** = Description
   * Sub-event method responder when the south-east (right-bottom) corner is being
   * moved to resize the view.
@@ -235,7 +223,7 @@ HDynControl = HControl.extend({
     _this.rect.setRightBottom(_this._startRect.rightBottom.subtract(_dp));
     _this._checkConstraints(0,0);
   },
-  
+
 /** = Description
   * Sub-event method responder when the west (left) edge is being
   * moved to resize the view.
@@ -253,7 +241,7 @@ HDynControl = HControl.extend({
     _this.rect.setLeft(_this._startRect.left-_dp.x);
     _this._checkConstraints(1,0);
   },
-  
+
 /** = Description
   * Sub-event method responder when the east (right) edge is being
   * moved to resize the view.
@@ -271,7 +259,7 @@ HDynControl = HControl.extend({
     _this.rect.setRight(_this._startRect.right-_dp.x);
     _this._checkConstraints(0,0);
   },
-  
+
 /** = Description
   * Sub-event method responder when the north (top) edge is being
   * moved to resize the view.
@@ -289,7 +277,7 @@ HDynControl = HControl.extend({
     _this.rect.setTop(_this._startRect.top-_dp.y);
     _this._checkConstraints(0,1);
   },
-  
+
 /** = Description
   * Sub-event method responder when the south (bottom) edge is being
   * moved to resize the view.
@@ -307,7 +295,7 @@ HDynControl = HControl.extend({
     _this.rect.setBottom(_this._startRect.bottom-_dp.y);
     _this._checkConstraints(0,0);
   },
-  
+
 /** = Description
   * Sub-event method responder when moving the offset of the view.
   * This is called when no resize areas are triggered.
@@ -325,7 +313,7 @@ HDynControl = HControl.extend({
     _this.rect.offsetTo(_this._startRect.leftTop.subtract(_dp));
     _this._checkConstraints(1,1);
   },
-  
+
   /* Method to initialize the rules */
   _initActionFns: function(){
     this._actionFns = [];
@@ -341,17 +329,17 @@ HDynControl = HControl.extend({
     _actionFns[_resizeNE] = _this.dynResizeNE;
     _actionFns[_resizeSW] = _this.dynResizeSW;
     _actionFns[_resizeSE] = _this.dynResizeSE;
-    
+
     _actionFns[_resizeW] = _this.dynResizeW;
     _actionFns[_resizeE] = _this.dynResizeE;
     _actionFns[_resizeN] = _this.dynResizeN;
     _actionFns[_resizeS] = _this.dynResizeS;
-    
+
     _actionFns[_drag] = _this.dynDrag;
-    
+
   },
-  
-  
+
+
 /** Calculates the rectangles for all the active areas.
   **/
   makeRectRules: function(){
@@ -371,7 +359,7 @@ HDynControl = HControl.extend({
       [_opts.resizeW,_opts.resizeN,_rect.width-_opts.resizeE,_rect.height-_opts.resizeS]
     ];
   },
-  
+
   /* Method used for initializing the action flags. */
   _initActionFlag: function(){
     this._actionFlag = -1;
@@ -382,7 +370,7 @@ HDynControl = HControl.extend({
       this._actionRects.push( HRect.nu(_rr[0],_rr[1],_rr[2],_rr[3]) );
     }
   },
-  
+
   /* Method used to detect the action flags. Also sets the cursor. */
   _detectActionFlag: function(){
     var i,
@@ -408,7 +396,7 @@ HDynControl = HControl.extend({
       }
     }
   },
-  
+
 /** = Description
   * Event method responder that decides and initializes
   * a resize or move operation on the drag events.
@@ -447,7 +435,7 @@ HDynControl = HControl.extend({
     }
     return true; // prevents text selection
   },
-  
+
 /** = Description
   * Event method responder that performs a resize or move recalculation
   * and redraw call when dragging one of the corners or edges to resize or
