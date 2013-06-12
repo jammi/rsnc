@@ -6,19 +6,19 @@
 ***/
 //var//RSence.COMM
 COMM.Values = UtilMethods.extend({
-  
+
 /** No constructor, singleton class.
   **/
   constructor: null,
-  
+
 /** An +Object+ containing all values by key.
   **/
   values: {},
-  
+
 /** A list of value keys whose value has changed. To be synchronized asap.
   **/
   tosync: [],
-  
+
 /** = Description
   * Creates a new +HValue+ instance. Its main purpose is to act as the main
   * client-side value creation interface for the server representation of
@@ -27,12 +27,24 @@ COMM.Values = UtilMethods.extend({
   * = Parameters
   * +_id+::     The unique id of the +HValue+ instance (set by the server)
   * +_data::    The initial data of the +HValue+ instance (set by the server)
+  * +_type::    The value type: 0=HValue, 1=HPushValue, 2=HPullValue
   *
   **/
-  create: function(_id,_data){
-    HValue.nu(_id,_data);
+  create: function(_id,_data,_type){
+    if(!_type){
+      HValue.nu(_id,_data);
+    }
+    else if(_type === 1){
+      HPushValue.nu(_id,_data);
+    }
+    else if(_type === 2){
+      HPullValue.nu(_id,_data);
+    }
+    else{
+      console.warn("Unknown value type:",_type);
+    }
   },
-  
+
 /** = Description
   * Binds a +HValue+ instance created externally to +self.values+.
   * Called from +HValue+ upon construction.
@@ -45,7 +57,7 @@ COMM.Values = UtilMethods.extend({
   add: function(_id,_value){
     this.values[_id] = _value;
   },
-  
+
 /** = Description
   * Sets the data of the +HValue+ instance by +_Id+.
   *
@@ -57,7 +69,7 @@ COMM.Values = UtilMethods.extend({
   set: function(_id,_data){
     this.values[_id].set(_data);
   },
-  
+
 /** = Description
   * Sets and decodes the +_data+. Main value setter interface
   * for the server representation of +HValue+.
@@ -72,7 +84,7 @@ COMM.Values = UtilMethods.extend({
     _data = _this.decode(_data);
     _this.values[_id].s(_data);
   },
-  
+
 /** = Description
   * Deletes a +HValue+ instance by +_id+.
   *
@@ -95,7 +107,7 @@ COMM.Values = UtilMethods.extend({
     _value.views = [];
     delete _values[_id];
   },
-  
+
 /** = Description
   * Marks the +HValue+ instance as changed and tries to send it
   * immediately, unless COMM.Transporter has an ongoing transfer.
@@ -115,7 +127,7 @@ COMM.Values = UtilMethods.extend({
       }
     }
   },
-  
+
 /** = Description
   * Use this method to detect the type of the object given.
   *
@@ -137,7 +149,7 @@ COMM.Values = UtilMethods.extend({
   type: function(_obj){
     return this.typeChr( _obj );
   },
-  
+
 /** = Description
   * Returns an URI-encoded string representation of all the changed values to
   * synchronize to the server.
@@ -166,7 +178,7 @@ COMM.Values = UtilMethods.extend({
       _id, _value;
       while(i--){
         _id = _tosync.shift();
-        _value = _values[_id].value;
+        _value = _values[_id].toSync();
         _syncValues.push( [ _id, _value ] );
       }
     }
@@ -184,7 +196,7 @@ COMM.Values = UtilMethods.extend({
   clone: function(_obj){
     return this.cloneObject(_obj);
   }
-  
+
 });
 
 // Backwards compatibility assignment for code that still

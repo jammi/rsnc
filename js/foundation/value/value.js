@@ -28,12 +28,12 @@
   **  +id+::     Value Id, used by the whole value management system to identify individual values.
   **  +type+::   '[HValue]'
   **  +value+::  The container/"payload" data value itself.
-  **  +views+::  A list of Components that uses this value. 
+  **  +views+::  A list of Components that uses this value.
   **             Used for automatic value syncronization between responders.
 ***/
 var//RSence.Foundation
 HValue = HClass.extend({
-  
+
 /** = Description
   * Constructs a value with the initial value +_value+ and the unique id +_id+.
   *
@@ -42,7 +42,7 @@ HValue = HClass.extend({
   *
   * = Parameters
   * +_id+::     The source id (ideally set by server, should be unique)
-  * +_value+::  The initial data 
+  * +_value+::  The initial data
   *
   **/
   constructor: function(_id,_value){
@@ -53,7 +53,7 @@ HValue = HClass.extend({
       COMM.Values.add(_id,this);
     }
   },
-  
+
 /** Destructor method. Releases all bindings.
   **/
   die: function(){
@@ -66,7 +66,14 @@ HValue = HClass.extend({
       COMM.Values.del(this.id);
     }
   },
-  
+
+/** = Description
+  * Interface for valuemanager, returns its to-be-sent-to-server value.
+  **/
+  toSync: function(){
+    return this.value;
+  },
+
 /** = Description
   * Replaces the data of the value.
   *
@@ -85,7 +92,7 @@ HValue = HClass.extend({
       this.refresh();
     }
   },
-  
+
 /** Compares +_value+ with +self.value+.
   * = Returns
   * true or false, depending on the equality
@@ -93,17 +100,17 @@ HValue = HClass.extend({
   differs: function(_value){
     return (COMM.Values.encode(_value) !== COMM.Values.encode(this.value));
   },
-  
+
 /** = Description
   * Setter for the server.
-  * 
+  *
   * Just as +self.set+, but doesn't re-notify the server about the change.
   **/
   s: function(_value){
     this.value = _value;
     this.refresh();
   },
-  
+
 /** = Description
   * Return the data, returns the +self.value+ instance variable
   *
@@ -113,12 +120,12 @@ HValue = HClass.extend({
   get: function(){
     return this.value;
   },
-  
+
 /** = Description
   * Bind a responder to the value, use to attach HValues to responders derived from HControl.
   *
   * = Parameters
-  * +_responder+::   Any responder that is derived from HControl or any other 
+  * +_responder+::   Any responder that is derived from HControl or any other
   *                  class instance that implements HValueResponder or has
   *                  compatible typing.
   **/
@@ -131,12 +138,12 @@ HValue = HClass.extend({
       _responder.setValueObj( this );
     }
   },
-  
+
 /** = Description
   * Release a responder bound to the HValue instance itself.
   *
   * = Parameters
-  * +_responder+::   Any responder that is derived from HControl or any other 
+  * +_responder+::   Any responder that is derived from HControl or any other
   *                  class instance that implements HValueResponder or has
   *                  compatible typing.
   **/
@@ -155,7 +162,7 @@ HValue = HClass.extend({
   release: function(_responder){
     return this.unbind(_responder);
   },
-  
+
 /** Calls the setValue method all responders bound to this HValue.
   **/
   refresh: function(){
@@ -170,7 +177,7 @@ HValue = HClass.extend({
       }
     }
   }
-  
+
 });
 
 
