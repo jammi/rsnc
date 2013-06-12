@@ -8,7 +8,8 @@ HButton = HControl.extend
   componentName: 'button'
   optimizeWidthOnRefresh: true
   controlDefaults: HControlDefaults.extend
-    defaultKeyClick: false
+    defaultKeyClick: false # use defaultResponder instead; it's a better name
+    defaultResponder: false
     pack: false
 
   defaultEvents:
@@ -27,7 +28,13 @@ HButton = HControl.extend
     @
 
   defaultKey: ->
-    if @options.defaultKeyClick
+    if @enabled and ( @options.defaultKeyClick or @options.defaultResponder )
+      if @options.defaultKeyClick and !@isProduction
+        console.warn("defaultKeyClick is deprecated; use defaultResponder instead (sorry)")
+      @setCSSClass('clickeffect')
+      @timeouts.push( setTimeout( =>
+        @unsetCSSClass('clickeffect')
+      , 200 ) )
       @click()
       return false
     null
@@ -37,10 +44,12 @@ HButton = HControl.extend
 
   refresh: ->
     @base()
-    if @options.defaultKeyClick
-      @toggleCSSClass(@elemId,'action',true)
+    if @options.defaultKeyClick or @options.defaultResponder
+      if @options.defaultKeyClick and !@isProduction
+        console.warn("defaultKeyClick is deprecated; use defaultResponder instead (sorry)")
+      @setCSSClass('action')
     else
-      @toggleCSSClass(@elemId,'action',false)
+      @unsetCSSClass('action')
 
   labelPadding: 0
   optimizeWidth: ->

@@ -21,7 +21,7 @@
 .default.disabled > .button_control > .button_bg {
   border-color: #ddd;
   box-shadow: 0 0 3px #666;
-  opacity: 0.75;
+  opacity: 0.9;
   #{this.gradientCSS('#d6d6d6',[66,'#d0d0d0'],[71,'#d3d3d3'],'#cccccc')}
 }
 .default > .button_control > .button_label {
@@ -36,7 +36,7 @@
   color: #333;
 }
 .default.disabled > .button_control > .button_label {
-  color: #999;
+  color: #555;
 }
 
 .default.enabled.action > .button_control > .button_bg {
@@ -77,12 +77,14 @@
   color: #000;
 }
 
+.default.enabled.action.clickeffect > .button_control > .button_bg,
 .default.enabled.action > .button_control:active > .button_bg {
   border: 1px solid #fff;
   margin: -1px;
   box-shadow: 0 0 3px #fff;
   #{this.gradientCSS('#111',[29,'#333'],[33,'#333'],'#000')}
 }
+.default.enabled.action.clickeffect > .button_control:active > .button_label,
 .default.enabled.action > .button_control:active > .button_label {
   color: #fff;
   text-shadow: 0 0 2px #000;
