@@ -10,7 +10,7 @@
 ***/
 var//RSence.Foundation
 HSystem = {
-  
+
 /** When the focus behaviour is 1, clicking on any subview brings
   * the window to front, if attached to a HWindow instance.
   * If the behaviour is 0, only direct clicks on the HWindow controls
@@ -18,44 +18,44 @@ HSystem = {
   *
   **/
   windowFocusMode: 1,
-  
+
 /** Singleton class; has no constructor **/
   // constructor: null,
-  
+
 /** An array of HApplication instances, index is the appId **/
   apps: [],
-  
+
 /** An array (in the same order as apps): holds priority values **/
   appPriorities: [],
-  
+
 /** An array (in the same order as apps): holds busy status **/
   busyApps: [],
-  
+
 /** This array holds free app id:s **/
   freeAppIds: [],
-  
+
 /** The default HSystem ticker interval. Unit is milliseconds. **/
   defaultInterval: 10,
 
 // The ticker interval, when window has no focus.
   _blurredInterval: 300,
-  
+
 /** The default HApplication priority. Unit is "On the n:th tick: poll". **/
   defaultPriority: 20,
-  
-/** The z-index of root-level +HView+ instances. All the array operations 
+
+/** The z-index of root-level +HView+ instances. All the array operations
   * are done by the inner logic of +HApplication+ and +HView+ instances.
   **/
   viewsZOrder: [],
-  
+
 /** This is the internal "clock" counter. Gets updated on every tick. **/
   ticks: 0,
-  
+
 /** Time in milliseconds for the timeout of a poll to finish before
   * being classified as stuck and thus forcibly terminated.
   **/
   maxAppRunTime: 5000,
-  
+
 /** Calls applications, uses the prority as a prioritizer.
   **/
   scheduler: function(){
@@ -76,7 +76,7 @@ HSystem = {
           if( this.ticks % _priority === 0 ){
             // Set the app busy, the app itself should "unbusy" itself, when the idle call is done.
             // That happens in <HApplication._startIdle>
-            
+
             // If the app is not busy, then make a idle call:
             if(HSystem.apps[_appId]){
               HSystem.apps[_appId]._startIdle();
@@ -85,13 +85,14 @@ HSystem = {
         }
       }
     }
-    
+
+
     if(this._updateZIndexOfChildrenBuffer.length!==0){
       this._flushUpdateZIndexOfChilden();
     }
-    
+
   },
-  
+
   _updateFlexibleRects: function(){
     var
     _view,
@@ -103,21 +104,32 @@ HSystem = {
       }
     }
   },
-  
+
+  paused: false,
+  pause: function(){
+    clearTimeout(this._tickTimeout);
+    this.paused = true;
+  },
+  resume: function(){
+    this.paused = false;
+    this.ticker();
+  },
+
 /** Calls the scheduler and then calls itself after a timeout to keep
   * the loop going on.
   **/
   ticker: function(){
+    if(this.paused){return;}
     // Increment the tick counter:
     this.ticks++;
     this.scheduler();
     this._tickTimeout = setTimeout( function(){HSystem.ticker();},this.defaultInterval);
   },
-  
-  
+
+
 /** = Description
   * Adds the structures needed for a new +HApplication+ instance.
-  * 
+  *
   * Called from inside the +HApplication+ constructor.
   * Binds an app and gives it a unique id.
   *
@@ -139,18 +151,18 @@ HSystem = {
       this.apps.push(_app);
       _appId = this.apps.length-1;
     }
-    
+
     // sets self as parent
     _app.parent  = this;
     _app.parents = [this];
-    
+
     _app.appId = _appId;
-    
+
     this.startApp(_appId, _priority);
-    
+
     return _appId;
   },
-  
+
 /** = Description
   * Starts polling an app instance (and its components).
   *
@@ -166,7 +178,7 @@ HSystem = {
     this.appPriorities[ _appId ] = _priority;
     this.busyApps[_appId] = false;
   },
-  
+
 /** = Description
   * Stops polling an app instance (and its components).
   *
@@ -177,7 +189,7 @@ HSystem = {
   stopApp: function(_appId){
     this.busyApps[_appId] = true;
   },
-  
+
 /** = Description
   * Changes the priority of the app. Calls +stopApp+ and +startApp+.
   *
@@ -189,7 +201,7 @@ HSystem = {
   reniceApp: function(_appId,_priority){
     this.appPriorities[ _appId ] = _priority;
   },
-  
+
 /** = Description
   * Stops polling and deletes an app instance (and its components).
   *
@@ -227,19 +239,19 @@ HSystem = {
 
   _forceKillApp: function( _appId ){
     this.busyApps[_appId] = true;
-    
+
     this.apps[ _appId ].destroyAllViews();
     this.apps[ _appId ] = null;
-    
+
     this.freeAppIds.push( _appId );
   },
-  
+
 /** All +HView+ instances that are defined **/
   views: [],
-  
+
 /** List of free +viwes+ indexes **/
   _freeViewIds: [],
-  
+
 /** = Description
   * Adds a view and assigns it an id.
   *
@@ -262,7 +274,7 @@ HSystem = {
     }
     return _newId;
   },
-  
+
 /** = Description
   * Removes a view and recycles its id.
   *
@@ -274,10 +286,10 @@ HSystem = {
     this.views[_viewId] = null;
     this._freeViewIds.push(_viewId);
   },
-  
+
 /** The view id of the active window. 0 means none. **/
   activeWindowId: 0,
-  
+
 /** = Description
   * Focuses the window given and blurs the previous one.
   *
@@ -296,17 +308,17 @@ HSystem = {
         _viewId = _view.viewId;
     if(_views[_activeWindowId]){
       if (_views[_activeWindowId]["windowBlur"]) {
-        _views[_activeWindowId].windowBlur();        
+        _views[_activeWindowId].windowBlur();
       }
     }
     this.activeWindowId=_viewId;
     _view.bringToFront();
     _view.windowFocus();
   },
-  
+
 /** optimization of zindex buffer, see +HView+ **/
   _updateZIndexOfChildrenBuffer: [],
-  
+
 /** Updates the z-indexes of the children of the given +_viewId+. **/
   updateZIndexOfChildren: function(_viewId) {
     if(!~this._updateZIndexOfChildrenBuffer.indexOf(_viewId)){
@@ -316,78 +328,78 @@ HSystem = {
       (!~this._updateZIndexOfChildrenBuffer.indexOf(null)) && this._updateZIndexOfChildrenBuffer.push(null);
     }
   },
-  
+
 /** Flushes the z-indexes. This is a fairly expensive operation,
   * thas's why the info is buffered.
   **/
   _flushUpdateZIndexOfChilden: function() {
-    
+
     var
-    
+
     j = 0, // buffer index
-    
+
     // reference to the HSystem namespace
     _this = HSystem,
-    
+
     // reference to the buffer
     _buffer = _this._updateZIndexOfChildrenBuffer,
-    
+
     // the length of the buffer
     _bufLen = _buffer.length;
-    
+
     // loop buffer length times to get the items
     for ( ; j < _bufLen; j++ ) {
-      
-      
+
+
       // get and remove view the view id from the z-index flush status buffer:
       var
       _viewId = _buffer.shift(),
-      
+
       // reference to the view's z-index array or the system root-level views if _viewId is null
       _views = ((_viewId === null)?(_this.viewsZOrder):(_this.views[ _viewId ].viewsZOrder)),
-      
+
       // the length of the view's z-index array
       _viewLen = _views.length,
-      
+
       // reference to the setStyle method of the element manager
-      
+
       // reference to HSystem.views (collection of all views, by index)
       _sysViews = _this.views,
-      
+
       // assign variables for use inside the inner loop:
-          
+
       // the viewId of the view to be updated
       _subViewId,
-      
+
       // the view itself with the viewId above
       _view,
-      
+
       // the elemId property, used as a [] -lookup in the loop
       _elemIdStr = 'elemId',
-      
+
       // the css property name
       _zIdxStr = 'z-index',
-      
+
       // the loop index
       i=0,
-      
+
       // the element id of the view
       _elemId;
-      
+
       // end of var declarations
-      
+
       // loop through all subviews and update the indexes:
       for ( ; i < _viewLen; i++ ) {
-        
+
         // get the viewId to be updated based on the z-index array
         _subViewId = _views[ i ];
-        
+
         // reference to the view itself
         _view = _sysViews[ _subViewId ];
-        
+
         // the element id of the view
         _elemId = _view[ _elemIdStr ];
-        
+
         if( _elemId === undefined ){
           continue;
         }
@@ -398,7 +410,7 @@ HSystem = {
     }
   }
 };
-  
+
 // });
 
 // Starts the ticking, when the document is loaded:
