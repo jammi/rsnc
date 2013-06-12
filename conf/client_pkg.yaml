@@ -17,14 +17,14 @@
     # RSence.*
     - rsence_ns
 
-    - locale_settings    # HLocaleSettings
-
     # RSence.Core
     - class             # HClass
     - sha               # SHA
     - elem              # ELEM
     - event             # Event
     - util_methods      # UtilMethods
+
+    - locale_settings    # HLocaleSettings
 
     # RSence.Foundation
     - system            # HSystem
@@ -41,6 +41,9 @@
     - autosync          # ( automatic sync setup )
     - values            # COMM.Values
     - value             # HValue
+    - keyvalue          # HKeyValue
+    - pushvalue         # HPushValue
+    - pullvalue         # HPullValue
     - jsloader          # COMM.JSLoader
     - json_renderer     # COMM.JSONRenderer
     - valuematrix       # HValueMatrixInterface & HValueMatrix
@@ -120,6 +123,7 @@
     - minimenuitem        # HMiniMenuItem
     - popupmenu           # HPopupMenu
     - menuitem            # HMenuItem
+    - combobox            # HCombobox
 
   tables:
     - table               # HTable
