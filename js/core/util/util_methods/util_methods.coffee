@@ -10,8 +10,27 @@ UtilMethods = (->
       's' # string
     ]
 
+    pushTask: (_fn)->
+      COMM.Queue.push(_fn)
+
+    unshiftTask: (_fn)->
+      COMM.Queue.unshift(_fn)
+
+    msNow: ->
+      new Date().getTime()
+
     getValueById: (_id)->
       COMM.Values.values[_id]
+
+    isFloat: (_num)-> ( Math.round(_num) != _num )
+
+    moment: (_date,_format)->
+      if @options
+        if @options.useUTC == true or (@options.useUTC == null and HLocale.dateTime.defaultOptions.useUTC == true)
+          return moment.utc(_date,_format)
+      else if HLocale.dateTime.defaultOptions.useUTC == true
+        return moment.utc(_date,_format)
+      moment(_date,_format)
 
     ###
     # Returns object type as a single-char string.
@@ -26,8 +45,9 @@ UtilMethods = (->
     # - 'h': Hash (Generic Object)
     # - 'd': Date
     # - 'b': Boolean (true/false)
-    # - 'n': Number (integers and floats)
+    # - 'n': Number (integer or float, use #isFloat to see whether it's a float or integer )
     # - 's': String
+    # - '>': Function
     # - '~': Null
     # - '-': Undefined
     # - false: unknown
@@ -35,12 +55,13 @@ UtilMethods = (->
     typeChr: (_obj)->
       return '~' if _obj == null
       return '-' unless _obj?
+      return '>' if _obj instanceof Function
       _typeChr = (typeof _obj).slice(0,1)
       return _typeChr if @arrIncludes(@_builtinTypeChr,_typeChr)
       if _typeChr == 'o'
-        return 'a' if _obj.constructor == Array
+        return 'a' if _obj instanceof Array
+        return 'd' if _obj instanceof Date
         return 'h' if _obj.constructor == Object
-        return 'd' if _obj.constructor == Date
       return false
 
     baseStrToNum: (_str, _base)->
@@ -61,10 +82,10 @@ UtilMethods = (->
 
     base36ToNum: (_base36)->
       @baseStrToNum(_base36,36)
-    
+
     numToBase36: (_num)->
       @baseIntToStr(_num,36)
-    
+
     _hexColorLengths: [3,4,6,7]
     _hexCharacters: ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f']
     _hex3To6Ratio: 4097 # parseInt('1001',16)
@@ -132,6 +153,27 @@ UtilMethods = (->
       catch e
         console.log('_'+'decodeString failed for _'+'str: ',_str)
         return _str
+    # Recursively merges two objects of identical structure (array or object)
+    updateObject: (_src,_dst)->
+      _typeSrc = @typeChr(_src)
+      _typeDst = @typeChr(_dst)
+      _merge = (_item,_src,_dst,i)=>
+        _itemType = @typeChr(_item)
+        if _itemType == @typeChr(_dst[i])
+          if _itemType == 'a' or _itemType == 'h'
+            @updateObjects( _item, _dst[i] )
+          else
+            _dst[i] = _item
+        else if !@isProduction
+          console.warn('updateObject; mismatching item type: ', _itemType, ' (', _item, ') vs ', @_typeChr(_dst[i]), ' (',_dst[i], ')')
+      if _typeSrc == _typeDst
+        if _typeSrc == 'a'
+          for _item, i in _src
+            _merge(_item,_src,_dst,i)
+        else if _typeSrc == 'h'
+          for i, _item of _src
+            _itemType = @typeChr(_item)
+            _merge(_itemType,_src,_dst,i)
     # Returns a decoded Array with the decoded content of Array _arr
     _decodeArr: (_arr)->
       _output = []
@@ -146,13 +188,13 @@ UtilMethods = (->
       _output
     ## = Description
      # Decodes a JSON object. Decodes the url-encoded strings within.
-     # 
+     #
      # = Parameters
      # +_ibj+::  A raw object with special characters contained.
-     # 
+     #
      # = Returns
      # A version of the object with the contained strings decoded to unicode.
-     # 
+     #
      ##
     decodeObject: (_obj)->
       return null unless _obj?
@@ -178,7 +220,7 @@ UtilMethods = (->
         catch e
           console.log('invalid json:',_obj)
           return "{}"
-      
+
       # decodeObject: (_obj)->
       #   return null unless _obj?
       #   _type = @typeChr(_obj)
@@ -192,7 +234,7 @@ UtilMethods = (->
       #     catch e
       #       console.log e, _obj
       #   _obj
-      
+
       cloneObject: ( _obj )->
         unless _obj?
           console.log 'WARNING: clone of undefined returns null.' if _obj == undefined
@@ -217,10 +259,10 @@ UtilMethods = (->
         '{'+_output.join(',')+'}'
       ## = Description
        # Encodes any object into an ASCII string. Special characters are url-encoded.
-       # 
+       #
        # = Parameters
        # +_obj+::  Any object (including primary types)
-       # 
+       #
        # = Returns
        # A +String+ representation of +_obj+
        ##
@@ -240,14 +282,14 @@ UtilMethods = (->
         'null'
       ## = Description
        # Makes a deep copy of the object.
-       # 
+       #
        # When you use assignment of a js object, only primitive object
        # types (strings, numbers and booleans) are copied. This method
        # makes a deep (nested) clone of the input object.
-       # 
+       #
        # = Parameters
        # +_obj+:: Any object
-       # 
+       #
        # = Returns
        # A copy of the object
        ##
