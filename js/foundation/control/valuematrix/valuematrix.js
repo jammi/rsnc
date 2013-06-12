@@ -7,7 +7,7 @@
 ***/
 var//RSence.Foundation
 HValueMatrixInterface = {
-  
+
 /** = Description
   * Standard +HControl+ constructor model.
   * Passes parameters through to its base class's constructor,
@@ -18,7 +18,7 @@ HValueMatrixInterface = {
     this.base(_rect, _parent, _options);
     this.setValueMatrix();
   },
-  
+
 /** = Description
   * Binds itself to the parent's HValueMatrix instance.
   *
@@ -27,12 +27,12 @@ HValueMatrixInterface = {
   *
   **/
   setValueMatrix: function(){
-    if(this.parent['valueMatrix'] === undefined){
+    if(this.parent.valueMatrix === undefined){
       this.parent.valueMatrix = HValueMatrix.nu();
     }
     this.valueMatrixIndex = this.parent.valueMatrix.addControl(this);
   },
-  
+
 /** Sets itself active using the parent's valueMatrix on the click event.
   **/
   click: function(){
@@ -40,13 +40,13 @@ HValueMatrixInterface = {
       this.parent.valueMatrix.setValue( this.valueMatrixIndex );
     }
   },
-  
+
 /** The destructor makes sure +self+ is released from the parent's valueMatrix
   * upon destruction.
   **/
   die: function(){
-    if(this['parent']){
-      if(this.parent['valueMatrix']){
+    if(this.parent){
+      if(this.parent.valueMatrix){
         this.parent.valueMatrix.release(this);
       }
     }
@@ -61,7 +61,7 @@ HValueMatrixInterface = {
 ***/
 var//RSence.Foundation
 HValueMatrix = HClass.extend({
-  
+
 /** The constructor doesn't take parameters.
   **/
   constructor: function(){
@@ -71,15 +71,15 @@ HValueMatrix = HClass.extend({
     this.value = -1;
     this.valueObj = new HDummyValue();
   },
-  
+
 /** Method for value interfaces, called by the HValue instance when bound.
   **/
   setValueObj: function(_valueObj){
     this.valueObj = _valueObj;
     this.setValue(_valueObj.value);
   },
-  
-/** Method for value interfaces, the +_index+ is the 
+
+/** Method for value interfaces, the +_index+ is the
   * index of the item to select.
   **/
   setValue: function(_index){
@@ -101,7 +101,7 @@ HValueMatrix = HClass.extend({
       this.valueObj.set(_index);
     }
   },
-  
+
 /** A method for attaching a +HControl+ -derived class to the matrix.
   **/
   addControl: function(_ctrl) {
@@ -112,7 +112,7 @@ HValueMatrix = HClass.extend({
     }
     return _newIndex;
   },
-  
+
 /** A method for releasing a +HControl+ -derived class from the matrix.
   **/
   release: function(_ctrl) {
