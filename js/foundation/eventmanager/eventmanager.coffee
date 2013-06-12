@@ -340,6 +340,9 @@ EventManagerApp = HApplication.extend
       return false
     return true
   #
+  # Queue of items to check for focus, because it's fairly slow directly:
+  _topmostQueue: []
+  #
   # Converts eventOptions into a list of enabled event names
   _setEventOptions: (_ctrl,_eventOptions,_warnMethodName)->
     _warnMethodName = '[unknown]' unless _warnMethodName
@@ -377,9 +380,7 @@ EventManagerApp = HApplication.extend
       @_listeners.enabled.unshift( _viewId ) unless ~@_listeners.enabled.indexOf(_viewId)
       _elem = ELEM.get( _ctrl.elemId )
       [ x, y ] = @status.crsr
-      _matchIds = @_findTopmostEnabled( HPoint.new( x, y ), 'contains', null )
-      if ~_matchIds.indexOf( _viewId )
-        @changeActiveControl( _ctrl )
+      @_topmostQueue.push( [ HPoint.new( x, y ), _ctrl ] )
   #
   # Releases bindings done by #_setEventOptions
   _unsetEventOptions: (_ctrl,_warnMethodName)->
@@ -396,7 +397,6 @@ EventManagerApp = HApplication.extend
         _intersectHoverIdx = @_listeners._rectHoverIntersectMode.indexOf( _viewId )
         if ~_intersectHoverIdx
           @_listeners._rectHoverIntersectMode.splice( _intersectHoverIdx, 1 )
-    _wasFocused = false
     _elem = ELEM.get( _ctrl.elemId )
     for _statusItem in [ 'dragged', 'selected', 'hovered', 'active', 'focused', 'enabled' ]
       _viewIdx = @_listeners[_statusItem].indexOf(_viewId)
@@ -411,7 +411,6 @@ EventManagerApp = HApplication.extend
           _ctrl._lostActiveStatus( null )
         else if _statusItem == 'focused'
           @blur( _ctrl )
-          _wasFocused = true
         else if _statusItem == 'enabled'
           _ctrl.setEnabled( false ) if _ctrl.enabled
         _viewIdx = @_listeners[_statusItem].indexOf(_viewId)
@@ -736,8 +735,17 @@ EventManagerApp = HApplication.extend
     if _active.length != 1
       @warn "Danger, too many active items: #{JSON.stringify(_active)}"
     for _viewId in _active.slice()
+      if _viewId == null
+        console.warn('encountered null viewId in active listeners!')
+        _idx = _active.indexOf( _viewId )
+        while ~_idx
+          _idx = _active.indexOf( _viewId )
+          _active.splice( _idx, 1 )
+        continue
       continue if _newActive != null and _viewId == _newActive.viewId
       _ctrl = @_views[_viewId]
+      if _ctrl.isDead and !@isProduction
+        console.warn('trying to deactivate dead control!')
       _ctrl.active = false
       _idx = _active.indexOf( _viewId )
       _dragIdx = _dragged.indexOf(_viewId)
@@ -1116,25 +1124,21 @@ EventManagerApp = HApplication.extend
   # a special default rule of auto-selecting the active control and
   # checking all of its siblings before traversing.
   defaultKey: (_methodName,_ctrl)->
-    if _ctrl?
-      return true if _ctrl[_methodName]? and _ctrl[_methodName]()
-    else # first special rules, check same
-      return null unless @_listeners.active
-      _ctrl = @_views[@_listeners.active[0]]
-      return true if _ctrl[_methodName]? and _ctrl[_methodName]()
-      _stop = null
-      for _viewId in _ctrl.parent.views
-        continue if _ctrl.viewId == _viewId
-        _ctrl = @_views[_viewId]
-        if _ctrl[_methodName]?
-          _stopStatus = _ctrl[_methodName]()
-          if _stopStatus == false or _stopStatus == true
-            _stop = _stopStatus unless _stop
-        if _stop != null
-          return _stop
-    if _ctrl.parent?
-      return true if @defaultKey(_methodName,_ctrl.parent)
-    return null
+    return true if _ctrl? and _ctrl[_methodName]? and _ctrl[_methodName]() == true
+    return null unless @_listeners.active
+    _ctrl = @_views[@_listeners.active[0]]
+    return true if _ctrl[_methodName]? and _ctrl[_methodName]() == true
+    _stop = null
+    for _viewId in _ctrl.parent.views
+      continue if _ctrl.viewId == _viewId
+      _ctrl = @_views[_viewId]
+      if _ctrl[_methodName]?
+        _stopStatus = _ctrl[_methodName]()
+        if _stopStatus == false or _stopStatus == true
+          _stop = _stopStatus unless _stop
+      return _stop if _stop != null
+    return true if _ctrl.parent? and @defaultKey(_methodName,_ctrl.parent) == true
+    null
   #
   # Handles the keyDown event
   keyDown: (e)->
@@ -1219,13 +1223,27 @@ EventManagerApp = HApplication.extend
     @warn('EventManager#isCmdKeyDown is deprecated, use #status.cmdKeyDown instead')
     @status.altKeyDown
   #
-  # Debug output
-  # idle: ->
-  #   console.log( 'focused: ',
-  #     JSON.stringify(@_listeners.focused),'active:',
-  #     JSON.stringify(@_listeners.active),'dragged:',
-  #     JSON.stringify(@_listeners.dragged),'hovered:',
-  #     JSON.stringify(@_listeners.hovered) )
+  idle: ->
+    if @_topmostQueue.length
+      _items = []
+      _lastPoint = false
+      for i in [0..(@_topmostQueue.length-1)]
+        [ _point, _ctrl ] = @_topmostQueue.shift()
+        _lastPoint = _point
+        continue if _ctrl.isDead
+        continue unless _ctrl.enabled
+        _items.push( _ctrl )
+      _matchIds = @_findTopmostEnabled( _lastPoint, 'contains', null )
+      for _ctrl in _items
+        _viewId = _ctrl.viewId
+        if ~_matchIds.indexOf( _viewId )
+          @changeActiveControl( _ctrl )
+    # Debug output
+    # console.log( 'focused: ',
+    # JSON.stringify(@_listeners.focused),'active:',
+    # JSON.stringify(@_listeners.active),'dragged:',
+    # JSON.stringify(@_listeners.dragged),'hovered:',
+    # JSON.stringify(@_listeners.hovered) )
   #
   # Cleans up structures
   die: ->
@@ -1233,7 +1251,7 @@ EventManagerApp = HApplication.extend
     @base()
 
 LOAD( ->
-  window.EventManager = EventManagerApp.new( 500, 'EventManager' )
+  window.EventManager = EventManagerApp.new( 40, 'EventManager' )
   # Alias:
   window.EVENT = EventManager
   EventManager.start()
