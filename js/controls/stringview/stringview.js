@@ -1,10 +1,10 @@
 
 /*** = Description
-  ** HStringView is a view component that represents a non-editable line of text. 
-  ** Commonly, stringview is used as a label to control elements 
-  ** that do not have implicit labels (text fields, checkboxes and radio buttons, and menus). 
-  ** Some form controls automatically have labels associated with them (press buttons) 
-  ** while most do not have (text fields, checkboxes and radio buttons, and sliders etc.).  
+  ** HStringView is a view component that represents a non-editable line of text.
+  ** Commonly, stringview is used as a label to control elements
+  ** that do not have implicit labels (text fields, checkboxes and radio buttons, and menus).
+  ** Some form controls automatically have labels associated with them (press buttons)
+  ** while most do not have (text fields, checkboxes and radio buttons, and sliders etc.).
   **
   ** = Instance variables
   ** +type+::   '[HStringView]'
@@ -16,9 +16,11 @@ var HStringView, HLabel;
   var _HStringViewInterface = {
 
     componentName: "stringview",
-    
+
     // allows text selection
     textSelectable: true,
+
+    optimizeWidthOnRefresh: true,
 
   /** = Description
     * The setStyle method of HStringView applies only to the value
@@ -32,7 +34,7 @@ var HStringView, HLabel;
       this.setStyleOfPart( 'value', _name, _value, _cacheOverride);
       return this;
     },
-    
+
   /** = Description
     * The refreshLabel of HStringView sets a tool tip.
     * Applied by the setLabel method and the label attribute of options.
@@ -47,6 +49,16 @@ var HStringView, HLabel;
           this.setMarkupOfPart( 'value', this.label );
         }
       }
+    },
+
+    labelPadding: 0,
+    optimizeWidth: function(){
+      var _labelWidth = this.stringWidth((this.value || this.label),null,this.markupElemIds.value);
+      _labelWidth += this.labelPadding;
+      if( this.rect.width !== _labelWidth ){
+        this.rect.setWidth(_labelWidth);
+        this.drawRect();
+      }
     }
   };
 
@@ -55,7 +67,7 @@ var HStringView, HLabel;
     defaultEvents: {
       contextMenu: true
     },
-    
+
   /** = Description
     * HStringView allows the default contextMenu action.
     *
