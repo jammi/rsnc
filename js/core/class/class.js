@@ -18,7 +18,7 @@
   *   * To achieve the above without resorting to global functions to build prototype chains
   *   * To achieve the above without affecting Object.prototype
   *
-  * The HClass class extends the 'Object' object by adding one instance method (base) 
+  * The HClass class extends the 'Object' object by adding one instance method (base)
   * and two class methods (extend, implement). Instance method extend can be also called directly.
   *
   * == Example:
@@ -30,10 +30,10 @@
   *        this.foo = foo;
   *      }
   *    });
-  *    
+  *
   *    myClassInstance1 = MyClass.nu( 'rabbids' );
   *    myClassInstance2 = new MyClass( 'ribbit' );
-  *    
+  *
   *    MyEqualsClass = MyClass.extend({
   *      testFoo: function( that ){
   *        return this.foo === that.foo;
@@ -68,10 +68,10 @@ HClass.prototype = {
     for (prop in e) {
       err[prop] = e[prop];
     }
-    err['string'] = e.toString();
+    err.string = e.toString();
     return err;
   },
-  
+
  /* The property copying method. */
   extend: function(_source, _value) {
     var _extend = HClass.prototype.extend,
@@ -79,7 +79,7 @@ HClass.prototype = {
     if (arguments.length === 2) {
       _ancestor = this[_source];
       // only methods are inherited
-      if ((_ancestor instanceof Function) && (_value instanceof Function) &&
+      if ((typeof _ancestor === 'function') && (typeof _value === 'function') &&
           _ancestor.valueOf() !== _value.valueOf() && (/\bbase\b/).test(_value)) {
         _method = _value;
         _value = function() {
@@ -96,7 +96,7 @@ HClass.prototype = {
             _returnValue = _method.apply(this, arguments);
           }
           catch(e){
-            !this.isProduction && console.warn("An exception occurred while calling base: ",HClass.prototype._exceptionProperties(e)," object: ",_ancestor);
+            !this.isProduction && console.warn("An exception occurred while calling base: ",HClass.prototype._exceptionProperties(e)," object: ",_method);
             _returnValue = null;
           }
           // then because event this function can be called from child method
@@ -133,21 +133,23 @@ HClass.prototype = {
         }
       }
     }
-    
+
     // alternative constructor (use instead of the new keywoard)
-    this.nu = function() {
-      return new (
-        this.extend( {
-          constructor: function( args ){
-            this.base.apply( this, args );
-          }
-        } )
-      )( arguments );
+    var
+    _nu = function(){
+      try{
+        return new (this.extend({ constructor: function( _args ){ this.base.apply( this, _args ); } } ))( arguments );
+      }
+      catch(e){
+        console.log(e,this);
+        return {};
+      }
     };
+    this.nu = _nu;
+    this['new'] = _nu;
     this.hasAncestor = function( _obj ){
       return !!~this.ancestors.indexOf( _obj );
     };
-    this['new'] = this.nu;
     return this;
   },
   /** = Description
@@ -224,7 +226,7 @@ HClass.extend = function(_instance, _static) {
   _constructor = _prototype.constructor;
   _prototype.constructor = this;
   delete HClass._prototyping;
-  
+
   _ancestors = [];
   _klass = function() {
     if (!HClass._prototyping) {
@@ -268,7 +270,7 @@ HClass.ancestors = [ HClass ];
   *
   * = Usage:
   * Defines an interface:
-  *  
+  *
   *  AreaInterface = HClass.extend({
   *  constructor: null,
   *    // implement
@@ -279,7 +281,7 @@ HClass.ancestors = [ HClass ];
   *    return this.getWidth() * this.getHeight();
   *  }
   *  });
-  *  
+  *
   *  Rectangle = HClass.extend({
   *  constructor: function(x, y, width, height) {
   *    this.x = x;
@@ -294,7 +296,7 @@ HClass.ancestors = [ HClass ];
   *    return this.height;
   *  }
   *  });
-  *  
+  *
   *  Rectangle.implement(AreaInterface);
   *
   **/
@@ -353,8 +355,8 @@ if (!Function.prototype.bind) {
       // closest thing possible to the ECMAScript 5 internal IsCallable function
       throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
     }
-    var aArgs = Array.prototype.slice.call(arguments, 1), 
-        fToBind = this, 
+    var aArgs = Array.prototype.slice.call(arguments, 1),
+        fToBind = this,
         fNOP = function () {},
         fBound = function () {
           return fToBind.apply(
