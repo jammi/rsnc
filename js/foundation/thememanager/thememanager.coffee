@@ -114,7 +114,17 @@ HThemeManager = HClass.extend
       _tmplHTML = _tmplHTML.replace( _variableMatch, _callValue( RegExp.$1 ) )
     # console.log('tmplHTML:',_tmplHTML) if _componentName == 'tab'
     return _tmplHTML
-
+  gradientStyle: ->
+    _colors = []
+    _colors.push( _color ) for _color in arguments
+    [_key, _value] = ELEM._linearGradientStyle(
+      start: _colors.shift()
+      end: _colors.pop()
+      steps: _colors
+    )
+    _style = {}
+    _style[_key] = _value
+    _style
   gradientCSS: ->
     _colors = []
     _colors.push( _color ) for _color in arguments
