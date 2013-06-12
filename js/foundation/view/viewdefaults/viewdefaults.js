@@ -5,7 +5,11 @@
   ***/
 var//RSence.Foundation
 HViewDefaults = HClass.extend({
-  
+
+/** Whether or not to draw when constructed.
+  */
+  autoDraw: true,
+
 /** The default label. A label is the "visual value" of a component that
   * operates on a "hidden" value.
   **/

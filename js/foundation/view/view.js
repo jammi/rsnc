@@ -26,6 +26,7 @@ HView = UtilMethods.extend({
 
   isView: true,  // attribute to check if the object is a view
   isCtrl: false, // attribute to check for if the object is a control
+  isDead: false, // attribute to check for killed object references
 
 /** Component specific theme path.
   **/
@@ -294,13 +295,17 @@ HView = UtilMethods.extend({
   *
   **/
   constructor: function(_rect, _parent, _options) {
+
+    // destructable timeouts:
+    this.timeouts = [];
+
     if( !_options ){
       _options = {};
     }
     if(!this.isinherited){
       _options = (this.viewDefaults.extend(_options)).nu(this);
     }
-
+    if( typeof this.customOptions === 'function' ){ this.customOptions( _options ); }
     this.options = _options;
     this.label = _options.label;
 
@@ -317,7 +322,7 @@ HView = UtilMethods.extend({
       this.preserveTheme = true;
     }
 
-    if(_options.visible === false) {
+    if(_options.visible === false || _options.hidden === true) {
       this.isHidden = true;
     }
 
@@ -346,7 +351,7 @@ HView = UtilMethods.extend({
     // deleted from the element manager when the view gets destroyed.
     this._domElementBindings = [];
 
-    if(!this.isinherited) {
+    if(!this.isinherited && this.options.autoDraw) {
       this.draw();
     }
   },
@@ -541,24 +546,6 @@ HView = UtilMethods.extend({
 
 /** --
   * = Description
-  * The _setCSS method does the initial styling of the element.
-  * It's a separate method to ease creating component that require
-  * other initial styles.
-  * ++
-  **/
-  _setCSS: function(_additional){
-    var _cssStyle = 'overflow:hidden;visibility:hidden;';
-    if(this.isAbsolute){
-      _cssStyle += 'position:absolute;';
-    } else {
-      _cssStyle += 'position:relative;';
-    }
-    _cssStyle += _additional;
-    ELEM.setCSS(this.elemId,_cssStyle);
-  },
-
-/** --
-  * = Description
   * The _getParentElemId method returns the ELEM ID of the parent.
   * ++
   **/
@@ -607,7 +594,12 @@ HView = UtilMethods.extend({
     if(!this.elemId) {
 
       this._makeElem(this._getParentElemId());
-      this._setCSS('');
+
+      ELEM.setStyle(this.elemId,'overflow','hidden',true);
+      ELEM.setStyle(this.elemId,'visibility','hidden',true);
+
+      if(this.isAbsolute){   ELEM.setStyle(this.elemId,'position','absolute'); }
+      else {                 ELEM.setStyle(this.elemId,'position','relative'); }
 
       // Theme name == CSS class name
       if(this.preserveTheme){
@@ -615,6 +607,9 @@ HView = UtilMethods.extend({
       }
       else {
         ELEM.addClassName( this.elemId, HThemeManager.currentTheme );
+      }
+      if( this.componentName !== undefined ){
+        ELEM.addClassName( this.elemId, this.componentName );
       }
       if( this.options.textSelectable !== undefined ){
         this.textSelectable = this.options.textSelectable;
@@ -730,10 +725,10 @@ HView = UtilMethods.extend({
         ELEM.setStyle( this._ieNoThrough, 'opacity', 0.01 );
       }
       if(this.options.style){
-        this.setStyles( this.options.style );
+        this.setStyles( this.options.style ); // optimize
       }
       if(this.options.html){
-        this.setHTML(this.options.html);
+        this.setHTML(this.options.html); // optimize
       }
       // Extended draw for components to define / extend.
       // This is preferred over drawSubviews, when defining
@@ -757,6 +752,7 @@ HView = UtilMethods.extend({
         this.show();
       }
     }
+    _timeI = 10;
     this.refresh();
     return this;
   },
@@ -813,30 +809,55 @@ HView = UtilMethods.extend({
   },
 
 /** = Description
-  * Sets or unsets the _cssClass into a DOM element that goes by the ID
-  * _elementId.
+  * Sets or unsets the _className into a DOM element that goes by the ID
+  * _elemId.
   *
   * = Parameters
-  * +_elementId+:: ID of the DOM element, or the element itself, to be
+  * +_elemId+:: ID of the DOM element, or the element itself, to be
   *                modified.
-  * +_cssClass+::  Name of the CSS class to be added or removed.
-  * +_setOn+::     Boolean value that tells should the CSS class be added or
-  *                removed.
+  * +_className+::  Name of the CSS class to be added or removed.
+  * +_state+::     Boolean value that tells should the CSS class be added or
+  *                removed. If undefined or null, toggles the current state.
   *
   * = Returns
   * +self+
   *
   **/
-  toggleCSSClass: function(_elementId, _cssClass, _setOn) {
-    if(_elementId) {
-      if (_setOn) {
-        ELEM.addClassName(_elementId, _cssClass);
+  toggleCSSClass: function(_elemId, _className, _state) {
+    if(_elemId !== null && _elemId !== undefined) {
+      // if(_elemId == 920){debugger;}
+      if (this.typeChr(_elemId) === 's'){
+        _elemId = this.markupElemIds[_elemId];
+      }
+      if (_state === null || _state === undefined ){
+        _state = !ELEM.hasClassName(_elemId,_className);
+      }
+      if (_state) {
+        ELEM.addClassName(_elemId, _className);
       }
       else {
-        ELEM.delClassName(_elementId, _cssClass);
+        ELEM.delClassName(_elemId, _className);
       }
     }
     return this;
+  },
+
+  setCSSClass: function( _className, _other ){
+    if(_other){
+      this.toggleCSSClass( _className, _other, true );
+    }
+    else{
+      this.toggleCSSClass( this.elemId, _className, true );
+    }
+  },
+
+  unsetCSSClass: function( _className, _other ){
+    if(_other){
+      this.toggleCSSClass( _className, _other, false );
+    }
+    else{
+      this.toggleCSSClass( this.elemId, _className, false );
+    }
   },
 
 /** = Description
@@ -918,7 +939,7 @@ HView = UtilMethods.extend({
     if( this.themeStyle !== undefined && typeof this.themeStyle === 'function' ){
       this.themeStyle.call(this);
     }
-    if(this.optimizeWidthOnRefresh && this.options.pack) {
+    if(this.optimizeWidthOnRefresh && this.options.pack && this.drawn) {
       this.optimizeWidth();
     }
     return this;
@@ -1254,7 +1275,12 @@ HView = UtilMethods.extend({
       !this.isProduction && console.log('Warning, setStyleOfPart: partName "'+_partName+'" does not exist for viewId '+this.viewId+'.');
     }
     else {
-      ELEM.setStyle(this.markupElemIds[_partName], _name, _value, _force);
+      if( this.typeChr(_name) === 'h'){
+        ELEM.setStyles(this.markupElemIds[_partName], _name );
+      }
+      else{
+        ELEM.setStyle(this.markupElemIds[_partName], _name, _value, _force);
+      }
     }
     return this;
   },
@@ -1508,14 +1534,24 @@ HView = UtilMethods.extend({
   *
   **/
   die: function() {
+    if(this.isDead && !this.isProduction){
+      console.warn('double kill!');
+      return;
+    }
+    this.isDead = true;
     // hide self, makes destruction seem faster
     this.hide();
     this.drawn = false;
     this.stopAnimation();
+    if( this.timeouts ){
+      while( this.timeouts.length ){ clearTimeout(this.timeouts.pop()); }
+      delete this.timeouts;
+    }
     // Delete the children first.
     var _childViewId, i;
-    if(!this.views && !this.isProduction){
+    if(!this.views){
       console.log('HView#die: no sub-views for component name: ',this.componentName,', self:',this);
+      return;
     }
     while (this.views && this.views.length !== 0) {
       _childViewId = this.views[0];
@@ -1922,31 +1958,34 @@ HView = UtilMethods.extend({
   * +_elemId+::   Optional, The element ID where the temporary string is created
   *               in.
   * +_wrap+::     Optional boolean value, wrap white-space?
-  * +_extraCss+:: Optional, extra css to add.
+  * +_customStyle+:: Optional, extra css to add.
   *
   * = Returns
   * The width in pixels required to draw a string in the font.
   *
   **/
-  stringSize: function(_string, _length, _elemId, _wrap, _extraCss) {
+  stringSize: function(_string, _length, _elemId, _wrap, _customStyle) {
+    if(!_customStyle){_customStyle = {};}
+    if(this.typeChr(_customStyle) === 's'){
+      console.warn("#stringSize: use styles instead of css text!");
+      _customStyle = {};
+    }
     if (_length || _length === 0) {
       _string = _string.substring(0, _length);
     }
     if (!_elemId && _elemId !== 0) {
-      _elemId = 0; //this.elemId;
+      _elemId = 0;
     }
-    if (!_extraCss) {
-      _extraCss = '';
-    }
+    _customStyle.visibility = 'hidden';
     if (!_wrap){
-      _extraCss += 'white-space:nowrap;';
+      _customStyle.whiteSpace = 'nowrap';
     }
     var
     _stringParent = ELEM.make(_elemId,'div'),
     _stringElem = ELEM.make(_stringParent,'span');
-    ELEM.setCSS(_stringElem, "visibility:hidden;"+_extraCss);
+    ELEM.setStyles(_stringElem, _customStyle);
     ELEM.setHTML(_stringElem, _string);
-    ELEM.flushLoop();
+    ELEM.flushElem([_stringParent,_stringElem]);
     var _visibleSize=ELEM.getSize(_stringElem);
     ELEM.del(_stringElem); ELEM.del(_stringParent);
     return [_visibleSize[0]+_visibleSize[0]%2,_visibleSize[1]+_visibleSize[1]%2];
@@ -1954,14 +1993,14 @@ HView = UtilMethods.extend({
 
 /** Returns the string width
   **/
-  stringWidth: function(_string, _length, _elemId, _extraCss){
-    return this.stringSize(_string, _length, _elemId, false, _extraCss)[0];
+  stringWidth: function(_string, _length, _elemId, _customStyle){
+    return this.stringSize(_string, _length, _elemId, false, _customStyle)[0];
   },
 
   /** Returns the string height.
     **/
-  stringHeight: function(_string, _length, _elemId, _extraCss){
-    return this.stringSize(_string, _length, _elemId, true, _extraCss)[1];
+  stringHeight: function(_string, _length, _elemId, _customStyle){
+    return this.stringSize(_string, _length, _elemId, true, _customStyle)[1];
   },
 
 /** Returns the X coordinate that has the scrolled position calculated.
@@ -2068,14 +2107,14 @@ HView = UtilMethods.extend({
   * nodes from the cache.
   *
   * = Parameters
-  * +_elementId+:: The id of the element in the element manager's cache
+  * +_elemId+:: The id of the element in the element manager's cache
   *                that is to be removed from the cache.
   *
   **/
-  unbindDomElement: function(_elementId) {
-    var _indexOfElementId = this._domElementBindings.indexOf(_elementId);
+  unbindDomElement: function(_elemId) {
+    var _indexOfElementId = this._domElementBindings.indexOf(_elemId);
     if (~_indexOfElementId) {
-      ELEM.del(_elementId);
+      ELEM.del(_elemId);
       this._domElementBindings.splice(_indexOfElementId, 1);
     }
   },
