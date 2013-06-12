@@ -53,7 +53,7 @@ HRect = HClass.extend({
   constructor: function() {
     this.viewIds = [];
     var _args=arguments;
-    
+
     if (_args.length === 0) {
       this._constructorDefault();
     } else if (_args.length === 4) {
@@ -126,7 +126,7 @@ HRect = HClass.extend({
       return [ _this.left, _this.top, _this.width, _this.height ];
     }
   },
-  
+
   _updateFlexibleDimensions: function(){
     var
     _this = this,
@@ -146,6 +146,15 @@ HRect = HClass.extend({
     _view = HSystem.views[_viewId];
     if(_view.flexRight || _view.flexBottom){
       ELEM.flush();
+      //// This will increase performance somewhat, but needs to be broader than it is:
+      // var i=0,_parentElemIds=[_view.elemId],_parentView;
+      // for(;i<_view.parents.length;i++){
+      //   _parentView = _view.parents[i];
+      //   if(_parentView && _parentView.elemId !== null && _parentView.elemId !== undefined){
+      //     _parentElemIds.push(_parentView.elemId);
+      //   }
+      // }
+      // ELEM.flushElem(_parentElemIds);
       _parentSize = _view.parentSize();
       if( _view.flexRight && _view.flexLeft ){ // calculate width and right
         _virtualWidth = _parentSize[0] - _this.left - _view.flexRightOffset;
@@ -198,9 +207,9 @@ HRect = HClass.extend({
   *
   **/
   updateSecondaryValues: function(_noSize) {
-    
+
     // this._updateFlexibleDimensions();
-    
+
     /**
       * isValid is true if the Rect's right side is greater than or equal to its left
       * and its bottom is greater than or equal to its top, and false otherwise.
@@ -208,7 +217,7 @@ HRect = HClass.extend({
       * the frame of a view or window).
       **/
     this.isValid = ( this.right >= this.left && this.bottom >= this.top );
-    
+
     /**
       *
       * The Point-returning functions return the coordinates of one of the
@@ -218,7 +227,7 @@ HRect = HClass.extend({
     this.leftBottom = new HPoint(this.left, this.bottom);
     this.rightTop = new HPoint(this.right, this.top);
     this.rightBottom = new HPoint(this.right, this.bottom);
-    
+
     /**
       * The width and height of a Rect's rectangle, as returned through these
       * properties.
@@ -227,9 +236,11 @@ HRect = HClass.extend({
       this.width = (this.right - this.left);
       this.height = (this.bottom - this.top);
     }
+    this.position = [ this.left, this.top ];
+    this.size = [ this.width, this.height ];
     return this;
   },
-  
+
 /** = Description
   * Sets the object's rectangle by defining the coordinates of all four
   * sides.
@@ -248,7 +259,7 @@ HRect = HClass.extend({
   **/
   set: function() {
     var _args=arguments;
-    
+
     if (_args.length === 0) {
       this._constructorDefault();
     } else if (_args.length === 4) {
@@ -266,7 +277,7 @@ HRect = HClass.extend({
     this.updateSecondaryValues();
     return this;
   },
-  
+
 /** = Description
   * Moves the rect's left side to a new coordinate.
   *
@@ -279,7 +290,7 @@ HRect = HClass.extend({
     this.updateSecondaryValues();
     return this;
   },
-  
+
 /** = Description
   * Moves the rect's right side to a new coordinate.
   *
@@ -292,7 +303,7 @@ HRect = HClass.extend({
     this.updateSecondaryValues();
     return this;
   },
-  
+
 /** = Description
   * Moves the rect's top side to a new coordinate.
   *
@@ -305,7 +316,7 @@ HRect = HClass.extend({
     this.updateSecondaryValues();
     return this;
   },
-  
+
 /** = Description
   * Moves the rect's bottom side to a new coordinate.
   *
@@ -318,7 +329,7 @@ HRect = HClass.extend({
     this.updateSecondaryValues();
     return this;
   },
-  
+
 /** = Description
   * Moves the rects left and top sides to a new point. Affects the position,
   * width and height.
@@ -333,7 +344,7 @@ HRect = HClass.extend({
     this.updateSecondaryValues();
     return this;
   },
-  
+
 /** = Description
   * Moves the rects left and bottom sides to a new point. Affects the left
   * position, width and height.
@@ -348,7 +359,7 @@ HRect = HClass.extend({
     this.updateSecondaryValues();
     return this;
   },
-  
+
 /** = Description
   * Moves the rects right and top sides to a new point. Affects the top
   * position, width and height.
@@ -363,7 +374,7 @@ HRect = HClass.extend({
     this.updateSecondaryValues();
     return this;
   },
-  
+
 /** = Description
   * Moves the rects right and bottom sides to a new point. Affects the width
   * and height. Does not affect the position.
@@ -378,7 +389,7 @@ HRect = HClass.extend({
     this.updateSecondaryValues();
     return this;
   },
-  
+
 /** = Description
   * Moves the rects right side to a new coordinate. Does not affect the position.
   *
@@ -435,7 +446,7 @@ HRect = HClass.extend({
     this.updateSecondaryValues();
     return this;
   },
-  
+
 /** = Description
   * Returns true if the Rect has any area even a corner or part
   * of a side in common with rect, and false if it doesn't.
@@ -464,12 +475,12 @@ HRect = HClass.extend({
   overlaps: function( _rect, _insetbyX, _insetByY ){
     return this.intersects( _rect, _insetbyX, _insetByY );
   },
-  
+
 /** = Description
   * Returns true if point or rect lies entirely within the Rect's
   * rectangle (and false if not). A rectangle contains the points that lie
   * along its edges; for example, two identical rectangles contain each other.
-  * 
+  *
   * Also works with HPoint instances.
   *
   * = Parameters
@@ -498,7 +509,7 @@ HRect = HClass.extend({
     return ( _rect.left >= this.left && _rect.right <= this.right &&
              _rect.top >= this.top && _rect.bottom <= this.bottom );
   },
-  
+
 /** = Description
   * Insets the sides of the Rect's rectangle by x units (left and
   * right sides) and y units (top and bottom). Positive inset values shrink
@@ -537,7 +548,7 @@ HRect = HClass.extend({
     this.right -= x;
     this.bottom -= y;
   },
-  
+
 /** = Description
   * Moves the Rect horizontally by x units and vertically by y
   * units. The rectangle's size doesn't change.
@@ -572,7 +583,7 @@ HRect = HClass.extend({
     this.right += x;
     this.bottom += y;
   },
-  
+
 /** = Description
   * Moves the Rect to the location (x,y).
   *
@@ -606,7 +617,7 @@ HRect = HClass.extend({
     this.bottom += y-this.top;
     this.top = y;
   },
-  
+
 /** = Description
   * Returns true if the two objects' rectangles exactly coincide.
   *
@@ -621,7 +632,7 @@ HRect = HClass.extend({
     return (this.left === _rect.left && this.top === _rect.top &&
             this.right === _rect.right && this.bottom === _rect.bottom);
   },
-  
+
 /** = Description
   * Creates and returns a new Rect that's the intersection of this Rect and
   * the specified Rect. The new Rect encloses the area that the two Rects have
@@ -640,7 +651,7 @@ HRect = HClass.extend({
        Math.min(this.right, _rect.right), Math.min(this.bottom, _rect.bottom)
     );
   },
-  
+
 /** = Description
   * Creates and returns a new Rect that minimally but completely encloses the
   * area defined by this Rect and the specified Rect.
@@ -658,10 +669,10 @@ HRect = HClass.extend({
       Math.max(this.right, _rect.right), Math.max(this.bottom, _rect.bottom)
     );
   },
-  
+
   // HValue and HView support
   valueObj: null,
-  
+
 /** = Description
   * Bind function
   *
@@ -676,7 +687,7 @@ HRect = HClass.extend({
     this._updateFlexibleDimensions();
     return this;
   },
-  
+
 /** = Description
   * Release function
   **/
@@ -687,7 +698,7 @@ HRect = HClass.extend({
     }
     return this;
   },
-  
+
 /** = Description
   * Sets valueObj for this component given as parameter.
   *
@@ -699,7 +710,7 @@ HRect = HClass.extend({
     this.valueObj = _valueObj;
     return this;
   },
-  
+
 /** = Description
   * setValue function
   *
@@ -724,5 +735,5 @@ HRect = HClass.extend({
   toString: function(){
     return ('[object Rect left='+this.left+' top='+this.top+' width='+this.width+' height='+this.height+' right='+this.right+' bottom='+this.bottom+']');
   }
-  
+
 });
