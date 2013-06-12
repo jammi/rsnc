@@ -435,6 +435,13 @@ ELEM = HClass.extend
   flush: ->
     @flushLoop()
 
+  flushElem: (_elemIds)->
+    _elemIds = [_elemIds] if typeof _elemIds == 'number'
+    for _id in _elemIds
+      continue unless @_elemTodoH[_id]
+      @_elemTodoH[_id] = false
+      @_flushStyleCache(_id)
+      @_flushAttrCache(_id)
   ###
   Performs the flush of flushLoop
   ###
@@ -932,7 +939,7 @@ ELEM = HClass.extend
       @_init()
     else
       ELEM._domLoadTimer = setTimeout( =>
-        ELEM._domWaiter()
+        @._domWaiter()
       , 10 )
     null
 ELEM.reset()
