@@ -20,6 +20,9 @@
 .default > .table_header > .table_header_column > .sort {
   position: absolute; top: 1px; right: 2px;
 }
+.default > .table_header > .table_header_column > .sort_left {
+  position: absolute; top: 1px; left: 2px;
+}
 .default > .table_body {
   position: absolute; top: 24px; left: 0; right: 0; bottom: 0;
   overflow: auto; overflow-x: hidden;

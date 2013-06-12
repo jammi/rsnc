@@ -5,20 +5,20 @@ HTable = HControl.extend
     resize: true
   controlDefaults: HControlDefaults.extend
     tableType: 'rows' # 'cols' not supported yet
-    constructor: (_view)->
-      @headerCols = false unless @headerCols? # array of strings 
-      @sortDescending = [] unless @sortDescending? # column sorting by index; true for descending; false for ascending
-      @colWidths = [] unless @colWidths? # widths by column index; default 'auto'
-      @colClasses = {} unless @colClasses? # class by column index
-      @defaultColOptions = {} unless @defaultColOptions? # fallback default column options
-      @colOptions = {} unless @colOptions? # column class constructor options by column index
-      @defaultColClass = HStringView unless @defaultColClass? # fallback default column class
     sortCol: 0 # the default sort column
     useCellGrid: false # whether to use colored cells or not
     cellBgColor: '#eee' # the average bg color
     cellBgColorDiff: '#080808' # color to add/subtract for even/odd col/row
     cellBorderWidth: 1 # cell border width in pixels
     cellBorderColor: '#fff' # cell border color
+  customOptions: (_options)->
+    _options.headerCols = false unless _options.headerCols? # array of strings
+    _options.sortDescending = [] unless _options.sortDescending? # column sorting by index; true for descending; false for ascending
+    _options.colWidths = [] unless _options.colWidths? # widths by column index; default 'auto'
+    _options.colClasses = {} unless _options.colClasses? # class by column index
+    _options.defaultColOptions = {} unless _options.defaultColOptions? # fallback default column options
+    _options.colOptions = {} unless _options.colOptions? # column class constructor options by column index
+    _options.defaultColClass = HStringView unless _options.defaultColClass? # fallback default column class
   _destroyHeader: ->
     if @headerCols?
       _table = @
@@ -36,6 +36,10 @@ HTable = HControl.extend
         @options.sortDescending[_col] = false
     else
       @options.sortCol = _col
+    if @_sortColElem?
+      ELEM.del(@_sortColElem)
+      @_sortColElem = null
+      delete @_sortColElem
     @drawHeader()
     @refreshTable()
     # if @colViews?
@@ -110,22 +114,19 @@ HTable = HControl.extend
     _sortFns = []
     _left = 0
     _table = @
+    _sortColElem = null
+    _sortColClassName = (_styles)->
+      if _styles.textAlign? and _styles.textAlign == 'right'
+        ELEM.delClassName(_sortColElem,'sort')
+        ELEM.addClassName(_sortColElem,'sort_left')
+      else
+        ELEM.delClassName(_sortColElem,'sort_left')
+        ELEM.addClassName(_sortColElem,'sort')
     for _headerCol, i in @options.headerCols
       _elemId = ELEM.make( @markupElemIds.header, 'div' )
       @options.sortDescending[i] = false unless @options.sortDescending[i]?
       ELEM.addClassName(_elemId,'table_header_column')
-      ELEM.flush()
-      if @options.sortCol == i
-        _headerCol += '<div class="sort">'
-        if @options.sortDescending[i]
-          _headerCol += '&#9660;'
-        else
-          _headerCol += '&#9650;'
-        _headerCol += '</div>'
-        _width = 0 #26
-      else
-        _width = 0 #26
-        # ELEM.setStyle(_elemId,'font-weight','normal',true)
+      _width = 0
       if @options.colWidths[i]?
         if @options.colWidths[i] == 'auto'
           _autoWidths.push(i)
@@ -136,6 +137,18 @@ HTable = HControl.extend
       _sizes.push([_left,_width])
       ELEM.setAttr(_elemId,'sortcol',i)
       ELEM.setHTML(_elemId,_headerCol)
+      if @options.sortCol == i
+        _sortColElem = ELEM.make( _elemId, 'div' )
+        if @options.headerStyles? and @options.headerStyles[i]?
+          _sortColClassName( @options.headerStyles[i] )
+        else if @options.defaultHeaderStyle
+          _sortColClassName( @options.defaultHeaderStyle )
+        else
+          ELEM.addClassName( _sortColElem, 'sort' )
+        if @options.sortDescending[i]
+          ELEM.setHTML( _sortColElem, '&#9660;' )
+        else
+          ELEM.setHTML( _sortColElem, '&#9650;' )
       _sortFns.push((e)->
         _table.sortByCol(@sortcol)
         e.preventDefault()
@@ -159,10 +172,12 @@ HTable = HControl.extend
       ELEM.setStyle(_elemId,'width',_width+'px')
       if @options.headerStyles? and @options.headerStyles[i]?
         ELEM.setStyles( _elemId, @options.headerStyles[i] )
+      else if @options.defaultHeaderStyle
+        ELEM.setStyles( _elemId, @options.defaultHeaderStyle )
     @_destroyHeader()
-    ELEM.flush()
     @headerCols = _elemIds
     @headerSizes = _sizes
+    @_sortColElem = _sortColElem
     @sortFns = _sortFns
   resize: ->
     @drawHeader()
@@ -177,7 +192,7 @@ HTable = HControl.extend
     if @options.headerCols
       @drawHeader()
     else
-      @setStyleOfPart('body','top',0)
+      @setStyleOfPart('subview','top',0)
   _findClassInNameSpace: (_className)->
     if typeof _className == 'function' and _className.hasAncestor? and _className.hasAncestor( HControl )
       return _className
@@ -187,7 +202,7 @@ HTable = HControl.extend
     return @options.defaultColClass
   _getClassNameAndValueOfCol: (_col, _colNum)->
     if @options.colOptions[_colNum]?
-      _colOption = @options.colOptions[_colNum]
+      _colOption = @cloneObject( @options.colOptions[_colNum] )
     else
       _colOption = @cloneObject( @options.defaultColOptions )
     if @options.colClasses[_colNum]?
@@ -207,8 +222,10 @@ HTable = HControl.extend
         _row[_colNum]
     @_rows = []
     @_rowsDrawn = false
-  filterRow: (_value)->
-    return false
+  filterRow: (_value)-> false
+  sortEq: (a, b, _col)-> a == b
+  sortLt: (a, b, _col)-> a < b
+  sortGt: (a, b, _col)-> a > b
   sortTableRows: ->
     _rowsVisible = 0
     _col = @options.sortCol
@@ -225,19 +242,22 @@ HTable = HControl.extend
         _nextCols = [ @options.sortOrder[_col] ]
     else
       _nextCols = []
+    _sortEq = @sortEq
+    _sortLt = @sortLt
+    _sortGt = @sortGt
     _rowSorter = (_row1, _row2, _col, _nextCols, _desc)->
       _r1 = _row1[0][_col]
       _r2 = _row2[0][_col]
-      while _r1 == _r2 and _nextCols.length > 0
+      while _sortEq( _r1, _r2, _col ) and _nextCols.length > 0
         _nextCol = _nextCols.shift()
         _desc = _sortDescending[_nextCol]
         _r1 = _row1[0][_nextCol]
         _r2 = _row2[0][_nextCol]
-      return 0 if _r1 == _r2
+      return 0 if _sortEq( _r1, _r2, _col )
       if _desc
-        return 1 if _r1 < _r2
+        return 1 if _sortLt( _r1, _r2, _col )
       else
-        return 1 if _r1 > _r2
+        return 1 if _sortGt( _r1, _r2, _col )
       return -1
     _rowSort.sort( (_row1,_row2)->
       _rowSorter(_row1, _row2, _col, HVM.clone(_nextCols), _desc)
@@ -258,11 +278,8 @@ HTable = HControl.extend
     @_rowsVisible = _rowsVisible
   refreshTableRows: (_newData)->
     return unless @headerCols?
-    _top = 0
-    _rowHeight = 24
-    if @colViews?
-      _colViews = @colViews
-    else
+    _colViews = @colViews
+    unless _colViews
       _colViews = []
       for _colNum in [0..@headerCols.length-1]
         _left = @headerSizes[_colNum][0] + 1
@@ -278,38 +295,65 @@ HTable = HControl.extend
           _ctrl.setValue( _col )
       @sortTableRows()
     else
-      if @_rowsDrawn
-        @_destroyRows()
-      _rows = []
-      for _row, _rowNum in @value
-        _rows[_rowNum] = []
-        for _col, _colNum in _row
-          [ _colClass, _colOpts ] = @_getClassNameAndValueOfCol(_col, _colNum)
-          _colOpts.value = _col
-          _colOpts.tableRow = _rowNum
-          _colOpts.tableCol = _colNum
-          _ctrl = _colClass.new(
-            [ 0, _top, null, _rowHeight, 0, null ],
-            @colViews[_colNum],
-            _colOpts
-          )
-          _rows[_rowNum][_colNum] = _ctrl
-        _top += _rowHeight
-      for _colView in _colViews
-        _colView.rect.setHeight(_top)
-        _colView.drawRect()
+      @createTableRows()
+  createTableRows: ->
+    @_destroyRows() if @_rowsDrawn
+    _start = new Date().getTime()
+    _top = 0
+    _rowHeight = 24
+    _rows = []
+    _viewDefs = []
+    _colViews = @colViews
+    for _row, _rowNum in @value
+      _rows[_rowNum] = []
+      for _col, _colNum in _row
+        [ _colClass, _colOpts ] = @_getClassNameAndValueOfCol(_col, _colNum)
+        _colOpts.value = _col
+        _colOpts.tableRow = _rowNum
+        _colOpts.tableCol = _colNum
+        _colOpts.autoDraw = false unless _colOpts.autoDraw?
+        _viewDefs.push( [_colClass,_rowNum,_colNum,_top,_rowHeight,_colViews[_colNum],_colOpts] )
+      _top += _rowHeight
+    for _colView in _colViews
+      _colView.rect.setHeight(_top)
+      _colView.drawRect()
+    _finishDraw = =>
       @_rows = _rows
       @_rowsDrawn = true
       @sortTableRows()
+      if @options.useCellGrid
+        @pushTask => @_drawCellStyles()
+    if _viewDefs.length > 0
+      @pushTask =>
+        _viewsToDraw = []
+        _count = _viewDefs.length
+        _progress = HProgressBar.new([0,0,@rect.width,24],@,visible:false)
+        setTimeout( ->
+          _progress.show()
+        , 100 )
+        _itemNum = 0
+        for i in [0.._count-1]
+          @pushTask =>
+            _itemNum+=1
+            [_colClass,_rowNum,_colNum,y,h,_parent,_colOpts] = _viewDefs.shift()
+            _view = _colClass.new( [ 0,y,null,h,0,null ], _parent, _colOpts )
+            _rows[_rowNum][_colNum] = _view
+            _progress.setValue(_itemNum/_count)
+            _viewsToDraw.push(_view)
+        @pushTask =>
+          _colView.draw() for _colView in _viewsToDraw
+          @pushTask( _finishDraw )
+          _progress.die()
+          # console.log('table render took:',@msNow()-_start,'ms') if !@isProduction
+    else _finishDraw()
   refreshTableCols: (_newData)->
     console.warn('HTable#refreshTableCols is not implemented yet!')
   refreshTable: (_newData)->
     if @options.tableType == 'rows'
       @refreshTableRows(_newData)
     else if @options.tableType == 'cols'
-      console.log('ERROR; refreshTable: tableType \'cols\' not supported!')
+      console.warn('ERROR; refreshTable: tableType \'cols\' not supported!')
       @refreshTableCols(_newData)
-    @_drawCellStyles() if @options.useCellGrid and _newData
   refreshValue: ->
     if @value instanceof Array
       @refreshTable( true )
