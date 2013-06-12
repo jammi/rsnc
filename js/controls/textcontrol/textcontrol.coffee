@@ -25,7 +25,8 @@ HTextControl = HControl.extend
       textIndent: 0
       fontSize: '10px'
       color: '#666'
-    refreshAfter:   0.2 # 200ms
+    labelWidth: 'auto'
+    refreshAfter:   0.0 # amount of milliseconds to wait for a refresh from the input field
     refreshOnBlur:  true
     refreshOnInput: true
     refreshOnIdle:  true
@@ -56,7 +57,10 @@ HTextControl = HControl.extend
         label: @label
         style: @options.labelStyle
       )
-    _labelWidth = @_labelView.stringWidth( @label, null, @_labelView.markupElemIds.value )+4
+    if @options.labelWidth == 'auto'
+      _labelWidth = @_labelView.stringWidth( @label, null, @_labelView.markupElemIds.value )+4
+    else
+      _labelWidth = @options.labelWidth
     @_labelView.rect.setWidth( _labelWidth )
     @_labelView.drawRect()
     if @componentName == 'textarea'
@@ -286,10 +290,16 @@ HTextControl = HControl.extend
     else if _inputElement.selectionStart
       _inputElement.setSelectionRange( _selectionStart, _selectionEnd )
 
+  defaultKey: ->
+    @refreshAfter()
+    null
+
   ### = Description
   ## Receives the +textEnter+ event to update the value
   ## based on what's (potentially) entered in the text input field.
   ###
   textEnter: ->
     @refreshAfter() if @options.refreshOnInput
-    return false
+    false
+
+HTextField = HTextControl
