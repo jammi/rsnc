@@ -1,14 +1,28 @@
 HDatePicker = HTextControl.extend
+  defaultEvents: UtilMethods.prototype.cloneObject( HNumberField.prototype.defaultEvents )
   controlDefaults: HTextControl.prototype.controlDefaults.extend
-    fieldFormat: 'YYYY-MM-DD'
     refreshAfter: 3
+    useUTC: null
+    fieldFormat: null
     preserveTime: true
     preserveDate: false
     calendarPicker: false
     calendarHorizontalAlign: 'right'
     calendarVerticalAlign: 'top'
+    scrollUnit: 'days'
+  customOptions: (_options)->
+    _options.useUTC = HLocale.dateTime.defaultOptions.useUTC if _options.useUTC == null
+    _options.fieldFormat = HLocale.dateTime.strings.dateFormat if _options.fieldFormat == null
+  mouseWheel: (_delta)->
+    _date = @moment(@value*1000)
+    if _delta > 0
+      _date.add(1,@options.scrollUnit)
+    else if _delta < 0
+      _date.subtract(1,@options.scrollUnit)
+    @setValue(_date.unix())
+    true
   valueToField: (_value)->
-    _date = moment.unix(_value).utc()
+    _date = @moment(_value*1000)
     @_datePreserve = [ _date.year(), _date.month(), _date.date() ] if @options.preserveDate
     if @options.preserveTime and @_timePreserve? and @calendar? and not @calendar.menuItemView.isHidden
       @_dateRestore(_date)
@@ -35,7 +49,7 @@ HDatePicker = HTextControl.extend
       _date.minutes( _minutes )
       _date.seconds( _seconds )
   fieldToValue: (_value)->
-    _date = moment.utc(_value,@options.fieldFormat)
+    _date = @moment(_value,@options.fieldFormat)
     return @value unless _date.isValid()
     @_dateRestore(_date)
     _date.unix()
@@ -54,6 +68,7 @@ HDatePicker = HTextControl.extend
       ).new( [null,0,24,24,1,null], @,
         value: @value
         valueObj: @valueObj
+        useUTC: @options.useUTC
         todayStart: @options.todayStart
         calendarHorizontalAlign: @options.calendarHorizontalAlign
         calendarVerticalAlign: @options.calendarVerticalAlign
