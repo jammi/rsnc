@@ -4,8 +4,7 @@
 .default.textcontrol > .input_parent > .input {
   position: absolute; display: block;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: #000;
+  font-size: 13px; color: #000; resize: none;
   background-color: transparent;
   vertical-align: middle;
   border: 0; left: 0; top: 0;
@@ -16,7 +15,7 @@
   )}
 }
 .default.textcontrol > .input_parent > .input:focus {
-  outline-color: transparent; outline-style: none; resize: none;
+  outline-color: transparent; outline-style: none;
 }
 .default.textcontrol.disabled > .input_parent > .input { color: #333; }
 
