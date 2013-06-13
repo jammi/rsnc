@@ -677,12 +677,14 @@ ELEM = HClass.extend
     _id = @_add( _elem )
     @_initCache( _id )
     if _options?
-      if _options.attrs?
-        if _options.attrs instanceof Array
-          for _attr in _options.attrs
+      _attrs = _options.attrs if _options.attrs?
+      _attrs = _options.attr if _options.attr? and not _attr?
+      if _attrs?
+        if _attrs instanceof Array
+          for _attr in _attrs
             @setAttr( _id, _attr[0], _attr[1], true )
         else
-          for _attrName, _attrValue of _options.attrs
+          for _attrName, _attrValue of _attrs
             @setAttr( _id, _attrName, _attrValue, true )
       if _options.styles
         @setStyles( _id, _options.styles )
