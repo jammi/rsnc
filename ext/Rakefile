@@ -1,0 +1,18 @@
+
+path = File.split(__FILE__).first
+task :momentjs do
+  moment_url = 'https://github.com/timrwood/moment.git'
+  moment_path = File.expand_path( 'moment', path )
+  if File.exist? moment_path
+    `cd "#{moment_path}"; git pull`
+  else
+    `git clone #{moment_url} "#{moment_path}"`
+  end
+  client_path = File.split( path ).first
+  src_js = File.expand_path( 'moment.js', moment_path )
+  tgt_js = File.expand_path( 'js/datetime/momentjs/momentjs.js', client_path )
+  `cp #{src_js} #{tgt_js}`
+end
+
+task :all => :momentjs
+task :default => :all
