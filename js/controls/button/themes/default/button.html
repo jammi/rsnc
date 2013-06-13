@@ -11,7 +11,7 @@ ${#!coffee
       ['height',_labelHeight],
       ['lineHeight',_labelHeight],
       ['fontSize',_fontSize] ]
-    @setStyleOfPart('label',_key,_value)
+    @setStyleOfPart('label',_key,_value) unless @options.style? and @options.style[_key]?
   _radius = Math.floor(@rect.height / 6)+'px'
   @setStyleOfPart('bg','borderRadius',_radius)
 }
