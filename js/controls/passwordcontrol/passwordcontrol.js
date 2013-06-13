@@ -8,8 +8,4 @@
   **
   ***/
 var//RSence.Controls
-HPasswordControl = HTextControl.extend({
-  
-  componentName: 'passwordcontrol'
-  
-});
+HPasswordControl = HTextControl.extend({fieldType: 'password'});

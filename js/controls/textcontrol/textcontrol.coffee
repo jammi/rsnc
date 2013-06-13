@@ -20,12 +20,15 @@ HTextControl = HControl.extend
     click: true
     contextMenu: true
 
+  multiline: false
   controlDefaults: HControlDefaults.extend
+    labelPadding: 2
     labelStyle:
       textIndent: 0
       fontSize: '10px'
+      lineHeight: '14px'
       color: '#666'
-    labelWidth: 'auto'
+    labelWidth:     'auto'
     refreshAfter:   0.0 # amount of milliseconds to wait for a refresh from the input field
     refreshOnBlur:  true
     refreshOnInput: true
@@ -44,6 +47,7 @@ HTextControl = HControl.extend
   ## The refreshLabel method sets the title property of the text
   ## field, essentially creating a tooltip using the label.
   ###
+  labelPadding: 2
   refreshLabel: ->
     return unless @label
     if @markupElemIds? and @markupElemIds.label?
@@ -58,19 +62,36 @@ HTextControl = HControl.extend
         style: @options.labelStyle
       )
     if @options.labelWidth == 'auto'
-      _labelWidth = @_labelView.stringWidth( @label, null, @_labelView.markupElemIds.value )+4
+      ELEM.flushElem([@_labelView.elemId])
+      _labelWidth = @_labelView.stringWidth( @label )
     else
       _labelWidth = @options.labelWidth
+    _labelWidth += @options.labelPadding || @labelPadding
     @_labelView.rect.setWidth( _labelWidth )
     @_labelView.drawRect()
-    if @componentName == 'textarea'
+    if @multiline
       @setStyleOfPart('value','textIndent',_labelWidth+'px')
     else
       @setStyleOfPart('label','left',_labelWidth+'px')
 
-  drawSubviews: ->
-    ELEM.setStyle(@elemId,'overflow','visible')
-    @base()
+  _clearFocusBlurEvent: ->
+    Event.stopObserving(_elemId,'focus',=>@textFocus())
+    Event.stopObserving(_elemId,'blur',=>@textBlur())
+  fieldType: 'text'
+  extDraw: ->
+    # <input type="text" class="input" #{this.enabled?'':'disabled'}
+    #   onfocus="HSystem.views[#{this.viewId}].textFocus();"
+    #   onblur="HSystem.views[#{this.viewId}].textBlur();"
+    #   id="value]I[" value="#{this.value}" />
+    _parentId = @markupElemIds.label
+    if @multiline
+      _elemId = ELEM.make(_parentId,'textarea')
+    else
+      _elemId = ELEM.make(_parentId,'input',{attr:{type:@fieldType,value:@value}})
+    @markupElemIds.value = _elemId
+    @setCSSClass('value','input')
+    Event.observe(_elemId,'focus',=>@textFocus())
+    Event.observe(_elemId,'blur',=>@textBlur())
     if @options.focusOnCreate
       @getInputElement().focus()
       @setSelectionRange( @value.length, @value.length ) if @typeChr(@value) == 's'
@@ -172,10 +193,8 @@ HTextControl = HControl.extend
   ###
   getTextFieldValue: ->
     _inputElement = @getInputElement()
-    if _inputElement?
-      return _inputElement.value
-    else
-      return ''
+    return _inputElement.value if _inputElement?
+    ''
 
   valueToField: (_value)-> _value
   fieldToValue: (_value)-> _value
@@ -202,13 +221,14 @@ HTextControl = HControl.extend
     clearTimeout(@_refreshTimer) if @_refreshTimer
     @_refreshTimer = null
     @_clearChangeEventFn()
+    @_clearFocusBlurEvent()
     @base()
 
   ### = Description
   ## Returns the selection (or text cursor position) of the input element
   ## as an +Array+ like +[ startOffset, endOffset ]+.
   ###
-  getSelectionRange: ->
+  _getLeftAlignedSelectionRange: ->
     _inputElement = @getInputElement()
     if _inputElement == null or @hasTextFocus == false
       _rangeArr = [ 0, 0 ]
@@ -239,7 +259,10 @@ HTextControl = HControl.extend
     else
       _rangeArr = [ 0, 0 ]
     return _rangeArr
-
+  _getRightAlignedSelectionRange: -> @_getLeftAlignedSelectionRange()
+  getSelectionRange: ->
+    return @_getRightAlignedSelectionRange() if @styleOfPart('value','textAlign') == 'right'
+    @_getLeftAlignedSelectionRange()
   _refreshTimer: null
   _lastFieldValue: null
   refreshAfter: ->
