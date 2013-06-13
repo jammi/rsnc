@@ -1964,21 +1964,29 @@ HView = UtilMethods.extend({
   * The width in pixels required to draw a string in the font.
   *
   **/
+  _stringSizeImportantAttrs: ['fontSize','fontWeight','fontFamily'],
   stringSize: function(_string, _length, _elemId, _wrap, _customStyle) {
     if(!_customStyle){_customStyle = {};}
     if(this.typeChr(_customStyle) === 's'){
-      console.warn("#stringSize: use styles instead of css text!");
+      console.warn("#stringSize: use style objects instead of css text!");
       _customStyle = {};
     }
     if (_length || _length === 0) {
       _string = _string.substring(0, _length);
     }
     if (!_elemId && _elemId !== 0) {
-      _elemId = 0;
+      _elemId = this.elemId || 0;
     }
     _customStyle.visibility = 'hidden';
     if (!_wrap){
       _customStyle.whiteSpace = 'nowrap';
+    }
+    var i=0,_attr;
+    for(;i<this._stringSizeImportantAttrs.length;i++){
+      _attr = this._stringSizeImportantAttrs[i];
+      if (!_customStyle[_attr]){
+        _customStyle[_attr] = ELEM.getStyle(_elemId,_attr);
+      }
     }
     var
     _stringParent = ELEM.make(_elemId,'div'),
