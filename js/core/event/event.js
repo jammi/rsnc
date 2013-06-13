@@ -89,6 +89,9 @@ Event = {
   **/
   observe: function(_elem, _name, _function, _useCapture) {
     _useCapture = _useCapture || false;
+    if( typeof _elem === 'number' ){
+      _elem = ELEM.get(_elem);
+    }
     Event._observeAndCache(_elem, _name, _function, _useCapture);
     return _function;
   },
@@ -97,6 +100,9 @@ Event = {
   * removes the callback function.
   **/
   stopObserving: function(_elem, _name, _function, _useCapture) {
+    if( typeof _elem === 'number' ){
+      _elem = ELEM.get(_elem);
+    }
     if (_elem === undefined) {
       console.log('Warning Event.stopObserving of event name: "' + _name + '" called with an undefined elem!');
       return;
