@@ -1964,7 +1964,7 @@ HView = UtilMethods.extend({
   * The width in pixels required to draw a string in the font.
   *
   **/
-  _stringSizeImportantAttrs: ['fontSize','fontWeight','fontFamily'],
+  _stringSizeImportantAttrs: ['fontSize','fontWeight','fontFamily','lineHeight'],
   stringSize: function(_string, _length, _elemId, _wrap, _customStyle) {
     if(!_customStyle){_customStyle = {};}
     if(this.typeChr(_customStyle) === 's'){
