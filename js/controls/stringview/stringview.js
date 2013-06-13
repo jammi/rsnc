@@ -23,19 +23,6 @@ var HStringView, HLabel;
     optimizeWidthOnRefresh: true,
 
   /** = Description
-    * The setStyle method of HStringView applies only to the value
-    * element (not the whole component).
-    *
-    **/
-    setStyle: function(_name, _value, _cacheOverride) {
-      if (!this['markupElemIds']||!this.markupElemIds['value']) {
-        return this;
-      }
-      this.setStyleOfPart( 'value', _name, _value, _cacheOverride);
-      return this;
-    },
-
-  /** = Description
     * The refreshLabel of HStringView sets a tool tip.
     * Applied by the setLabel method and the label attribute of options.
     *
@@ -43,23 +30,29 @@ var HStringView, HLabel;
     refreshLabel: function() {
       if(this.markupElemIds && this.markupElemIds.value) {
         if( this.value !== undefined ){
-          this.setAttrOfPart( 'value', 'title', this.label );
+          this.setAttr( 'title', this.label );
         }
         else {
-          this.setMarkupOfPart( 'value', this.label );
+          this.setHTML( this.label );
         }
       }
     },
 
     labelPadding: 0,
     optimizeWidth: function(){
-      var _labelWidth = this.stringWidth((this.value || this.label),null,this.markupElemIds.value);
+      var _labelWidth = this.stringWidth((this.value || this.label));
       _labelWidth += this.labelPadding;
       if( this.rect.width !== _labelWidth ){
         this.rect.setWidth(_labelWidth);
         this.drawRect();
       }
+    },
+
+    extDraw: function(){
+      this.markupElemIds.value = this.elemId;
+      if(this.options.noWrap){this.setCSSClass( 'nowrap' );}
     }
+
   };
 
   HLabel = HView.extend( _HStringViewInterface );

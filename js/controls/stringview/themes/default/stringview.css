@@ -1,8 +1,16 @@
-.stringview {
+.default.stringview {
   color: #333;
   padding: 1px;
   font-size: 12px;
   font-family: Helvetica, Arial, sans-serif;
   overflow-y: visible;
+  text-align: left;
 }
-
+.default.stringview.nowrap {
+  white-space: nowrap;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+}
+.default.disabled.stringview {
+  color: #666;
+}
