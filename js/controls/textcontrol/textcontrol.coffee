@@ -32,8 +32,9 @@ HTextControl = HControl.extend
     refreshAfter:   0.0 # amount of milliseconds to wait for a refresh from the input field
     refreshOnBlur:  true
     refreshOnInput: true
-    refreshOnIdle:  true
+    refreshOnIdle:  false
     focusOnCreate:  false
+    unit: false # unit suffix
 
   ## This flag is true, when the text input field has focus.
   hasTextFocus: false
@@ -43,6 +44,8 @@ HTextControl = HControl.extend
   ###
   contextMenu: -> true
 
+  markupElemNames: ['value','invalid','label','subview','bg']
+
   ### = Description
   ## The refreshLabel method sets the title property of the text
   ## field, essentially creating a tooltip using the label.
@@ -50,10 +53,8 @@ HTextControl = HControl.extend
   labelPadding: 2
   refreshLabel: ->
     return unless @label
-    if @markupElemIds? and @markupElemIds.label?
-      @setAttrOfPart( 'label', 'title', @label )
-    else
-      return
+    return unless @markupElemIds? and @markupElemIds.label?
+    @setAttrOfPart( 'label', 'title', @label )
     if @_labelView?
       @_labelView.setLabel( @label )
     else
@@ -75,14 +76,65 @@ HTextControl = HControl.extend
       @setStyleOfPart('label','left',_labelWidth+'px')
 
   _clearFocusBlurEvent: ->
+    _elemId = @markupElemIds.value
     Event.stopObserving(_elemId,'focus',=>@textFocus())
     Event.stopObserving(_elemId,'blur',=>@textBlur())
+
+  _invalidChar: '&#12336;'
+  _setInvalidMarker: ->
+    _str = @getInputElement().value
+    _strLen = _str.length
+    if @fieldType == 'password'
+      _str = ''
+      for i in [1.._strLen]
+        _str += '&#8226;'
+    w = @stringWidth(_str,null,@markupElemIds.label,{
+      fontFamily: @styleOfPart('value','fontFamily')
+      fontSize: @styleOfPart('value','fontSize')
+      fontWeight: @styleOfPart('value','fontWeight')
+      whiteSpace: 'pre'
+    })
+    _invaCount = Math.ceil(w/@_invalidCharWidth)+1
+    _istr = ''
+    _align = @styleOfPart('value','textAlign')
+    @setStyleOfPart('invalid','textAlign',_align)
+    [ _left, _right ] = [
+      parseInt( @styleOfPart('value','left'), 10 ),
+      parseInt( @styleOfPart('value','right'), 10 )
+    ]
+    [ _pLeft, _pRight ] = [
+      parseInt( @styleOfPart('value','paddingLeft'), 10 ),
+      parseInt( @styleOfPart('value','paddingRight'), 10 )
+    ]
+    [ _mLeft, _mRight ] = [
+      parseInt( @styleOfPart('value','marginLeft'), 10 ),
+      parseInt( @styleOfPart('value','marginRight'), 10 )
+    ]
+    if _align == 'right'
+      @setStyleOfPart('invalid','left','auto')
+      @setStyleOfPart('invalid','right',(_right+_pRight)+'px')
+    else
+      @setStyleOfPart('invalid','right','auto')
+      @setStyleOfPart('invalid','left',(_left+_pLeft+_mLeft)+'px')
+    @setStyleOfPart('invalid','width',w+'px')
+    @setStyleOfPart('invalid','visibility','inherit')
+    _istr += @_invalidChar for [0.._invaCount]
+    @setMarkupOfPart('invalid',_istr)
+  _unsetInvalidMarker: ->
+    @setMarkupOfPart('invalid','')
+    @setStyleOfPart('invalid','visibility','hidden')
+
+  setValid: (_state)-> # true == valid, false == invalid
+    @_isValid = _state
+    if _state
+      @_unsetInvalidMarker()
+    else
+      @_setInvalidMarker()
+
   fieldType: 'text'
-  extDraw: ->
-    # <input type="text" class="input" #{this.enabled?'':'disabled'}
-    #   onfocus="HSystem.views[#{this.viewId}].textFocus();"
-    #   onblur="HSystem.views[#{this.viewId}].textBlur();"
-    #   id="value]I[" value="#{this.value}" />
+  drawMarkup: ->
+    @base()
+    @_invalidCharWidth = @stringWidth(@_invalidChar,null,@markupElemIds.invalid)
     _parentId = @markupElemIds.label
     if @multiline
       _elemId = ELEM.make(_parentId,'textarea')
@@ -96,8 +148,9 @@ HTextControl = HControl.extend
       @getInputElement().focus()
       @setSelectionRange( @value.length, @value.length ) if @typeChr(@value) == 's'
 
-  lostActiveStatus: ->
-    if @markupElemIds? && @markupElemIds.value?
+  lostActiveStatus: (_prevActive)->
+    @base(_prevActive)
+    if @markupElemIds? and @markupElemIds.value? and _prevActive != @
       ELEM.get( @markupElemIds.value ).blur()
       @textBlur()
 
@@ -107,12 +160,14 @@ HTextControl = HControl.extend
     @setStyleOfPart('value', _name, _value, _cacheOverride)
 
   click: ->
-    @getInputElement().focus()
+    @getInputElement().focus() unless @hasTextFocus
 
   setEnabled: (_flag)->
     @base(_flag)
     if @markupElemIds? and @markupElemIds.value?
       ELEM.get(@markupElemIds.value).disabled = !@enabled
+    else
+      @pushTask => @setEnabled(_flag)
 
   _clipboardEventTimer: null
   _getChangeEventFn: ->
@@ -151,6 +206,7 @@ HTextControl = HControl.extend
   ##
   ###
   textFocus: ->
+    return if @hasTextFocus
     EVENT.changeActiveControl( @ )
     @hasTextFocus = true
     @_setChangeEventFn()
@@ -161,6 +217,7 @@ HTextControl = HControl.extend
   ## Called when the input field loses focus.
   ###
   textBlur: ->
+    return unless @hasTextFocus
     @hasTextFocus = false
     @_clearChangeEventFn()
     if @options.refreshOnBlur
@@ -168,8 +225,8 @@ HTextControl = HControl.extend
       @refreshValue()
     true
 
-  idle: ->
-    @refreshAfter() if @hasTextFocus and @options.refreshOnIdle and @options.refreshOnInput
+  # idle: ->
+  #   @refreshAfter() if @hasTextFocus and @options.refreshOnIdle and @options.refreshOnInput
 
   refreshValue: ->
     @setTextFieldValue( @value )
@@ -178,8 +235,7 @@ HTextControl = HControl.extend
   ## Placeholder method for validation of the value.
   ##
   ###
-  validateText: (_value)->
-    @fieldToValue(_value)
+  validateText: (_value)-> @fieldToValue(_value)
 
   ### = Description
   ## Returns the input element or null, if no input element created (yet).
@@ -210,8 +266,11 @@ HTextControl = HControl.extend
     return unless _inputElement?
     [ _selectionStart, _selectionEnd ] = @getSelectionRange()
     _value = @valueToField(_value)
-    _inputElement.value = _value if _inputElement.value != _value.toString()
-    @setSelectionRange( _selectionStart, _selectionEnd )
+    @_lastFieldValue = _value
+    unless @hasTextFocus
+      _inputElement.value = _value if _inputElement.value != _value.toString()
+      @setSelectionRange( _selectionStart, _selectionEnd )
+    @setValid(true) if _inputElement.value == _value
 
   # returns a random number prefixed and suffixed with '---'
   _randomMarker: -> '---'+Math.round((1+Math.random())*10000)+'---'
@@ -259,7 +318,39 @@ HTextControl = HControl.extend
     else
       _rangeArr = [ 0, 0 ]
     return _rangeArr
-  _getRightAlignedSelectionRange: -> @_getLeftAlignedSelectionRange()
+  _getRightAlignedSelectionRange: ->
+    _inputElement = @getInputElement()
+    _inputValue = _inputElement.value
+    _valueLength = _inputValue.length
+    if _inputElement == null or @hasTextFocus == false
+      _rangeArr = [ 0, 0 ]
+    ## Other browsers
+    else if _inputElement.selectionStart
+      _rangeArr = [ _valueLength-_inputElement.selectionStart, _valueLength-_inputElement.selectionEnd ]
+    ## Internet Explorer:
+    else if document.selection
+      # create a range object
+      _range = document.selection.createRange()
+      # original range text
+      _rangeText = _range.text
+      _rangeLength = _rangeText.length
+      # make a copy of the text and replace \r\n with \n
+      _origValue = _inputElement.value.replace(/\r\n/g, "\n")
+      # create random marker to replace the text with
+      _marker = @_randomMarker()
+      # re-generate marker if it's found in the text.
+      _marker = @_randomMarker() while ~_origValue.indexOf( _marker )
+      _markerLength = _marker.length
+      # temporarily set the text of the selection to the unique marker
+      _range.text = _marker
+      _markerValue = _inputElement.value.replace(/\r\n/g, "\n")
+      _range.text = _rangeText
+      _markerIndex = _markerValue.indexOf( _marker )
+      _rangeArr = [ _valueLength-_markerIndex, _valueLength-_markerIndex + _rangeLength ]
+    ## No support:
+    else
+      _rangeArr = [ 0, 0 ]
+    return _rangeArr
   getSelectionRange: ->
     return @_getRightAlignedSelectionRange() if @styleOfPart('value','textAlign') == 'right'
     @_getLeftAlignedSelectionRange()
@@ -267,20 +358,12 @@ HTextControl = HControl.extend
   _lastFieldValue: null
   refreshAfter: ->
     _fieldValue = @getTextFieldValue()
-    if @_lastFieldValue == null or _fieldValue != @_lastFieldValue
+    if not @_lastFieldValue? or _fieldValue != @_lastFieldValue
       @_lastFieldValue = _fieldValue
       if @_refreshTimer
         clearTimeout( @_refreshTimer )
         @_refreshTimer = null
-      if @options.refreshAfter and @options.refreshAfter > 0
-        _this = @
-        @_refreshTimer = setTimeout( (->
-          _this._updateValueFromField()
-        ), @options.refreshAfter*1000 )
-      else
-        @_updateValueFromField()
-    # @setValue( @validateText( @getTextFieldValue() ) )
-    # @refreshValue()
+      @pushTask => @_updateValueFromField()
 
   ### = Description
   ## Sets the selection (or text cursor position) of the input element.
@@ -304,6 +387,10 @@ HTextControl = HControl.extend
       _selectionEnd = _selectionStart
     _inputElement = @getInputElement()
     return if _inputElement == null or @hasTextFocus == false
+    if @styleOfPart('value','textAlign') == 'right'
+      _len = _inputElement.value.length
+      _selectionStart = _len - _selectionStart
+      _selectionEnd = _len - _selectionEnd
     # Internet Explorer
     if _inputElement.createTextRange
       _range = _inputElement.createTextRange()
@@ -323,6 +410,33 @@ HTextControl = HControl.extend
   ###
   textEnter: ->
     @refreshAfter() if @options.refreshOnInput
-    false
+    true
+
+  drawSubviews: ->
+    @drawUnit()
+
+  _extraLabelRight: 0
+  drawUnit: ->
+    if @options.unit
+      _style =
+        fontSize:   @styleOfPart('value','fontSize')
+        fontFamily: @styleOfPart('value','fontFamily')
+        fontWeight: @styleOfPart('value','fontWeight')
+        color:      @styleOfPart('value','color')
+        whiteSpace: 'pre'
+        textAlign:     'right'
+        verticalAlign: 'middle'
+        lineHeight:    '100%'
+      ELEM.flush()
+      [ w, h ] = @stringSize(@options.unit,null,@markupElemIds.label,true,_style)
+      h = ELEM.getSize(@markupElemIds.label)[1]
+      _style.lineHeight = h+'px'
+      _unitRect = [null,1,w+4,h-2,4,1]
+      @unitSuffix = HLabel.new(_unitRect,@,
+        label: @options.unit
+        style: _style
+      )
+      @_extraLabelRight += @unitSuffix.rect.width
+      @setStyleOfPart('label','right',this._extraLabelRight+'px')
 
 HTextField = HTextControl

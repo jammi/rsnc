@@ -11,7 +11,7 @@ HNumericTextControl = HTextControl.extend
     mouseWheel:  true
     contextMenu: true
     keyDown:     true
-    textEnter:   false
+    textEnter:   true
     click:       true
     contextMenu: true
 
@@ -57,10 +57,15 @@ HNumericTextControl = HTextControl.extend
       _value = parseInt( _value, 10 )
     if isNaN( _value )
       _value = @value
+      @setValid(false)
     if _value > @maxValue
       _value = @maxValue
+      @setValid(false)
     else if _value < @minValue
+      @setValid(false)
       _value = @minValue
+    else
+      @setValid(true)
     _value
 
   fieldToValue: (_unFilteredValue)->
@@ -95,9 +100,7 @@ HNumericTextControl = HTextControl.extend
   ###
   # validateText: (_value)-> _value
 
-  _extraLabelRight: 0
   drawSubviews: ->
-    @base()
     @setStyleOfPart('value','textAlign','right')
     if @options.withStepper
       this._extraLabelRight += 14
@@ -116,16 +119,6 @@ HNumericTextControl = HTextControl.extend
         enabled: @enabled
       )
       @stepper.bringToFront()
-    if @options.unit
-      _unitRect = [null,null,4,@rect.height,4,0]
-      @unitSuffix = HLabel.new(_unitRect,@,
-        pack: true
-        label: @options.unit
-        style:
-          lineHeight: @rect.height+'px'
-          verticalAlign: 'middle'
-      )
-      @_extraLabelRight += @unitSuffix.rect.width
-      @setStyleOfPart('label','right',this._extraLabelRight+'px')
+    @drawUnit()
 
 HNumberField = HNumericTextControl

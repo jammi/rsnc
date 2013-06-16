@@ -50,15 +50,19 @@ HDatePicker = HTextControl.extend
       _date.seconds( _seconds )
   fieldToValue: (_value)->
     _date = @moment(_value,@options.fieldFormat)
-    return @value unless _date.isValid()
+    if _date.isValid()
+      @setValid(true)
+    else
+      @setValid(false)
+      return @value
     @_dateRestore(_date)
     _date.unix()
   refreshValue: ->
     @base()
     @calendar.setValue(@value) if @calendar?
-    @setStyleOfPart('value','textAlign','right')
   drawSubviews: ->
-    @base()
+    @setStyleOfPart('value','textAlign','right')
+    # @base()
     if @options.calendarPicker
       @setStyleOfPart('label','right','26px')
       @calendar = HCalendarPulldown.extend(
