@@ -1,18 +1,36 @@
 
-path = File.split(__FILE__).first
-task :momentjs do
-  moment_url = 'https://github.com/timrwood/moment.git'
-  moment_path = File.expand_path( 'moment', path )
-  if File.exist? moment_path
-    `cd "#{moment_path}"; git pull`
+$ext_path = File.split(__FILE__).first
+$js_path = File.expand_path( 'js', File.split( $ext_path ).first )
+
+def git_pull(url,proj_path)
+  if File.exist? proj_path
+    `cd "#{proj_path}"; git pull`
   else
-    `git clone #{moment_url} "#{moment_path}"`
+    `git clone #{url} "#{proj_path}"`
   end
-  client_path = File.split( path ).first
-  src_js = File.expand_path( 'moment.js', moment_path )
-  tgt_js = File.expand_path( 'js/datetime/momentjs/momentjs.js', client_path )
-  `cp #{src_js} #{tgt_js}`
 end
 
-task :all => :momentjs
+def cp_rsrc( proj_path, proj_file, target_path )
+  src = File.expand_path( proj_file, proj_path )
+  tgt = File.expand_path( target_path, $js_path )
+  cp( src, tgt )
+end
+
+task :momentjs do
+  moment_url = 'https://github.com/timrwood/moment.git'
+  moment_path = File.expand_path( 'moment', $ext_path )
+  git_pull( moment_url, moment_path )
+  cp_rsrc( moment_path, 'moment.js', 'datetime/momentjs/momentjs.js' )
+end
+
+task :mediaelement do
+  mediaelement_url = 'https://github.com/jammi/mediaelement.git'
+  mediaelement_path = File.expand_path( 'mediaelement', $ext_path )
+  git_pull( mediaelement_url, mediaelement_path )
+  cp_rsrc( mediaelement_path, 'build/mediaelement.js', 'media/mediaelement/mediaelement.js' )
+  cp_rsrc( mediaelement_path, 'build/flashmediaelement.swf', 'media/mediaelement_resources/themes/mejs/flashmediaelement.swf' )
+  cp_rsrc( mediaelement_path, 'build/silverlightmediaelement.xap', 'media/mediaelement_resources/themes/mejs/silverlightmediaelement.xap' )
+end
+
+task :all => [ :momentjs, :mediaelement ]
 task :default => :all

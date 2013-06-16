@@ -24,7 +24,7 @@
     - event             # Event
     - util_methods      # UtilMethods
 
-    - locale_settings    # HLocaleSettings
+    - locale_settings   # HLocaleSettings
 
     # RSence.Foundation
     - system            # HSystem
@@ -63,6 +63,11 @@
     - centerview        # HCenterView
     - scrollview        # HScrollView
     - inlineview        # HInlineView
+
+  mediaelement:
+    - mediaelement            # MediaElement
+    - mediaelement_resources  # MediaElement resources (swf and xap)
+    - mediaelement_defaults   # default settings for MediaElement
 
   # The default collection of simple control widgets (components)
   controls:
@@ -152,6 +157,9 @@
     - graphics
     - chat
     - servermessage
+  media:
+    - mejs_theme
+    - mediaelement
   std_widgets:
     - default_theme
     - controls
@@ -180,6 +188,7 @@
   - .gif
   - .png
   - .swf
+  - .xap
   - .svg
   - .pdf
 
