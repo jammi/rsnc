@@ -37,8 +37,7 @@ HComboBoxInterface =
         @menuItemView.drawRect()
       drawSubviews: ->
         @base()
-        ELEM.del(@markupElemIds.label)
-        delete @markupElemIds.label
+        @destroyMarkupElem('label')
         @setMarkupOfPart('bg','&#9662;')
         @setStyleOfPart('bg',
           lineHeight: (@rect.height+2)+'px'
