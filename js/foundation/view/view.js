@@ -759,7 +759,6 @@ HView = UtilMethods.extend({
         this.show();
       }
     }
-    _timeI = 10;
     this.refresh();
     return this;
   },
@@ -1555,7 +1554,7 @@ HView = UtilMethods.extend({
       delete this.timeouts;
     }
     // Delete the children first.
-    var _childViewId, i;
+    var _childViewId, i, _elemId;
     if(!this.views){
       console.log('HView#die: no sub-views for component name: ',this.componentName,', self:',this);
       return;
@@ -1569,9 +1568,13 @@ HView = UtilMethods.extend({
     // Remove the DOM element bindings.
     if( this._domElementBindings ){
       for ( i = 0; i < this._domElementBindings.length; i++) {
-        ELEM.del(this._domElementBindings.pop());
+        _elemId = this._domElementBindings.pop();
+        if( !ELEM.get(_elemId) ){
+          debugger;
+        }
+        ELEM.del(_elemId);
       }
-      // this._domElementBindings = [];
+      delete this._domElementBindings;
     }
 
     if( this._ieNoThrough !== null ){
@@ -2132,6 +2135,12 @@ HView = UtilMethods.extend({
       ELEM.del(_elemId);
       this._domElementBindings.splice(_indexOfElementId, 1);
     }
+  },
+
+  destroyMarkupElem: function(_name){
+    if( this.markupElemIds[_name] === null || this.markupElemIds[_name] === undefined ){ return; }
+    this.unbindDomElement(this.markupElemIds[_name]);
+    delete this.markupElemIds[_name];
   },
 
 
