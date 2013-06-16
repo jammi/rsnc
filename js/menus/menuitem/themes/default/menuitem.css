@@ -1,21 +1,18 @@
 .default.menuitem { cursor: pointer; }
-
 .default.menuitem:hover { background-color: #fff; }
-
 .default.menuitem.disabled { cursor: default; opacity: 0.8; }
-
 .default.menuitem > .label,
-.default.menuitem.state {
+.default.menuitem > .state {
   position: absolute; height: 24px;
 }
-.default.menuitem.state {
+.default.menuitem > .state {
   left: 4px; top: 7px; height: 12px; width: 12px;
-  background-image: #url(menuitem_checkmark.png);
+  background-image: #url(minimenuitem_checkmark.png);
 }
-.default.menuitem.state {
+.default.menuitem > .state {
   visibility: hidden;
 }
-.default.menuitem.state.checked {
+.default.menuitem.checked > .state{
   visibility: inherit;
 }
 .default.menuitem > .label {
