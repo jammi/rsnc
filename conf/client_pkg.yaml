@@ -8,6 +8,7 @@
 :theme_names:
   - default  # Makes default_theme.js containing css and html templates
   - mejs     # MediaElement.js resources
+  # - codemirror # default CodeMirror css theme
 
 # List of packages to build
 :packages:
@@ -69,6 +70,9 @@
     - mediaelement            # MediaElement
     - mediaelement_resources  # MediaElement resources (swf and xap)
     - mediaelement_defaults   # default settings for MediaElement
+
+  # codemirror:
+  #   - codemirror        # CodeMirror
 
   # The default collection of simple control widgets (components)
   controls:
@@ -161,6 +165,8 @@
   media:
     - mejs_theme
     - mediaelement
+  # code:
+  #   - codemirror
   std_widgets:
     - default_theme
     - controls

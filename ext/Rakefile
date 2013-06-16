@@ -10,6 +10,10 @@ def git_pull(url,proj_path)
   end
 end
 
+def ext_path( dir_name )
+  File.expand_path( dir_name, $ext_path )
+end
+
 def cp_rsrc( proj_path, proj_file, target_path )
   src = File.expand_path( proj_file, proj_path )
   tgt = File.expand_path( target_path, $js_path )
@@ -18,19 +22,27 @@ end
 
 task :momentjs do
   moment_url = 'https://github.com/timrwood/moment.git'
-  moment_path = File.expand_path( 'moment', $ext_path )
+  moment_path = ext_path( 'moment' )
   git_pull( moment_url, moment_path )
   cp_rsrc( moment_path, 'moment.js', 'datetime/momentjs/momentjs.js' )
 end
 
 task :mediaelement do
   mediaelement_url = 'https://github.com/jammi/mediaelement.git'
-  mediaelement_path = File.expand_path( 'mediaelement', $ext_path )
+  mediaelement_path = ext_path( 'mediaelement' )
   git_pull( mediaelement_url, mediaelement_path )
   cp_rsrc( mediaelement_path, 'build/mediaelement.js', 'media/mediaelement/mediaelement.js' )
   cp_rsrc( mediaelement_path, 'build/flashmediaelement.swf', 'media/mediaelement_resources/themes/mejs/flashmediaelement.swf' )
   cp_rsrc( mediaelement_path, 'build/silverlightmediaelement.xap', 'media/mediaelement_resources/themes/mejs/silverlightmediaelement.xap' )
 end
 
-task :all => [ :momentjs, :mediaelement ]
+task :codemirror do
+  codemirror_url = 'https://github.com/marijnh/CodeMirror.git'
+  codemirror_path = ext_path( 'codemirror' )
+  git_pull( codemirror_url, codemirror_path )
+  cp_rsrc( codemirror_path, 'lib/codemirror.js', 'code/codemirror/codemirror.js' )
+  cp_rsrc( codemirror_path, 'lib/codemirror.css', 'code/codemirror/themes/codemirror/codemirror.css' )
+end
+
+task :all => [ :momentjs, :mediaelement, :codemirror ]
 task :default => :all
