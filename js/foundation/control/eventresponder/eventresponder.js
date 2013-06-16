@@ -439,6 +439,20 @@ HEventResponder = HClass.extend({
     return this;
   },
 
+/** = Description
+  * Registers or releases event listening for resize events
+  * depending on the value of the flag argument.
+  *
+  * = Returns
+  * +self+
+  *
+  **/
+  setResize: function(_flag) {
+    this.events.resize = _flag;
+    this.setEvents();
+    return this;
+  },
+
 /** Same as +setClickable+
   **/
   setClick: function(_flag) {
