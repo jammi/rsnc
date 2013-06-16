@@ -81,9 +81,17 @@ HMiniMenu = HRadioButtonList.extend({
     this.base();
     if(this.listItems && this.listItems.length !== 0 && this.valueMatrix !== undefined ) {
       for(var i=0;i<this.listItems.length;i++){
-        if(this.listItems[i][0]===this.value){
-          this.setLabel( this.listItems[i][1] );
-          return;
+        if(this.typeChr(this.listItems[i]) === 'a'){
+          if(this.listItems[i][0]===this.value){
+            this.setLabel( this.listItems[i][1] );
+            return;
+          }
+        }
+        else {
+          if(this.listItems[i].value===this.value){
+            this.setLabel( this.listItems[i].value );
+            return;
+          }
         }
       }
     }
