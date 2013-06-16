@@ -52,5 +52,5 @@
 .upload_progress .progress_indicator {
   position: absolute;
   right: 0px; top: 4px; width: 16px; height: 16px;
-  background-image: #{this.getCssFilePath('upload_progress.gif')};
+  background-image: #url(upload_progress.gif);
 }

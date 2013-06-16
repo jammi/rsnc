@@ -5,7 +5,7 @@
   width: 7px; left: 7px;
   font-size: 0;
   cursor: row-resize;
-  background-image: #{this.getCssFilePath('vslider_tracks.png')};
+  background-image: #url(vslider_tracks.png);
 }
 
 .vslider_track_top {
@@ -41,7 +41,7 @@
   left: 0; width: 21px; height: 21px;
   background-position: 0 0;
   cursor: row-resize;
-  background-image: #{this.getCssFilePath('slider_thumbs.png')};
+  background-image: #url(slider_thumbs.png);
 }
 
 .vslider_thumb:active {
@@ -57,7 +57,7 @@
   position: absolute;
   top: 0; height: 21px; width: 21px;
   cursor: row-resize;
-  background-image: #{this.getCssFilePath('slider_thumbs.png')};
+  background-image: #url(slider_thumbs.png);
 }
 
 .vslider_thumb_e,

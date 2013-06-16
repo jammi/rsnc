@@ -1,46 +1,51 @@
-
-.popupmenu_control,
-.popupmenu_edge_left,
-.popupmenu_center,
-.popupmenu_edge_right,
-.popupmenu_label {
+.default.popupmenu {
+  cursor: pointer;
+}
+.default.popupmenu.disabled {
+  cursor: default;
+}
+.default.popupmenu > .bg,
+.default.popupmenu > .bg > .w,
+.default.popupmenu > .bg > .c,
+.default.popupmenu > .bg > .e,
+.default.popupmenu > .label {
   position: absolute;
   top: 0px; height: 23px;
 }
 
-.popupmenu_control {
+.default.popupmenu > .bg {
   left: 0px; right: 0px;
   cursor: pointer;
 }
-.disabled .popupmenu_control {
+.default.popupmenu > .disabled .bg {
   cursor: default;
 }
 
-.popupmenu_edge_left,
-.popupmenu_center,
-.popupmenu_edge_right {
-  background-image: #{this.getCssFilePath('popupmenu.png')};
+.default.popupmenu > .bg > .w,
+.default.popupmenu > .bg > .c,
+.default.popupmenu > .bg > .e {
+  background-image: #url(popupmenu.png);
 }
 
-.popupmenu_edge_left {
+.default.popupmenu > .bg > .w {
   left: 0px; width: 9px;
   background-position: 0px 0px;
   background-repeat: no-repeat;
 }
 
-.popupmenu_edge_right {
+.default.popupmenu > .bg > .e {
   right: 0px; width: 17px;
   background-position: -9px 0px;
   background-repeat: no-repeat;
 }
 
-.popupmenu_center {
+.default.popupmenu > .bg > .c {
   left: 9px; right: 17px;
   background-position: 0px -23px;
   background-repeat: repeat-x;
 }
 
-.popupmenu_label {
+.default.popupmenu > .label {
   left: 13px; right: 11px; top: 0px;
   height: 22px;
   text-align: left;
@@ -51,11 +56,14 @@
   font-family: Helvetica, Arial, sans-serif;
   font-size: 12px;
   color: #333;
-  line-height: #{BROWSER_TYPE.ie7?'20':'22'}px;
+  line-height: 22px;
 }
-.popupmenu_control:hover > .popupmenu_label {
+.default.popupmenu.ie7 > .label{
+  line-height: 20px;
+}
+.default.popupmenu > .bg:hover > .label {
   color: #000;
 }
-.disabled .popupmenu_control {
+.default.popupmenu.disabled > .bg {
   opacity: 0.6;
 }

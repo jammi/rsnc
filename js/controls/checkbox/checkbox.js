@@ -28,14 +28,19 @@ HCheckbox = HButton.extend({
   according to the trueness of the value.**/
   refreshValue: function(){
     if(this.markupElemIds.control){
+      !this.isProduction && console.log('Please update your theme of ',this.componentName,' to current checkbox/radiobutton mode: the cell should be the checked element, not the control part.');
       if(this.value){
-        this.setCSSClass('control', 'checked');
-        this.unsetCSSClass('control', 'unchecked');
+        this.setCSSClass('control','checked');
+        this.unsetCSSClass('control','unchecked');
       }
       else{
-        this.unsetCSSClass('control', 'checked');
-        this.setCSSClass('control', 'unchecked');
+        this.setCSSClass('control','unchecked');
+        this.unsetCSSClass('control','checked');
       }
+    }
+    else{
+      if(this.value){this.setCSSClass('checked');}
+      else{this.unsetCSSClass('checked');}
     }
   }
 });

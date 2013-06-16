@@ -54,7 +54,7 @@
 }
 
 .window_titlebar * {
-  background-image: #{this.getCssFilePath('window_parts1.png')};
+  background-image: #url(window_parts1.png);
 }
 
 .window_titlebar_edge_left {
@@ -80,7 +80,7 @@
   left: 24px; top: 0; right: 24px; height: 24px;
   background-position: 0 0;
   background-repeat: repeat-x;
-  background-image: #{this.getCssFilePath('window_parts2.png')};
+  background-image: #url(window_parts2.png);
 }
 
 .inactive > .window_titlebar > .window_titlebar_center {
@@ -90,11 +90,11 @@
 .window_bg {
   left: 24px; top: 24px; right: 24px; bottom: 24px;
   background-repeat: repeat;
-  background-image: #{this.getCssFilePath('window_bg_active.png')};
+  background-image: #url(window_bg_active.png);
 }
 
 .inactive > .window_bg {
-  background-image: #{this.getCssFilePath('window_bg_inactive.png')};
+  background-image: #url(window_bg_inactive.png);
 }
 
 .window_body {
@@ -102,7 +102,7 @@
 }
 
 .window_body * {
-  background-image: #{this.getCssFilePath('window_parts1.png')};
+  background-image: #url(window_parts1.png);
 }
 
 .window_body_edge_left {
@@ -146,7 +146,7 @@
   left: 24px; bottom: 0; right: 24px; height: 24px;
   background-repeat: repeat-x;
   background-position: 0 -24px;
-  background-image: #{this.getCssFilePath('window_parts2.png')};
+  background-image: #url(window_parts2.png);
 }
 
 .inactive > .window_body > .window_body_edge_bottom {
@@ -183,7 +183,7 @@
   z-index: 10000;
   background-position: -59px -35px;
   font-size: 0;
-  background-image: #{this.getCssFilePath('window_parts1.png')};
+  background-image: #url(window_parts1.png)
 }
 
 .inactive > .window_resize_se {
@@ -194,7 +194,7 @@
 .window_controls_collapse,
 .window_controls_zoom {
   top: 6px; width: 15px; height: 15px;
-  background-image: #{this.getCssFilePath('window_buttons.png')};
+  background-image: #url(window_buttons.png)
 }
 
 .window_controls_close {

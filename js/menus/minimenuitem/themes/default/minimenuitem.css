@@ -1,31 +1,24 @@
+.default.minimenuitem { cursor: pointer; }
 
-.minimenuitem_control,
-.minimenuitem_label,
-.minimenuitem_state {
-  position: absolute;
-  top: 0px; height: 16px;
-}
+.default.minimenuitem:hover { background-color: #fff; }
 
-.minimenuitem_control {
-  left: 0px; right: 0px;
-  cursor: pointer;
-}
-.minimenuitem_control:hover {
-  background-color: #fff;
-}
+.default.minimenuitem.disabled { cursor: default; opacity: 0.8; }
 
-.minimenuitem_state {
+.default.minimenuitem > .label,
+.default.minimenuitem.state {
+  position: absolute; height: 16px;
+}
+.default.minimenuitem.state {
   left: 0px; top: 1px; height: 12px; width: 12px;
-  background-image: #{this.getCssFilePath('minimenuitem_checkmark.png')};
+  background-image: #url(minimenuitemitem_checkmark.png);
 }
-.checked .minimenuitem_state {
-  visibility: inherit;
-}
-.unchecked .minimenuitem_state {
+.default.minimenuitem.state {
   visibility: hidden;
 }
-
-.minimenuitem_label {
+.default.minimenuitem.state.checked {
+  visibility: inherit;
+}
+.default.minimenuitem > .label {
   left: 14px; right: 11px; top: 0px;
   height: 15px; line-height: 14px;
   text-align: left;
@@ -37,9 +30,4 @@
   font-size: 11px;
   color: #333;
 }
-.minimenuitem_label:hover {
-  color: #000;
-}
-.disabled .minimenuitem_control {
-  opacity: 0.8;
-}
+.default.minimenuitem:hover > .label { color: #000; }

@@ -26,8 +26,8 @@ HMiniMenuItem = HRadioButton.extend({
   click: function(){
     var _now = this.msNow();
     if( _now - this._parentLastActivation > 200 ){
-      this.base();
       this._parentLastActivation = _now;
+      this.base();
       EVENT.changeActiveControl(null);
     }
     return true;

@@ -1,31 +1,24 @@
+.default.menuitem { cursor: pointer; }
 
-.menuitem_control,
-.menuitem_label,
-.menuitem_state {
-  position: absolute;
-  top: 0px; height: 24px;
-}
+.default.menuitem:hover { background-color: #fff; }
 
-.menuitem_control {
-  left: 0px; right: 0px;
-  cursor: pointer;
-}
-.menuitem_control:hover {
-  background-color: #fff;
-}
+.default.menuitem.disabled { cursor: default; opacity: 0.8; }
 
-.menuitem_state {
+.default.menuitem > .label,
+.default.menuitem.state {
+  position: absolute; height: 24px;
+}
+.default.menuitem.state {
   left: 4px; top: 7px; height: 12px; width: 12px;
-  background-image: #{this.getCssFilePath('minimenuitem_checkmark.png')};
+  background-image: #url(menuitem_checkmark.png);
 }
-.checked .menuitem_state {
-  visibility: inherit;
-}
-.unchecked .menuitem_state {
+.default.menuitem.state {
   visibility: hidden;
 }
-
-.menuitem_label {
+.default.menuitem.state.checked {
+  visibility: inherit;
+}
+.default.menuitem > .label {
   left: 20px; right: 11px; top: 0px;
   height: 24px; line-height: 24px;
   text-align: left;
@@ -37,9 +30,4 @@
   font-size: 12px;
   color: #333;
 }
-.menuitem_label:hover {
-  color: #000;
-}
-.disabled .menuitem_control {
-  opacity: 0.8;
-}
+.default.menuitem:hover > .label { color: #000; }

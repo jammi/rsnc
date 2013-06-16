@@ -1,51 +1,45 @@
-.checkbox_control,
-.checkbox_state,
-.checkbox_label,
-.checkbox_antiselect {
-  position: absolute; height: 24px;
-}
-.checkbox_control {
+.default.checkbox {
   left: 0px; top: 0px; right: 0px;
   cursor: pointer;
 }
-.disabled > .checkbox_control {
+.default.checkbox.disabled {
   cursor: default;
 }
-.checkbox_state {
+.default.checkbox.checkbox > .state,
+.default.checkbox.checkbox > .label {
+  position: absolute; height: 24px;
+}
+.default.checkbox > .state {
   left: 0px; top: 0px; width: 24px;
   background-repeat: no-repeat;
   background-position: -24px 0px;
-  background-image: #{this.getCssFilePath('checkbox_parts1.png')};
+  background-image: #url(checkbox_parts1.png);
 }
-
-.enabled > .unchecked > .checkbox_state {
-  background-position: -24px 0px;
-}
-.enabled > .unchecked:hover > .checkbox_state {
+.default.checkbox.enabled:hover > .state {
   background-position: -24px -24px;
 }
-.enabled > .unchecked:active > .checkbox_state {
+.default.checkbox.enabled:active > .state {
   background-position: -24px -48px;
 }
 
-.enabled > .checked > .checkbox_state {
+.default.checkbox.enabled.checked > .state {
   background-position: 0px 0px;
 }
-.enabled > .checked:hover > .checkbox_state {
+.default.checkbox.enabled.checked:hover > .state {
   background-position: 0px -24px;
 }
-.enabled > .checked:active > .checkbox_state {
+.default.checkbox.enabled.checked:active > .state {
   background-position: 0px -48px;
 }
 
-.disabled > .unchecked > .checkbox_state {
+.default.checkbox.disabled > .state {
   background-position: -24px -72px;
 }
-.disabled > .checked > .checkbox_state {
+.default.checkbox.disabled.checked > .state {
   background-position: 0px -72px;
 }
 
-.checkbox_label {
+.default.checkbox > .label {
   left: 24px; right: 0px; top: 2px;
   height: 20px; line-height: 20px;
   text-align: left; vertical-align: middle;
@@ -53,17 +47,13 @@
   font-size: 12px;
   color: #333;
 }
-.disabled > .checkbox_control > .checkbox_label {
+.default.checkbox.disabled > .label {
   color: #999;
 }
-.enabled > .checkbox_control:hover > .checkbox_label {
+.default.checkbox.enabled:hover > .label {
   color: #000;
 }
-.enabled > .checkbox_control:active > .checkbox_label {
+.default.checkbox.enabled:active > .label {
   color: #000;
-}
-
-.checkbox_antiselect {
-  left: 0px; top: 0px; right: 0px;
 }
 

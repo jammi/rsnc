@@ -6,7 +6,7 @@
  height: 23px;
  background-position: 0px 0px;
  background-repeat: no-repeat;
- background-image: #{this.getCssFilePath('stepper.png')};
+ background-image: #url(stepper.png);
 }
 
 .disabled .stepper_state {
