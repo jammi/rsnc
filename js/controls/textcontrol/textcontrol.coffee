@@ -131,6 +131,14 @@ HTextControl = HControl.extend
     else
       @_setInvalidMarker()
 
+  resize: ->
+    @_ie8fix() if BROWSER_TYPE.ie8
+
+  _ie8fix: ->
+    h = @rect.height-4
+    @setStyleOfPart('value','paddingTop','2px')
+    @setStyleOfPart('value','lineHeight',h+'px')
+
   fieldType: 'text'
   drawMarkup: ->
     @base()
@@ -147,6 +155,9 @@ HTextControl = HControl.extend
     if @options.focusOnCreate
       @getInputElement().focus()
       @setSelectionRange( @value.length, @value.length ) if @typeChr(@value) == 's'
+    if BROWSER_TYPE.ie8
+      @setResize( true ) unless @events.resize
+      @_ie8fix()
 
   lostActiveStatus: (_prevActive)->
     @base(_prevActive)
@@ -261,19 +272,16 @@ HTextControl = HControl.extend
   ## = Parameters
   ## +_value+::  The value to set.
   ###
-  setTextFieldValue: (_value)->
+  setTextFieldValue: (_value, _override)->
     _inputElement = @getInputElement()
     return unless _inputElement?
     [ _selectionStart, _selectionEnd ] = @getSelectionRange()
     _value = @valueToField(_value)
     @_lastFieldValue = _value
-    unless @hasTextFocus
+    if not @hasTextFocus or _override
       _inputElement.value = _value if _inputElement.value != _value.toString()
       @setSelectionRange( _selectionStart, _selectionEnd )
     @setValid(true) if _inputElement.value == _value
-
-  # returns a random number prefixed and suffixed with '---'
-  _randomMarker: -> '---'+Math.round((1+Math.random())*10000)+'---'
 
   die: ->
     @getInputElement().blur() if @hasTextFocus
@@ -289,68 +297,46 @@ HTextControl = HControl.extend
   ###
   _getLeftAlignedSelectionRange: ->
     _inputElement = @getInputElement()
-    if _inputElement == null or @hasTextFocus == false
-      _rangeArr = [ 0, 0 ]
-    ## Other browsers
-    else if _inputElement.selectionStart
+    _rangeArr = [ 0, 0 ]
+    # if _inputElement == null or @hasTextFocus == false
+    #   _rangeArr = [ 0, 0 ]
+    ## All except Internet Explorer
+    if _inputElement.selectionStart?
       _rangeArr = [ _inputElement.selectionStart, _inputElement.selectionEnd ]
     ## Internet Explorer:
-    else if document.selection
-      # create a range object
+    else if document.selection and document.selection.createRange
       _range = document.selection.createRange()
-      # original range text
-      _rangeText = _range.text
-      _rangeLength = _rangeText.length
-      # make a copy of the text and replace \r\n with \n
-      _origValue = _inputElement.value.replace(/\r\n/g, "\n")
-      # create random marker to replace the text with
-      _marker = @_randomMarker()
-      # re-generate marker if it's found in the text.
-      _marker = @_randomMarker() while ~_origValue.indexOf( _marker )
-      _markerLength = _marker.length
-      # temporarily set the text of the selection to the unique marker
-      _range.text = _marker
-      _markerValue = _inputElement.value.replace(/\r\n/g, "\n")
-      _range.text = _rangeText
-      _markerIndex = _markerValue.indexOf( _marker )
-      _rangeArr = [ _markerIndex, _markerIndex + _rangeLength ]
-    ## No support:
-    else
-      _rangeArr = [ 0, 0 ]
+      if _range and _range.parentElement() == _inputElement
+        _len = _inputElement.value.length
+        _normalizedValue = _inputElement.value.replace(/\r\n/g, "\n")
+        # Create a working TextRange that lives only in the input
+        _textInputRange = _inputElement.createTextRange()
+        _textInputRange.moveToBookmark( _range.getBookmark() )
+
+        # Check if the start and end of the selection are at the very end
+        # of the input, since moveStart/moveEnd doesn't return what we want
+        # in those cases
+        _endRange = _inputElement.createTextRange()
+        _endRange.collapse(false)
+
+        if ~_textInputRange.compareEndPoints("StartToEnd", _endRange)
+          _rangeArr = [ _len, _len ]
+        else
+          _rangeArr[0] = 0-_textInputRange.moveStart("character", 0-_len)
+          _rangeArr[0] += (_normalizedValue.slice(0, _rangeArr[0]).split("\n").length - 1)
+          if ~_textInputRange.compareEndPoints("EndToEnd", _endRange)
+            _rangeArr[1] = _len
+          else
+            _rangeArr[1] = 0-_textInputRange.moveEnd("character", 0-_len)
+            _rangeArr[1] += (_normalizedValue.slice(0, _rangeArr[1]).split("\n").length - 1)
     return _rangeArr
   _getRightAlignedSelectionRange: ->
     _inputElement = @getInputElement()
     _inputValue = _inputElement.value
     _valueLength = _inputValue.length
-    if _inputElement == null or @hasTextFocus == false
-      _rangeArr = [ 0, 0 ]
-    ## Other browsers
-    else if _inputElement.selectionStart
-      _rangeArr = [ _valueLength-_inputElement.selectionStart, _valueLength-_inputElement.selectionEnd ]
-    ## Internet Explorer:
-    else if document.selection
-      # create a range object
-      _range = document.selection.createRange()
-      # original range text
-      _rangeText = _range.text
-      _rangeLength = _rangeText.length
-      # make a copy of the text and replace \r\n with \n
-      _origValue = _inputElement.value.replace(/\r\n/g, "\n")
-      # create random marker to replace the text with
-      _marker = @_randomMarker()
-      # re-generate marker if it's found in the text.
-      _marker = @_randomMarker() while ~_origValue.indexOf( _marker )
-      _markerLength = _marker.length
-      # temporarily set the text of the selection to the unique marker
-      _range.text = _marker
-      _markerValue = _inputElement.value.replace(/\r\n/g, "\n")
-      _range.text = _rangeText
-      _markerIndex = _markerValue.indexOf( _marker )
-      _rangeArr = [ _valueLength-_markerIndex, _valueLength-_markerIndex + _rangeLength ]
-    ## No support:
-    else
-      _rangeArr = [ 0, 0 ]
-    return _rangeArr
+    _range = @_getLeftAlignedSelectionRange()
+    _range = [ _valueLength-_range[0], _valueLength-_range[1] ]
+    _range
   getSelectionRange: ->
     return @_getRightAlignedSelectionRange() if @styleOfPart('value','textAlign') == 'right'
     @_getLeftAlignedSelectionRange()
@@ -381,8 +367,7 @@ HTextControl = HControl.extend
   ###
   setSelectionRange: ( _selectionStart, _selectionEnd )->
     if @typeChr( _selectionStart ) == 'a'
-      _selectionEnd = _selectionStart[1];
-      _selectionStart = _selectionStart[0];
+      [ _selectionStart, _selectionEnd ] = _selectionStart
     unless _selectionEnd?
       _selectionEnd = _selectionStart
     _inputElement = @getInputElement()
@@ -394,7 +379,13 @@ HTextControl = HControl.extend
     # Internet Explorer
     if _inputElement.createTextRange
       _range = _inputElement.createTextRange()
-      _range.move( 'character', _selectionStart, _selectionEnd )
+      _range.collapse()
+      _selectionEnd = _selectionEnd - _selectionStart
+      if _selectionEnd == 0
+        _range.move( 'character', _selectionStart )
+      else
+        _range.moveStart( 'character', _selectionStart )
+        _range.moveEnd( 'character', _selectionEnd )
       _range.select()
     # Other browsers:
     else if _inputElement.selectionStart

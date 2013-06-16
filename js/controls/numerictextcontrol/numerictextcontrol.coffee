@@ -35,7 +35,9 @@ HNumericTextControl = HTextControl.extend
     else
       _value = _value+@options.numberIncrement
     _value = @validateNumber(_value)
-    @setValue( _value )
+    @setValue(_value) if @_isValid
+    @setTextFieldValue( _value, true )
+    true
 
   keyDown: (_key)->
     if _key == Event.KEY_UP
@@ -48,6 +50,10 @@ HNumericTextControl = HTextControl.extend
 
   _numbers: ['0','1','2','3','4','5','6','7','8','9']
   validateNumber: (_value)->
+    if isNaN( _value )
+      _value = @value
+      console.log('isNaN')
+      @setValid(false)
     if @options.decimalNumber
       _value = parseFloat(_value)
       if @options.decimalPlaces != null
@@ -55,9 +61,6 @@ HNumericTextControl = HTextControl.extend
         _value = Math.round(_value*_decPlaces)/_decPlaces
     else
       _value = parseInt( _value, 10 )
-    if isNaN( _value )
-      _value = @value
-      @setValid(false)
     if _value > @maxValue
       _value = @maxValue
       @setValid(false)
@@ -82,12 +85,8 @@ HNumericTextControl = HTextControl.extend
   valueToField: (_value)->
     _value = @validateNumber(_value)
     if @options.decimalNumber and @options.decimalPlaces != null
-      if _value - Math.round(_value) == 0
-        _value = _value+@options.decimalSeparator
-        for n in [0...@options.decimalPlaces]
-          _value += '0'
-      else
-        _value = _value.toString().replace('.',@options.decimalSeparator)
+      _value = _value.toFixed(@options.decimalPlaces)
+      _value = _value.replace('.',@options.decimalSeparator)
     _value
 
   refreshValue: ->
@@ -101,7 +100,7 @@ HNumericTextControl = HTextControl.extend
   # validateText: (_value)-> _value
 
   drawSubviews: ->
-    @setStyleOfPart('value','textAlign','right')
+    @setStyleOfPart('value','textAlign','right') unless @options.style? and @options.style.textAlign
     if @options.withStepper
       this._extraLabelRight += 14
       @setStyleOfPart('label','right',this._extraLabelRight+'px')

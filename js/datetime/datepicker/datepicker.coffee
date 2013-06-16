@@ -20,6 +20,7 @@ HDatePicker = HTextControl.extend
     else if _delta < 0
       _date.subtract(1,@options.scrollUnit)
     @setValue(_date.unix())
+    @setTextFieldValue(@value,true)
     true
   valueToField: (_value)->
     _date = @moment(_value*1000)
