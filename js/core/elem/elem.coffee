@@ -157,6 +157,11 @@ ELEM = HClass.extend
   append: (_srcId, _tgtId)->
     @_elements[_tgtId].appendChild @_elements[_srcId]
 
+  moveToParent: (_id,_parentId)->
+    _elem = @_elements[_id]
+    _elem.parentNode.removeChild( _elem )
+    @_elements[_parentId].appendChild( _elem )
+
   ###
   Replaces all styles of an element with a block of css text
   ###
