@@ -37,14 +37,20 @@ HComboBoxInterface =
         @menuItemView.drawRect()
       drawSubviews: ->
         @base()
+        ELEM.del(@markupElemIds.label)
+        delete @markupElemIds.label
         @setMarkupOfPart('bg','&#9662;')
         @setStyleOfPart('bg',
           lineHeight: (@rect.height+2)+'px'
           verticalAlign: 'middle'
           borderLeft: '1px solid #ccc'
+          position: 'absolute'
+          fontSize: '13px'
+          textAlign: 'center'
+          backgroundColor: '#f9f9f9'
         )
       @refreshValue()
-    ).new( [null,-1,14,@rect.height,0,null], @, _menuOptions )
+    ).new( [null,1,14,@rect.height-2,1,null], @, _menuOptions )
     @_extraLabelRight += 14
     if @unitSuffix
       ELEM.setStyle(@unitSuffix.elemId,'paddingRight','14px')
