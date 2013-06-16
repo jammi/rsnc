@@ -7,6 +7,7 @@
 # List of theme names to include and pack
 :theme_names:
   - default  # Makes default_theme.js containing css and html templates
+  - mejs     # MediaElement.js resources
 
 # List of packages to build
 :packages:

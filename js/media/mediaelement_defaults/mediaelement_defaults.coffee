@@ -1,1 +1,1 @@
-LOAD(-> mejs.MediaElementDefaults.flashName = HThemeManager.themePaths.mejs)
+LOAD(-> mejs.MediaElementDefaults.pluginPath = HThemeManager.themePaths.mejs )
