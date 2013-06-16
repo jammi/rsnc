@@ -775,6 +775,7 @@ EventManagerApp = HApplication.extend
   #
   # Sets the active control
   changeActiveControl: (_ctrl)->
+    return if _ctrl != null and @_views[@_listeners.active[0]] == _ctrl
     _prevActive = @delActiveControl(_ctrl)
     @addActiveControl(_ctrl, _prevActive) if _ctrl != null
   #
