@@ -141,11 +141,18 @@ HThemeManager = HClass.extend
       return ''
     return '' unless @themeCSSTemplates[_themeName][_componentName]?
     [_tmplJS, _tmplCSS] = @themeCSSTemplates[_themeName][_componentName]
-    return _tmplCSS if _tmplJS.length == 0
     [_variableMatch, _assignmentMatch] = [@_variableMatch, @_assignmentMatch]
     @getThemeGfxFile = (_fileName)-> @_buildThemePath(_fileName,_themeName)
     @getCssFilePath = (_fileName)->
       "url(#{@_buildThemePath(_fileName,_themeName)})"
+    _cssThemeUrlMatch = /#url\((.+?)\)/gm
+    # while _cssThemeUrlMatch.test(_tmplCSS)
+    if _cssThemeUrlMatch.test(_tmplCSS)
+      _tmplCSS = _tmplCSS.replace(
+        _cssThemeUrlMatch, (_match,_fileName)=>
+          "url(#{@_buildThemePath(_fileName,_themeName)})"
+      )
+    return _tmplCSS if _tmplJS.length == 0
     _callValue = (_id,_isAssign)->
       _oid = _id
       _id = parseInt(_id,36)-10
