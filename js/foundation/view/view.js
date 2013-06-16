@@ -601,15 +601,22 @@ HView = UtilMethods.extend({
       if(this.isAbsolute){   ELEM.setStyle(this.elemId,'position','absolute'); }
       else {                 ELEM.setStyle(this.elemId,'position','relative'); }
 
-      // Theme name == CSS class name
+      // Theme name => CSS class name
       if(this.preserveTheme){
         ELEM.addClassName( this.elemId, this.theme );
       }
       else {
         ELEM.addClassName( this.elemId, HThemeManager.currentTheme );
       }
+      // componentName => CSS class name
       if( this.componentName !== undefined ){
         ELEM.addClassName( this.elemId, this.componentName );
+      }
+      // BROWSER_TYPE.* = true => CSS class names
+      for( var _browserName in BROWSER_TYPE ){
+        if( BROWSER_TYPE[_browserName] === true ){
+          ELEM.addClassName( this.elemId, _browserName );
+        }
       }
       if( this.options.textSelectable !== undefined ){
         this.textSelectable = this.options.textSelectable;
@@ -674,10 +681,10 @@ HView = UtilMethods.extend({
         _this._updateZIndex();
       }
 
-      _this.drawn = true;
       if( _this.themeStyle !== undefined ){
         _this.themeStyle.call(_this);
       }
+      _this.drawn = true;
     }
     return this;
   },
