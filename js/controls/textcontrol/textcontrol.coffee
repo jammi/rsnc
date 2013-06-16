@@ -139,15 +139,30 @@ HTextControl = HControl.extend
     @setStyleOfPart('value','paddingTop','2px')
     @setStyleOfPart('value','lineHeight',h+'px')
 
+  _snatchField: (_parentId,_id)->
+    _idType = @typeChr(_id)
+    if _idType == 's'
+      _elemId = ELEM.bindId(_id)
+    else if _idType == 'n'
+      _elemId = ELEM.get(_id)
+    else
+      console.warn('Unknown id type for snatchField:',_id,' (type:'+_idType+'); assuming element...') if !@isProducton
+      _elemId = ELEM.bind(_id)
+    ELEM.moveToParent(_elemId,_parentId)
+    _elemId
+
   fieldType: 'text'
   drawMarkup: ->
     @base()
     @_invalidCharWidth = @stringWidth(@_invalidChar,null,@markupElemIds.invalid)
     _parentId = @markupElemIds.label
-    if @multiline
-      _elemId = ELEM.make(_parentId,'textarea')
+    if @options.snatchField?
+      _elemId = @_snatchField(_parentId,@options.snatchField)
     else
-      _elemId = ELEM.make(_parentId,'input',{attr:{type:@fieldType,value:@value}})
+      if @multiline
+        _elemId = ELEM.make(_parentId,'textarea')
+      else
+        _elemId = ELEM.make(_parentId,'input',{attr:{type:@fieldType,value:@value}})
     @markupElemIds.value = _elemId
     @setCSSClass('value','input')
     Event.observe(_elemId,'focus',=>@textFocus())
