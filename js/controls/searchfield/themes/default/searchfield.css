@@ -1,107 +1,72 @@
-
-.default .searchfield_input {
-  position: absolute;
-  display: block;
-  font-family: Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: #000;
+.default.searchfield {
+  overflow: visible;
+}
+.default.searchfield > .input_parent {
+  position: absolute; z-index: 2;
+  left: 1px; top: 1px; right: 1px; bottom: 1px;
+}
+.default.searchfield > .input_parent > .input {
+  position: absolute; display: block;
+  font-family: Helvetica, Arial, sans-serif; line-height: 18px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
+  font-size: 13px; color: #000;
   background-color: transparent;
   vertical-align: middle;
-  border: 0px;
-  left: 18px; top: 0px;
-  line-height: 18px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  #{(
-  (BROWSER_TYPE.firefox||BROWSER_TYPE.ie7||BROWSER_TYPE.ie8||BROWSER_TYPE.ie9||BROWSER_TYPE.ie10||BROWSER_TYPE.opera)?
-    'padding-left:2px;width:85% !important;height:90% !important;':
-    'padding:2px;padding-top:4px;right:3px;height:22px;width:auto;'
-  )}
+  border: 0; left: 18px; top: 0;
+  right: 0; bottom: 0;
+  width: 100%; height: 100%;
+  -moz-box-sizing:    border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing:         border-box;
+}
+.default.searchfield > .input_parent > .input::-ms-clear {
+    display: none;
+}
+.default.searchfield.disabled > .input_parent > .input { color: #333; }
+.default.searchfield > .input_parent > .input:focus {
+  outline-color: transparent; outline-style: none;
+}
+.default.searchfield > .input_parent > .input_invalid {
+  position: absolute; white-space: nowrap; overflow: hidden;
+  vertical-align: bottom; visibility: hidden;
+  bottom: 1px; font-size: 10px; line-height: 6px;
+  color: #c00; z-index: 0; font-weight: bold;
 }
 
-.default .searchfield_input:focus {
-  outline-color: transparent;
-  outline-style: none;
-}
 
-.default .disabled .searchfield_input {
-  color: #ccc;
-}
-
-.default .searchfield_input_parent {
-  position: absolute;
-  #{(
-  (BROWSER_TYPE.firefox||BROWSER_TYPE.ie7||BROWSER_TYPE.ie8||BROWSER_TYPE.ie9||BROWSER_TYPE.ie10||BROWSER_TYPE.opera)?
-    'left:0;padding-left:1px;top:0;right:4px;bottom:0;':
-    'left:-2px;top:-2px;right:-2px;height:24px;'
-  )}
-}
-
-.default .searchfield_fade,
-.default .searchfield_e,
-.default .searchfield_w,
-.default .searchfield_c {
-  position: absolute;
-  height: 24px;
+.default.searchfield > .fade,
+.default.searchfield > .bg > .e,
+.default.searchfield > .bg > .w,
+.default.searchfield > .bg > .c {
+  position: absolute; height: 24px;
   background-repeat: no-repeat;
   background-image: #url(searchfield_parts1.png);
 }
-
-.default .searchfield_fade {
-  right: 0px; top: 0px; width: 10px;
-  background-position: -48px 0px;
+.default.searchfield > .fade {
+  right: 0; top: 0; width: 10px;
+  background-position: -48px 0;
 }
-
-.default .searchfield_e {
-  right: 0px; top: 0px; width: 24px;
-  background-position: -24px 0px;
+.default.searchfield > .bg > .e {
+  right: 0; top: 0; width: 24px;
+  background-position: -24px 0;
 }
-
-.default .searchfield_c {
-  left: 24px; right: 24px; top: 0px;
+.default.searchfield > .bg > .c {
+  left: 24px; right: 24px; top: 0;
   background-repeat: repeat-x;
-  background-position: 0px -24px;
+  background-position: 0 -24px;
 }
-
-.default .searchfield_w {
-  left: 0px; top: 0px; width: 24px;
-  background-position: 0px 0px;
+.default.searchfield > .bg > .w {
+  left: 0; top: 0; width: 24px;
+  background-position: 0 0;
 }
-
-.default .disabled > .searchfield_fade {
-  background-position: -48px -96px;
-}
-
-.default .disabled > .searchfield_e {
-  background-position: -24px -96px;
-}
-
-.default .disabled > .searchfield_c {
-  background-position: 0px -120px;
-}
-
-.default .disabled > .searchfield_w {
-  background-position: 0px -96px;
-}
-
-.default .active > .searchfield_fade {
-  background-position: -48px -48px;
-}
-
-.default .active > .searchfield_e {
-  background-position: -24px -48px;
-}
-
-.default .active > .searchfield_c {
-  background-position: 0px -72px;
-}
-
-.default .active > .searchfield_w {
-  background-position: 0px -48px;
-}
-
-.default > .searchfield_help {
+.default.searchfield.disabled > .fade { background-position: -48px -96px; }
+.default.searchfield.disabled > .bg > .e { background-position: -24px -96px; }
+.default.searchfield.disabled > .bg > .c { background-position: 0 -120px; }
+.default.searchfield.disabled > .bg > .w { background-position: 0 -96px; }
+.default.searchfield.active > .fade { background-position: -48px -48px; }
+.default.searchfield.active > .bg > .e { background-position: -24px -48px; }
+.default.searchfield.active > .bg > .c { background-position: 0 -72px; }
+.default.searchfield.active > .bg > .w { background-position: 0 -48px; }
+.default.searchfield > .help {
   position: absolute;
   left: 24px; top: 5px; right: 8px; height: 18px;
   color: #888;

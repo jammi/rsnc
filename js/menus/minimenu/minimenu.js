@@ -117,8 +117,8 @@ HMiniMenu = HRadioButtonList.extend({
       ELEM.setStyles( _menu._hideElemId, {
         position: 'absolute', left: 0, top: 0, right: 0, bottom: 0//, backgroundColor: '#000', opacity: 0.2
       } );
-      Event.observe( ELEM.get( _menu._hideElemId ), 'mousedown', function(e){_menu.menuHide();EVENT.mouseDown(e);return false;} );
-      ELEM.setStyle( _menu._hideElemId, 'z-index', ELEM.getStyle(_menu.menuItemView.elemId,'z-index')-1 );
+      Event.observe( ELEM.get( _menu._hideElemId ), 'mousedown', function(e){_menu.menuHide();_menu.pushTask(function(){EVENT.mouseDown(e);});return true;} );
+      ELEM.setStyle( _menu._hideElemId, 'zIndex', ELEM.getStyle(_menu.menuItemView.elemId,'z-index')-1 );
     } );
     this.menuItemView.show();
     return true;

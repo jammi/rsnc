@@ -1,11 +1,11 @@
-<div class="searchfield_w"></div>
-<div class="searchfield_c"></div>
-<div class="searchfield_e"></div>
-<div class="searchfield_help" id="help]I[" >#{this.options.helpText}</div>
-<div id="label]I[" title="#{this.label}" class="searchfield_input_parent">
-  <input type="text" class="searchfield_input" #{this.enabled?'':'disabled'}
-    onfocus="HSystem.views[#{this.viewId}].textFocus();"
-    onblur="HSystem.views[#{this.viewId}].textBlur();"
-    id="value]I[" value="#{this.value}" />
+<div class="bg" id="bg]I[">
+  <div class="w"></div>
+  <div class="c"></div>
+  <div class="e"></div>
 </div>
-<div class="searchfield_fade"></div>
+<div class="help" id="help]I[" >#{this.options.helpText}</div>
+<div id="subview]I[" class="subview"></div>
+<div id="label]I[" title="#{this.label}" class="input_parent">
+  <div class="input_invalid" id="invalid]I["></div>
+</div>
+<div class="fade"></div>
