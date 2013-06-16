@@ -12,7 +12,7 @@ HRadioButtonList = HListItemControl.extend({
   },
   listItems: [],
   listItemViews: [],
-  
+
 /** = Description
   * Setter function for listItems and listItemViews. Destroys
   * the old HRadiabuttons before creating the new ones based on the
@@ -31,6 +31,7 @@ HRadioButtonList = HListItemControl.extend({
         _value,
         _label,
         _radioButton,
+        _component,
         _selected = false,
         i = 0;
     for ( ; i < this.listItemViews.length; i++ ) {
@@ -77,7 +78,7 @@ HRadioButtonList = HListItemControl.extend({
     }
     this.refreshValue();
   },
-  
+
   createComponent: function( i, _label ){
     return HRadiobutton.nu(
       [ 4, (i*23)+4, null, 23, 4, null ],
@@ -88,12 +89,12 @@ HRadioButtonList = HListItemControl.extend({
       }
     );
   },
-  
+
   _listItemResponder: null,
   setListItemResponder: function(_listItemResponder){
     this._listItemResponder = _listItemResponder;
   },
-  
+
 /** = Description
   * Destructor. Sets listItems and listItemViews to null and initiates
   * destructor for radioButtonIndexValue.
@@ -124,7 +125,7 @@ HRadioButtonList = HListItemControl.extend({
       this.listItemViews[i].setEnabled(_state);
     }
   },
-  
+
 /** = Description
   * RadioButtonIndexResponder sets the value based on which radiobutton is selected.
   **/
@@ -150,9 +151,9 @@ HRadioButtonList = HListItemControl.extend({
       }
     }
   }),
-  
-  
-  
+
+
+
   refreshValue: function(){
     var _value = this.value;
     if ( this.listItems && this.listItems.length !== 0 && this.valueMatrix !== undefined ) {

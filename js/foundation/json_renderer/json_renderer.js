@@ -15,7 +15,7 @@
 ***/
 //var//RSence.Foundation
 COMM.JSONRenderer = UtilMethods.extend({
-  
+
   version: 1.0,
 
 /** = Description
@@ -120,7 +120,7 @@ COMM.JSONRenderer = UtilMethods.extend({
     }
   },
   undefineInScope: function( ){
-    
+
   },
   findInScope: function( _className ){
     if(_className === undefined){
@@ -199,7 +199,7 @@ COMM.JSONRenderer = UtilMethods.extend({
     _reserved = [ 'type', 'args', 'version', 'class', 'rect', 'bind', 'extend', 'options', 'subviews', 'define' ],
     _className, _class, _origNode, _straightParams = false, _rect, _hasRect, _hasSubviews, _subViews,
     _hasOptions, _options, _hasExtension, _extension, _hasBind, _bind,
-    _hasName, _hasId,
+    _hasName, _hasId, _definitions,
     _isAppClass = false, _isViewClass = false,
     _autoOptionItems = [
       'label', 'style', 'visible', 'theme', 'html',
@@ -225,7 +225,7 @@ COMM.JSONRenderer = UtilMethods.extend({
     }
 
     _class = this.findInScope( _className );
-    
+
     if (_class.hasAncestor !== undefined){
       _isAppClass = _class.hasAncestor( HApplication );
       _isViewClass = _class.hasAncestor( HView );
@@ -252,7 +252,7 @@ COMM.JSONRenderer = UtilMethods.extend({
       }
       return _instance;
     }
-    
+
     // Currently only HView -derived classes are supported, so
     // the rect is mandatory.
     _rect = _dataNode.rect;
@@ -274,7 +274,7 @@ COMM.JSONRenderer = UtilMethods.extend({
       _hasSubviews = _origNode.subviews !== undefined;
       _subViews    = _hasSubviews?_origNode.subviews:null;
     }
-    
+
     // Checks, if any options are defined.
     _hasOptions  = _dataNode.options !== undefined;
     _options     = _hasOptions?_dataNode.options:null;
@@ -292,7 +292,7 @@ COMM.JSONRenderer = UtilMethods.extend({
         _options[_autoOptionItem] = _dataNode[ _autoOptionItem ];
       }
     }
-    
+
     // JS Extension block
     _hasExtension = _dataNode.extend !== undefined;
     _extension    = _hasExtension?_dataNode.extend:null;
@@ -300,7 +300,7 @@ COMM.JSONRenderer = UtilMethods.extend({
       _hasExtension = _origNode.extend !== undefined;
       _extension    = _hasExtension?_origNode.extend:null;
     }
-    
+
     // JS Extension block
     _hasBind = _dataNode.bind !== undefined;
     _bind    = _hasBind?_dataNode.bind:null;
@@ -313,7 +313,7 @@ COMM.JSONRenderer = UtilMethods.extend({
     if( _hasCall ){
       _call = _dataNode.call;
     }
-    
+
     // JS Definition block
     _hasDefinition = _dataNode.define !== undefined;
     _definitions   = _hasDefinition?_dataNode.define:null;
@@ -327,7 +327,7 @@ COMM.JSONRenderer = UtilMethods.extend({
 
     // The HView-derived class instance, instance is by default the parent
     _instance = _parent;
-    
+
     this.scopeDepth ++;
     this.scopes.push({});
     try{
@@ -446,10 +446,10 @@ COMM.JSONRenderer = UtilMethods.extend({
         _subView = this.renderNode( _subViews[i], _instance );
       }
     }
-    
+
     this.scopes.pop();
     this.scopeDepth --;
-    
+
     // Returns the main view (or subview when recursively called).
     return _instance;
   }

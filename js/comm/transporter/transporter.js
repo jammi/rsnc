@@ -145,6 +145,7 @@ COMM.Transporter = HApplication.extend({
     _values = _responseArray[1],
     _session = COMM.Session,
     _queue = COMM.Queue,
+    _outputScript,
     _errorText;
     if(_sesKey === ''){
       console.log('Invalid session, error message should follow...');
