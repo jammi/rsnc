@@ -51,5 +51,5 @@ HComboBoxInterface =
       @unitSuffix.drawRect()
     @setStyleOfPart('label','right',this._extraLabelRight+'px')
     @menu.bringToFront()
-HComboBox = HTextControl.extend(HComboBoxInterface)
-HNumericComboBox = HNumericTextControl.extend(HComboBoxInterface)
+HComboBox = HTextControl.extend(HComboBoxInterface).extend({_comboNumber:false})
+HNumericComboBox = HNumericTextControl.extend(HComboBoxInterface).extend({_comboNumber:true})
