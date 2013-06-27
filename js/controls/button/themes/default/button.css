@@ -25,7 +25,7 @@
   #{this.gradientCSS('#d6d6d6',[66,'#d0d0d0'],[71,'#d3d3d3'],'#cccccc')}
 }
 .default > .button_control > .button_label {
-  left: 6px; right: 6px; top: 2px; bottom: auto;
+  left: 0; right: 0; top: 2px; bottom: auto;
   text-align: center; vertical-align: middle;
   white-space: nowrap;
   overflow: hidden;
