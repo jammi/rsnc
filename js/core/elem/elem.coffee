@@ -291,7 +291,7 @@ ELEM = HClass.extend
     unless y?
       [ x, y ] = x
     @setStyle( _id, 'left', x+'px' )
-    @setStyle( _id, 'top', x+'px' )
+    @setStyle( _id, 'top', y+'px' )
 
   ###
   Shortcut for filling parent dimensions with optional offset(s)
