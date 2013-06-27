@@ -71,6 +71,10 @@
     - mediaelement_resources  # MediaElement resources (swf and xap)
     - mediaelement_defaults   # default settings for MediaElement
 
+  mediaplayers:
+    - audioplayer
+    - videoplayer
+
   # codemirror:
   #   - codemirror        # CodeMirror
 
@@ -165,6 +169,7 @@
   media:
     - mejs_theme
     - mediaelement
+    - mediaplayers
   # code:
   #   - codemirror
   std_widgets:
