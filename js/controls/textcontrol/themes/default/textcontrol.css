@@ -18,7 +18,7 @@
   -webkit-box-sizing: border-box;
   box-sizing:         border-box;
 }
-.default.textcontrol > .input_parent > .input::-ms-clear {
+.default.textcontrol.ie > .input_parent > .input::-ms-clear {
     display: none;
 }
 .default.textcontrol.disabled > .input_parent > .input { color: #333; }
