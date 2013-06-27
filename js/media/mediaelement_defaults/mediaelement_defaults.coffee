@@ -1,1 +1,1 @@
-LOAD(-> mejs.MediaElementDefaults.pluginPath = HThemeManager.themePaths.mejs )
+(-> mejs.MediaElementDefaults.pluginPath = HThemeManager.themePaths.mejs )()
