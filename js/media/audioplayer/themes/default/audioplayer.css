@@ -1,0 +1,14 @@
+.default > .button_control > .button_label > .player_stop {
+  margin-left: -0.05em; font-size: 1.4em; line-height: 1em;
+}
+.default > .button_control > .button_label > .player_rewind0,
+.default > .button_control > .button_label > .player_rewind1,
+.default > .button_control > .button_label > .player_rewind2 {
+  text-shadow: none;
+}
+.default > .button_control > .button_label > .player_rewind1 {
+  margin-left: -1.15em;
+}
+.default > .button_control > .button_label > .player_rewind2 {
+  margin-left: -0.6em;
+}
