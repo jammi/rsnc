@@ -180,6 +180,7 @@ HTable = HControl.extend
     @_sortColElem = _sortColElem
     @sortFns = _sortFns
   resize: ->
+    return unless @_rows?
     @drawHeader()
     for _colNum in [0..@headerCols.length-1]
       _left = @headerSizes[_colNum][0] + 1
