@@ -417,6 +417,12 @@ EventManagerApp = HApplication.extend
         if ~_viewIdx
           @_listeners[_statusItem].splice(_viewIdx,1)
   #
+  # Cancels the drag operation for the ctrl
+  cancelDrag: (_ctrl)->
+    _dragIdx = @_listeners.dragged.indexOf(_ctrl.viewId)
+    if ~_dragIdx
+      @_listeners.dragged.splice( _dragIdx, 1 )
+  #
   # Registers the HControl -derived object _ctrl by event listener flags
   # in _eventOptions.
   reg: (_ctrl, _eventOptions)->
