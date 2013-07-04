@@ -104,7 +104,6 @@ HTable = HControl.extend
       _top = _borderLeftOffset
       for _row, _rowNum in @_rows
         unless _1stIdx? and _rowNum < _1stIdx
-          debugger if _1stIdx?
           @_bgCells[_rowNum] = [] unless @_bgCells[_rowNum]?
           @_bgCells[_rowNum][_colNum] = ELEM.make(
             _parent, 'div',
