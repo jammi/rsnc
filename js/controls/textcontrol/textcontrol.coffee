@@ -192,8 +192,9 @@ HTextControl = HControl.extend
     @base(_flag)
     if @markupElemIds? and @markupElemIds.value?
       ELEM.get(@markupElemIds.value).disabled = !@enabled
-    else
-      @pushTask => @setEnabled(_flag)
+    else if not @isDead
+      @pushTask =>
+        @setEnabled(_flag) unless @isDead
 
   _clipboardEventTimer: null
   _getChangeEventFn: ->
