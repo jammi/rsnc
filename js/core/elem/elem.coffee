@@ -693,6 +693,8 @@ ELEM = HClass.extend
             @setAttr( _id, _attrName, _attrValue, true )
       if _options.styles
         @setStyles( _id, _options.styles )
+      if _options.html
+        @setHTML( _id, _options.html )
     @_elements[_targetId].appendChild(_elem)
     _id
 

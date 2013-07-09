@@ -172,7 +172,6 @@ HEventResponder = HClass.extend({
   *
   **/
   setEnabled: function(_flag) {
-
     var
     _this = this,
     _elemId = this.elemId,
@@ -180,12 +179,12 @@ HEventResponder = HClass.extend({
     i = 0,
     _views = _this.views,
     _view,
-    _viewsLen = _views.length;
+    _viewsLen = _views?_views.length:0;
 
     // Enable/disable the children first.
     for (; i < _viewsLen; i++) {
       _view = _sysViews[_views[i]];
-      _view['setEnabled'] && _view.setEnabled(_flag);
+      _view.setEnabled && _view.setEnabled(_flag);
     }
 
     if (_this.enabled === _flag) {
@@ -195,7 +194,7 @@ HEventResponder = HClass.extend({
 
     _this.enabled = _flag;
 
-    if(_flag) {
+    if(_flag && _this.events) {
       EVENT.reg(_this, _this.events);
     }
     else {

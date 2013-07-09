@@ -1,59 +1,50 @@
-.timesheet_label,
-.timesheet_items,
-.timesheet_timeline,
-.timesheet_timeline_hour,
-.timesheet_timeline_line,
-.timesheet_timeline_notch {
-  position: absolute;
-}
-
-.timesheet_label,
-.timesheet_items,
-.timesheet_timeline {
+.default.timesheet > .label,
+.default.timesheet > .items,
+.default.timesheet > .timeline,
+.default.timesheet > .timeline > .hour,
+.default.timesheet > .items > .line,
+.default.timesheet > .items > .notch { position: absolute; }
+.default.timesheet > .label,
+.default.timesheet > .items,
+.default.timesheet > .timeline {
   font-family: Helvetica, Arial, sans-serif;
   font-size: 11px;
   color: #000;
   vertical-align: middle;
   text-align: left;
 }
-
-.timesheet_label {
+.default.timesheet > .label {
   left: 33px; top: 0px; right: 0px; height: 16px;
   font-size: 15px;
 }
-
-.timesheet_timeline {
+.default.timesheet > .timeline {
   left: 0px; top: 0px; right: 0px; bottom: 0px;
   cursor: move;
 }
-
-.timesheet_timeline_hour {
+.default.timesheet > .timeline > .hour {
   left: 0px; width: 26px; text-align: right; height: 14px;
 }
-
-.timesheet_timeline_line {
-  left: 31px; right: 3px; height: 1px; background-color: #bbb;
+.default.timesheet > .items > .line {
+  left: 2px; right: 3px; height: 1px;
+  border-top: 1px solid #bbb;
 }
-.timesheet_timeline_notch {
-  left: 31px; right: 3px; height: 1px; background-color: #ddd;
+.default.timesheet > .items > .notch {
+  left: 2px; right: 3px; height: 1px;
+  border-top: 1px solid #ddd;
 }
-
-.timesheet_items {
+.default.timesheet > .items {
   left: 29px; top: 19px; right: 1px; bottom: 11px;
   border: 1px solid #ccc;
   border-radius: 3px;
 }
-
-.nohours .timesheet_timeline_notch,
-.nohours .timesheet_timeline_line {
-  left: 2px;
+.default.timesheet > .items > .line:hover {
+  left: 0; right: 0;
+  background-color: #bbb;
 }
-.nohours .timesheet_timeline_hour {
-  display: none;
+.default.timesheet > .items > .notch:hover {
+  left: 0; right: 0;
+  background-color: #bbb;
 }
-.nohours .timesheet_label {
-  left: 4px;
-}
-.nohours .timesheet_items {
-  left: 0px;
-}
+.default.timesheet.nohours > .timeline > .hour { display: none; }
+.default.timesheet.nohours > .label { left: 4px; }
+.default.timesheet.nohours > .items { left: 0px; }

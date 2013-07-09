@@ -11,6 +11,7 @@ HTable = HControl.extend
     cellBgColorDiff: '#080808' # color to add/subtract for even/odd col/row
     cellBorderWidth: 1 # cell border width in pixels
     cellBorderColor: '#fff' # cell border color
+    sortable: true # set to false, if table should not be sorted
   customOptions: (_options)->
     _options.headerCols = false unless _options.headerCols? # array of strings
     _options.sortDescending = [] unless _options.sortDescending? # column sorting by index; true for descending; false for ascending
@@ -63,17 +64,23 @@ HTable = HControl.extend
   _cellBgColorOf: (_row, _col)->
     _colorIndex = (_row%2) + (1-_col%2)
     @_cellBgColors[_colorIndex]
-  _drawCellStyles: ->
-    if @_bgCells?
-      for _bgCellId in @_bgCells
+  _destroyBgCells: ->
+    for _row in @_bgCells
+      for _bgCellId in _row
         ELEM.del( _bgCellId )
-      delete @_bgCells
+    delete @_bgCells
+  die: ->
+    @_destroyBgCells() if @_bgCells?
+    @_destroyHeader()
+    @base()
+  _drawCellStyles: (_1stIdx, _addCount)->
+    @_destroyBgCells() if @_bgCells? and not _1stIdx?
     return unless @colViews?
-    # the border width offset calculations are fubar; refactor when time available
-    @_bgCells = []
+    return unless @_rowsDrawn
+    @_bgCells = [] unless _1stIdx?
     _parent = @markupElemIds.grid
     _leftOffset = @headerSizes[0][0]
-    @_initCellBgColors()
+    @_initCellBgColors() unless _1stIdx?
     _borderSize = @options.cellBorderWidth
     _borderColor = @options.cellBorderColor
     _borderStyle = _borderSize+'px solid '+_borderColor
@@ -96,17 +103,20 @@ HTable = HControl.extend
         _width += _halfBorderWidth
       _top = _borderLeftOffset
       for _row, _rowNum in @_rows
-        @_bgCells.push ELEM.make(
-          _parent, 'div',
-          styles:
-            backgroundColor: @_cellBgColorOf(_rowNum,_colNum)
-            border: _borderStyle
-            top: _top+'px'
-            left: _left+'px'
-            width: _width+'px'
-            height: _height+'px'
-        )
+        unless _1stIdx? and _rowNum < _1stIdx
+          @_bgCells[_rowNum] = [] unless @_bgCells[_rowNum]?
+          @_bgCells[_rowNum][_colNum] = ELEM.make(
+            _parent, 'div',
+            styles:
+              backgroundColor: @_cellBgColorOf(_rowNum,_colNum)
+              border: _borderStyle
+              top: _top+'px'
+              left: _left+'px'
+              width: _width+'px'
+              height: _height+'px'
+          )
         _top += _topAdd
+    ELEM.flush()
   drawHeader: ->
     _elemIds = []
     _sizes = []
@@ -125,7 +135,7 @@ HTable = HControl.extend
     for _headerCol, i in @options.headerCols
       _elemId = ELEM.make( @markupElemIds.header, 'div' )
       @options.sortDescending[i] = false unless @options.sortDescending[i]?
-      ELEM.addClassName(_elemId,'table_header_column')
+      ELEM.addClassName(_elemId,'column')
       _width = 0
       if @options.colWidths[i]?
         if @options.colWidths[i] == 'auto'
@@ -137,7 +147,7 @@ HTable = HControl.extend
       _sizes.push([_left,_width])
       ELEM.setAttr(_elemId,'sortcol',i)
       ELEM.setHTML(_elemId,_headerCol)
-      if @options.sortCol == i
+      if @options.sortCol == i and @options.sortable
         _sortColElem = ELEM.make( _elemId, 'div' )
         if @options.headerStyles? and @options.headerStyles[i]?
           _sortColClassName( @options.headerStyles[i] )
@@ -154,7 +164,10 @@ HTable = HControl.extend
         e.preventDefault()
         true
       )
-      Event.observe(ELEM.get(_elemId),'click',_sortFns[i])
+      if @options.sortable
+        Event.observe(_elemId,'click',_sortFns[i])
+      else
+        ELEM.setStyle(_elemId,'cursor','default')
       _left += _width
       _elemIds.push( _elemId )
     if _autoWidths.length > 0
@@ -179,10 +192,11 @@ HTable = HControl.extend
     @headerSizes = _sizes
     @_sortColElem = _sortColElem
     @sortFns = _sortFns
+    ELEM.flush()
   resize: ->
     return unless @_rows?
     @drawHeader()
-    for _colNum in [0..@headerCols.length-1]
+    for _colNum in [0...@headerCols.length]
       _left = @headerSizes[_colNum][0] + 1
       _width = @headerSizes[_colNum][1]
       @colViews[_colNum].rect.offsetTo( _left, 0 )
@@ -289,24 +303,58 @@ HTable = HControl.extend
         _colViews[_colNum] = HView.nu( [ _left, 0, _width, 1 ], @ )
       @colViews = _colViews
     if @_rowsDrawn and not _newData
-      @sortTableRows()
+      @sortTableRows() if @options.sortable
     else if @_rowsDrawn and _newData and @_rows.length == @value.length
-      for _row, _rowNum in @value
+      @refreshTableValues()
+    else if @_rowsDrawn and _newData and @_rows.length > @value.length
+      _1stIdx  = @value.length
+      _lastIdx = @_rows.length-1
+      _delCount = _lastIdx-_1stIdx+1
+      for _rowNum in [_1stIdx.._lastIdx] by 1
+        _row = @_rows[_rowNum]
         for _col, _colNum in _row
           _ctrl = @_rows[_rowNum][_colNum]
-          _ctrl.setValue( _col )
-      @sortTableRows()
-    else
-      @createTableRows()
-  createTableRows: ->
-    @_destroyRows() if @_rowsDrawn
-    _start = new Date().getTime()
-    _top = 0
+          _ctrl.die()
+      @_rows.splice(_1stIdx,_delCount)
+      if @_bgCells?
+        for _row, _rowNum in @_bgCells
+          if _rowNum >= _1stIdx
+            for _bgCellId in _row
+              ELEM.del( _bgCellId )
+        @_bgCells.splice(_1stIdx,_delCount)
+      _top = 24 * _1stIdx
+      for _colView in @colViews
+        _colView.rect.setHeight(_top)
+        _colView.drawRect()
+      @refreshTableValues()
+    else if @_rowsDrawn and _newData and @_rows.length < @value.length
+      _1stIdx = @_rows.length
+      _lastIdx = @value.length-1
+      _addCount = _lastIdx - _1stIdx + 1
+      @refreshTableValues(_1stIdx)
+      @createTableRows(_1stIdx,_addCount)
+    else @createTableRows()
+  refreshTableValues: (_lastIdx)->
+    for _row, _rowNum in @value
+      break if _lastIdx? and _rowNum >= _lastIdx
+      for _col, _colNum in _row
+        _ctrl = @_rows[_rowNum][_colNum]
+        _ctrl.setValue( _col ) unless _ctrl.value == _col
+    @sortTableRows() if not _lastRow? and @options.sortable
+  createTableRows: (_1stIdx,_addCount)->
+    @_destroyRows() if @_rowsDrawn and not _1stIdx?
     _rowHeight = 24
-    _rows = []
-    _viewDefs = []
+    if _1stIdx?
+      _top = _1stIdx * _rowHeight
+      _rows = @_rows
+      _viewDefs = []
+    else
+      _top = 0
+      _rows = []
+      _viewDefs = []
     _colViews = @colViews
     for _row, _rowNum in @value
+      continue if _1stIdx? and _rowNum < _1stIdx
       _rows[_rowNum] = []
       for _col, _colNum in _row
         [ _colClass, _colOpts ] = @_getClassNameAndValueOfCol(_col, _colNum)
@@ -319,12 +367,16 @@ HTable = HControl.extend
     for _colView in _colViews
       _colView.rect.setHeight(_top)
       _colView.drawRect()
+    @_drawCellStyles(_1stIdx,_addCount) if _1stIdx? and @options.useCellGrid
     _finishDraw = =>
       @_rows = _rows
       @_rowsDrawn = true
-      @sortTableRows()
-      if @options.useCellGrid
-        @pushTask => @_drawCellStyles()
+      @sortTableRows() if @options.sortable
+      unless _1stIdx?
+        if @options.useCellGrid
+          @pushTask => @_drawCellStyles()
+        if @drawTableExtras?
+          @pushTask => @drawTableExtras()
     if _viewDefs.length > 0
       @pushTask =>
         _viewsToDraw = []
@@ -344,9 +396,9 @@ HTable = HControl.extend
             _viewsToDraw.push(_view)
         @pushTask =>
           _colView.draw() for _colView in _viewsToDraw
+          ELEM.flush()
           @pushTask( _finishDraw )
           _progress.die()
-          # console.log('table render took:',@msNow()-_start,'ms') if !@isProduction
     else _finishDraw()
   refreshTableCols: (_newData)->
     console.warn('HTable#refreshTableCols is not implemented yet!')

@@ -68,7 +68,9 @@ HClass.prototype = {
     for (prop in e) {
       err[prop] = e[prop];
     }
-    err.string = e.toString();
+    err.name = e.name;
+    err.message = e.message;
+    err.stack = e.stack;
     return err;
   },
 
@@ -96,7 +98,15 @@ HClass.prototype = {
             _returnValue = _method.apply(this, arguments);
           }
           catch(e){
-            !this.isProduction && console.warn("An exception occurred while calling base: ",HClass.prototype._exceptionProperties(e)," object: ",_method);
+            var _eProps = HClass.prototype._exceptionProperties(e);
+            !this.isProduction && console.warn(
+              "An exception occurred while calling base: ",
+              _eProps,
+              "\nfunction name: \""+_source+
+              "\"\nouter function: ", _method.toString(),
+              "\ninner function: ", _ancestor.toString(),
+              "\nstack: ",_eProps.stack
+            );
             _returnValue = null;
           }
           // then because event this function can be called from child method
