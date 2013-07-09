@@ -188,7 +188,8 @@ HTable = HControl.extend
       @colViews[_colNum].rect.offsetTo( _left, 0 )
       @colViews[_colNum].rect.setWidth( _width )
       @colViews[_colNum].drawRect()
-    @_drawCellStyles()
+    if @options.useCellGrid
+      @_drawCellStyles()
   drawSubviews: ->
     if @options.headerCols
       @drawHeader()
