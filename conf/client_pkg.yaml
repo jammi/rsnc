@@ -204,6 +204,8 @@
   - .svg
   - .pdf
   - .ttf
+  - .woff
+  - .eot
 
 # If disabled, makes packages out of single source bundles automatically
 :dont_pack_undefined: true
