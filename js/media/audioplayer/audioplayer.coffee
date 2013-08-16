@@ -41,8 +41,8 @@ HAudioPlayer = HControl.extend
   skipBack: ->
     @seek()
   idle: ->
-    if @playing and @_mediaElement?
-      console.log('position:',@_mediaElement.currentPosition())
+    # if @playing and @_mediaElement?
+    #   console.log('position:',@_mediaElement.currentPosition())
   playStop: ->
     if @playing
       @stop()
