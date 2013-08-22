@@ -138,8 +138,8 @@ HAudioPlayer = HControl.extend
   _mediaFailed: ->
     console.log('HAudioPlayer media failure:',arguments)
   die: ->
-    @stop()
-    ELEM.del(@_audioElementId)
+    @pause()
+    ELEM.del(@_audioElementId) if @_audioElementId?
     @base()
   extDraw: ->
     _opt = @options
