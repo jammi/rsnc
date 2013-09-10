@@ -88,8 +88,12 @@ HTable = HControl.extend
     _height = 24-_heightOffset
     _topAdd = 24
     _halfBorderWidth = Math.floor(_borderSize*0.5)
-    _widthOffset = _borderSize-_halfBorderWidth - 2
-    _borderLeftOffset = 0-_halfBorderWidth
+    if _borderSize == 0
+      _widthOffset = 0
+      _borderLeftOffset = 0
+    else
+      _widthOffset = _borderSize-_halfBorderWidth - 2
+      _borderLeftOffset = 0 -_halfBorderWidth
     for _colView, _colNum in @colViews
       [ _left, _width ] = @headerSizes[_colNum]
       if _colNum == 0
