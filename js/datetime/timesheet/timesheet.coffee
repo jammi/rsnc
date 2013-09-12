@@ -132,7 +132,7 @@ HTimeSheet = HControl.extend
   refresh: ->
     if @drawn
       @autoLabel() if @options.autoLabel
-      @drawHours()
+      # @drawHours()
     @base()
 
   # set the timezone offset (in seconds)
@@ -425,16 +425,23 @@ HTimeSheet = HControl.extend
         _item = @createTimeSheetItem( _value )
         _items.push( _item ) if _item
 
+  #Delete timesheet item after 300ms. Prevent flashing
+  _delTimeSheetItem:( _item ) ->
+    setTimeout( (->
+      _item.die()
+    ), 300 )
+
   ###
   # =Description
   # Create a new timeSheetItems if it hasn't been done already,
   # otherwise destroy the items of the old one before proceeding.
-  ###
+  ###  
+  
   _initTimeSheetItems: ->
     @timeSheetItems = [] unless @timeSheetItems?
     if @timeSheetItems.length > 0
       for _timeSheetItem in @timeSheetItems
-        _timeSheetItem.die()
+        @_delTimeSheetItem( _timeSheetItem )
       @timeSheetItems = []
 
   # finds the index in the array which contains most sequential items
