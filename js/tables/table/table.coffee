@@ -381,6 +381,8 @@ HTable = HControl.extend
           @pushTask => @_drawCellStyles()
         if @drawTableExtras?
           @pushTask => @drawTableExtras()
+      if @drawFinished?
+        @pushTask => @drawFinished()
     if _viewDefs.length > 0
       @pushTask =>
         _viewsToDraw = []
