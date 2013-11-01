@@ -33,10 +33,21 @@ HCalendarPulldown = HMiniMenu.extend
     if @calendar?
       @calendar.valueObj.release( @calendar )
       @valueObj.bind(@calendar)
+
   refreshValue: ->
-    _date = moment(@value).utc()
+    _date = moment(@value * 1000).utc()
     @_timePreserve = [ _date.hours(), _date.minutes(), _date.seconds() ] if @options.preserveTime
     @calendar.setValue(@value)
+
+  setValue: ( _value )->
+    _date = moment(_value*1000).utc()
+    if @options.preserveTime and @_timePreserve?
+      [ _hours, _minutes, _seconds ] = @_timePreserve
+      _date.hours( _hours )
+      _date.minutes( _minutes )
+      _date.seconds( _seconds )
+    @base( _date.unix() )
+
   drawSubviews: ->
     @menuItemView = HView.new( @calendarRect(), @app,
       visible: false
