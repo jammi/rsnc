@@ -152,6 +152,11 @@ HTextControl = HControl.extend
     _elemId
 
   fieldType: 'text'
+  
+  setFocus: ->
+    @getInputElement().focus()
+    @setSelectionRange( @value.length, @value.length ) if @typeChr(@value) == 's'
+  
   drawMarkup: ->
     @base()
     @_invalidCharWidth = @stringWidth(@_invalidChar,null,@markupElemIds.invalid)
@@ -168,8 +173,11 @@ HTextControl = HControl.extend
     Event.observe(_elemId,'focus',=>@textFocus())
     Event.observe(_elemId,'blur',=>@textBlur())
     if @options.focusOnCreate
-      @getInputElement().focus()
-      @setSelectionRange( @value.length, @value.length ) if @typeChr(@value) == 's'
+      @setFocus()
+      _this = @
+      setTimeout( ( ->
+        _this.setFocus()
+      ), 500 )
     if BROWSER_TYPE.ie8
       @setResize( true ) unless @events.resize
       @_ie8fix()
