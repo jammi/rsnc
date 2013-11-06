@@ -425,12 +425,6 @@ HTimeSheet = HControl.extend
         _item = @createTimeSheetItem( _value )
         _items.push( _item ) if _item
 
-  #Delete timesheet item after 300ms. Prevent flashing
-  _delTimeSheetItem:( _item ) ->
-    setTimeout( (->
-      _item.die()
-    ), 300 )
-
   ###
   # =Description
   # Create a new timeSheetItems if it hasn't been done already,
@@ -441,7 +435,7 @@ HTimeSheet = HControl.extend
     @timeSheetItems = [] unless @timeSheetItems?
     if @timeSheetItems.length > 0
       for _timeSheetItem in @timeSheetItems
-        @_delTimeSheetItem( _timeSheetItem )
+        _timeSheetItem.die()
       @timeSheetItems = []
 
   # finds the index in the array which contains most sequential items
