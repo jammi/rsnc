@@ -924,9 +924,9 @@ EventManagerApp = HApplication.extend
           _dropCtrl.endHover(_ctrl) if _dropCtrl.endHover?
           _dropCtrl.drop(_ctrl) if _dropCtrl.drop?
         _stop = true if _ctrl.endDrag( x, y, _leftClick )
-    for _viewId in _newActive
-      _ctrl = @_views[_viewId]
-      @changeActiveControl( _ctrl )
+    # for _viewId in _newActive
+    #   _ctrl = @_views[_viewId]
+    #   @changeActiveControl( _ctrl )
     @_listeners.hovered = []
     @_listeners.dragged = []
     @_cancelTextSelection() unless _endDragIds.length == 0 and _mouseUpIds.length == 0
