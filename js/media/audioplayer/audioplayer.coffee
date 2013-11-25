@@ -23,7 +23,9 @@ HAudioPlayer = HControl.extend
       # 'timeLeft'
     ]
   play: ->
-    @_mediaElement.play() if @_mediaElement?
+    if @_mediaElement?
+      @_mediaElement.setVolume( 1 )
+      @_mediaElement.play() 
     @_playStopButton.setLabel(@options.stopLabel) if @_playStopButton?
     @_playPauseButton.setLabel(@options.pauseLabel) if @_playPauseButton?
   pause: ->
