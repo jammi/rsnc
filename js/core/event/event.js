@@ -39,6 +39,9 @@ Event = {
 /** Returns true if the left mouse butten was clicked.
   **/
   isLeftClick: function(e) {
+    if( BROWSER_TYPE.ipad || BROWSER_TYPE.iphone ){
+      return true;
+    }
     // IE: left 1, middle 4, right 2
     if (BROWSER_TYPE.ie && !BROWSER_TYPE.ie8 && !BROWSER_TYPE.ie9 && !BROWSER_TYPE.ie10) {
       return (e.button === 1 || e.button === 3 || e.button === 5);
@@ -59,7 +62,12 @@ Event = {
     }
     if (_elem && _elem.addEventListener) {
       this.observers.push([_elem, _name, _function, _useCapture]);
-      _elem.addEventListener(_name, _function, _useCapture);
+      if( BROWSER_TYPE.ipad && _name == 'click') {
+        _elem.addEventListener('touchend', _function, _useCapture);
+      }
+      else{
+        _elem.addEventListener(_name, _function, _useCapture);
+      }
     }
     else if (_elem && _elem.attachEvent) {
       this.observers.push([_elem, _name, _function, _useCapture]);
@@ -109,7 +117,12 @@ Event = {
     }
     _useCapture = _useCapture || false;
     if (_elem['removeEventListener']) {
-      _elem.removeEventListener(_name, _function, _useCapture);
+      if(BROWSER_TYPE.ipad && _name == 'click') {
+        _elem.removeEventListener('touchend', _function, _useCapture);
+      }
+      else{
+        _elem.removeEventListener(_name, _function, _useCapture);
+      }  
     }
     else if (detachEvent) {
       _elem.detachEvent("on" + _name, _function);

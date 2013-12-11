@@ -159,7 +159,23 @@ EventManagerApp = HApplication.extend
     setCmdKey: (f)->
       @cmdKeyDown = f
       @[9] = f
-    length: 10
+    10: -1
+    mouseDownX: -1
+    setMouseDownX: (x)->
+      @mouseDownX = x
+      @mouseDownPos[0] = x
+      @[10] = x
+    11: -1
+    mouseDownY: -1
+    setMouseDownY: (y)->
+      @mouseDownY = y
+      @mouseDownPos[1] = y
+      @[11] = y
+    mouseDownPos: [ -1, -1 ]
+    setMouseDownPos: (x,y)->
+      @setMouseDownX(x)
+      @setMouseDownY(y)
+    length: 12
   button1: 0
   button2: 1
   crsrX: 2
@@ -199,7 +215,7 @@ EventManagerApp = HApplication.extend
   # List of used event methods for global purposes:
   _eventMethods: [
     'resize', 'mouseMove', 'doubleClick', 'contextMenu', 'click', 'mouseUp',
-    'mouseDown', 'keyUp', 'keyDown', 'mouseWheel'
+    'mouseDown', 'keyUp', 'keyDown', 'mouseWheel', 'touchstart', 'touchmove', 'touchend'
   ]
   #
   # This structure keeps track of registered elem/event/object/method; see #observe and #stopObserving
@@ -865,6 +881,7 @@ EventManagerApp = HApplication.extend
       _ctrl = @_views[_viewId]
       @changeActiveControl( _ctrl )
     [ x, y ] = @status.crsr
+    @status.setMouseDownPos(x,y)
     @_handleMouseMove(x,y)
     for _viewId in _mouseDownIds
       _ctrl = @_views[_viewId]
@@ -937,6 +954,7 @@ EventManagerApp = HApplication.extend
   # It's different from mouseUp/mouseDown, because it's a different event,
   # and is supported by touch screen devices
   click: (e)->
+    console.log( "click" )
     @_modifiers(e)
     _leftClick = Event.isLeftClick(e)
     if _leftClick
@@ -1035,6 +1053,27 @@ EventManagerApp = HApplication.extend
       if _ctrl.mouseWheel?
         _stop = true if _ctrl.mouseWheel( _delta )
     Event.stop(e) if _stop
+
+  #
+  # Handles touchStart events on pads
+  touchstart: (e)->
+    EVENT.mouseDown(e)
+    [ x, y ] = @status.crsr
+
+  #
+  # Handles touchMove events on pads
+  touchmove: (e)->
+    EVENT.mouseMove(e)
+
+  #
+  # Handles touchEnd events on pads
+  touchend: (e)-> 
+    [ x0, y0] = @status.mouseDownPos
+    [ x1, y1 ] = @status.crsr
+    EVENT.mouseUp(e)
+    if Math.abs( x0 - x1 ) < 10 and Math.abs( y0 - y1 ) < 10
+      EVENT.click(e)
+
   #
   # Handles the contextMenu event
   contextMenu: (e)->
