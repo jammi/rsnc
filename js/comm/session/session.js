@@ -38,6 +38,7 @@ COMM.Session = HClass.extend({
   newKey: function(_sesKey){
     var _this = this,
         _shaKey = _this.sha.hexSHA1(_sesKey+_this.sha_key);
+    _this.old_key = _sesKey;
     _this.req_num++;
     _this.ses_key = _this.req_num+':1:'+_shaKey;
     _this.sha_key = _shaKey;
