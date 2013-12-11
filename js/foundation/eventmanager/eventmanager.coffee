@@ -954,7 +954,6 @@ EventManagerApp = HApplication.extend
   # It's different from mouseUp/mouseDown, because it's a different event,
   # and is supported by touch screen devices
   click: (e)->
-    console.log( "click" )
     @_modifiers(e)
     _leftClick = Event.isLeftClick(e)
     if _leftClick
