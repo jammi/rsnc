@@ -44,7 +44,8 @@ COMM.URLResponder = HApplication.extend({
   //   respond to
   // - callBack is the component registered
   delResponder: function(_matchStr,_callBack){
-    _callBack.hide();
+    // Petteri: Problem because call 'hide' two times when callBack is deleting
+    // _callBack.hide();
     if(~this.prevCallBacks.indexOf(_callBack)){
       this.prevCallBacks.splice(this.prevCallBacks.indexOf(_callBack),1);
       this.prevMatchStrs.splice(this.prevMatchStrs.indexOf(_matchStr),1);
@@ -101,7 +102,7 @@ COMM.URLResponder = HApplication.extend({
       var _prevCallBack;
       for(i=0;i<this.prevCallBacks.length;i++){
         _prevCallBack = this.prevCallBacks[i];
-        if(!~_urlCallBacks.indexOf(_prevCallBack)){
+       if(!~_urlCallBacks.indexOf(_prevCallBack)){
           this.prevCallBacks[i].hide();
         }
       }
@@ -126,9 +127,10 @@ COMM.URLResponder = HApplication.extend({
   refresh: function(){
     var _value = this.value;
     if(_value.length === 0){ return; }
-    if(window.location.href !== _value){
-      window.location.href = _value;
-    }
+    // Petteri: Problem with this two lines
+    // if(window.location.href !== _value){
+    //   window.location.href = _value;
+    // }
     this.checkMatch( _value );
   },
   
