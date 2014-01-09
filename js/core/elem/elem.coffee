@@ -25,6 +25,8 @@ BROWSER_TYPE =
   ipad: false
   android: false
   mobile: false
+  lang_en: false
+  lang_fi: false
 
 ###
 The DOM Element abstraction engine
@@ -882,6 +884,8 @@ ELEM = HClass.extend
   _warmup: ->
     _ua = navigator.userAgent
     _av = navigator.appVersion
+    _lang = navigator.language || navigator.userLanguage
+
     _browserType = BROWSER_TYPE
     _browserType.opera    = !!~_ua.indexOf('Opera')
     _browserType.safari   = !!~_ua.indexOf('KHTML')
@@ -910,6 +914,11 @@ ELEM = HClass.extend
     _browserType.ipad = _iPad
     _browserType.android = !!~_ua.indexOf('Android')
     _browserType.mobile = !!~_av.indexOf('Mobile')
+    if !!~_lang.indexOf('fi')
+      _browserType.lang_fi = true
+    else
+      _browserType.lang_en = true
+      
     @_domWaiter()
     null
 
