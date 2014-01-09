@@ -23,6 +23,8 @@ BROWSER_TYPE =
   ios: false
   iphone: false # also true for iPod touch
   ipad: false
+  android: false
+  mobile: false
 
 ###
 The DOM Element abstraction engine
@@ -879,6 +881,7 @@ ELEM = HClass.extend
   ###
   _warmup: ->
     _ua = navigator.userAgent
+    _av = navigator.appVersion
     _browserType = BROWSER_TYPE
     _browserType.opera    = !!~_ua.indexOf('Opera')
     _browserType.safari   = !!~_ua.indexOf('KHTML')
@@ -905,6 +908,8 @@ ELEM = HClass.extend
     _browserType.ios = _iPhone or _iPad
     _browserType.iphone = _iPhone
     _browserType.ipad = _iPad
+    _browserType.android = !!~_ua.indexOf('Android')
+    _browserType.mobile = !!~_av.indexOf('Mobile')
     @_domWaiter()
     null
 
