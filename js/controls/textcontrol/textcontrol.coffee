@@ -154,8 +154,10 @@ HTextControl = HControl.extend
   fieldType: 'text'
   
   setFocus: ->
-    @getInputElement().focus()
-    @setSelectionRange( @value.length, @value.length ) if @typeChr(@value) == 's'
+    _elem = @getInputElement()
+    if _elem?
+      _elem.focus()
+      @setSelectionRange( @value.length, @value.length ) if @typeChr(@value) == 's'
   
   drawMarkup: ->
     @base()
