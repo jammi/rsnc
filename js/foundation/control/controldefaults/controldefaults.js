@@ -48,6 +48,10 @@ HControlDefaults = HClass.extend({
 
 /** The default initial maximum value of the component.
   **/
-  maxValue:  2147483648
+  maxValue:  2147483648,
+
+/** The default focus value of the component.
+  **/
+  focusOnCreate: false
 
 });

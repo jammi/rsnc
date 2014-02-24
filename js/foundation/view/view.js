@@ -726,6 +726,7 @@ HView = UtilMethods.extend({
       if(this.componentName!==undefined){
         this.drawMarkup();
       }
+
       else if(BROWSER_TYPE.ie && this._ieNoThrough === null){
         this._ieNoThrough = ELEM.make( this.elemId );
         ELEM.setCSS( this._ieNoThrough, 'position:absolute;left:0;top:0;bottom:0;right:0;background-color:#ffffff;font-size:0;line-height:0' );
@@ -754,6 +755,16 @@ HView = UtilMethods.extend({
       // for external testing purposes, a custom className can be defined:
       if(this.options.testClassName){
         ELEM.addClassName(this.elemId,this.options.testClassName);
+      }
+      if( this.options.tabIndex !== undefined ){
+        this.setTabIndex( this.options.tabIndex );
+      }
+      if( this.options.focusOnCreate == true ) {
+        this.setFocus();
+        var _this = this;
+        setTimeout( function() {
+          _this.setFocus()
+        }, 300 );
       }
       if(!this.isHidden){
         this.show();
@@ -2031,6 +2042,23 @@ HView = UtilMethods.extend({
   **/
   pageY: function() {
     return ELEM._getVisibleTopPosition( this.elemId );
+  },
+
+/** Set tabindex attribute for element
+  **/
+  setTabIndex: function(_tabIndex) {
+    this.setAttr( 'tabIndex', _tabIndex );
+    if( _tabIndex == 1 ) {
+      this.setFocus();
+    }
+  },
+
+  setFocus: function() {
+    var _elem = ELEM.get( this.elemId );
+    if(_elem !== undefined){
+      _elem.focus();
+      EVENT.changeActiveControl( this );
+    }
   },
 
 /** = Description

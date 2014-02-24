@@ -781,6 +781,7 @@ EventManagerApp = HApplication.extend
         _ctrl.endDrag( x, y )
       _active.splice( _idx, 1 )
       @blur(_ctrl) if ~_focused.indexOf(_viewId) and _ctrl?
+      _ctrl._lostActiveStatus(_newActive)
       _ctrl.lostActiveStatus(_newActive)
     _prevActive
   #
@@ -793,6 +794,7 @@ EventManagerApp = HApplication.extend
       _active.unshift(_ctrl.viewId)
       @focus(_ctrl) unless ~_focused.indexOf(_ctrl.viewId)
       _ctrl.active = true
+      _ctrl._gainedActiveStatus(_prevActive)
       _ctrl.gainedActiveStatus(_prevActive)
   #
   # Sets the active control
@@ -1172,6 +1174,7 @@ EventManagerApp = HApplication.extend
     return true if _ctrl? and _ctrl[_methodName]? and _ctrl[_methodName]() == true
     return null unless @_listeners.active
     _ctrl = @_views[@_listeners.active[0]] unless _ctrl?
+    return null unless _ctrl?
     _ctrlId = _ctrl.viewId
     return null if ~_testedIds.indexOf(_ctrlId)
     return true if _ctrl[_methodName]? and _ctrl[_methodName]() == true
@@ -1179,14 +1182,14 @@ EventManagerApp = HApplication.extend
     _testedIds.push(_ctrlId)
     for _viewId in _ctrl.parent.views
       continue if ~_testedIds.indexOf(_viewId)
-      continue if _ctrl.viewId == _viewId
+      continue if _ctrl? and _ctrl.viewId == _viewId
       _ctrl = @_views[_viewId]
-      if _ctrl[_methodName]?
+      if _ctrl? and _ctrl[_methodName]?
         _stopStatus = _ctrl[_methodName]()
         if _stopStatus == false or _stopStatus == true
           _stop = _stopStatus unless _stop
       return _stop if _stop != null
-    return true if _ctrl.parent? and @defaultKey(_methodName,_ctrl.parent,_testedIds) == true
+    return true if _ctrl? and _ctrl.parent? and @defaultKey(_methodName,_ctrl.parent,_testedIds) == true
     null
   #
   # Handles the keyDown event
@@ -1211,6 +1214,7 @@ EventManagerApp = HApplication.extend
       _ctrl = @_views[_viewId]
       if _ctrl.keyDown?
         _stop = true if _ctrl.keyDown(_keyCode)
+        break if _stop
     #
     # Some keys are special (esc and return) and they have their own
     # special events: defaultKey and escKey, which aren't limited
@@ -1237,7 +1241,7 @@ EventManagerApp = HApplication.extend
       _textEnters.push( _viewId ) if ~_enabled.indexOf( _viewId )
     for _viewId in _textEnters
       _ctrl = @_views[_viewId]
-      if _ctrl.textEnter?
+      if _ctrl? and _ctrl.textEnter?
         _stop = true if _ctrl.textEnter( _keyCode )
     if @status.hasKeyDown( _keyCode )
       for _viewId in _active
@@ -1245,8 +1249,9 @@ EventManagerApp = HApplication.extend
       @status.delKeyDown( _keyCode )
     for _viewId in _keyUppers
       _ctrl = @_views[_viewId]
-      if _ctrl.keyUp? and ~_active.indexOf( _viewId )
+      if _ctrl? and _ctrl.keyUp? and ~_active.indexOf( _viewId )
         _stop = true if _ctrl.keyUp( _keyCode )
+        break if _stop
     Event.stop(e) if _stop
   keyPress: (e)->
     # @warn('EventManager#keyPress not implemented')
@@ -1283,10 +1288,10 @@ EventManagerApp = HApplication.extend
         continue unless _ctrl.enabled
         _items.push( _ctrl )
       _matchIds = @_findTopmostEnabled( _lastPoint, 'contains', null )
-      for _ctrl in _items
-        _viewId = _ctrl.viewId
-        if ~_matchIds.indexOf( _viewId )
-          @changeActiveControl( _ctrl )
+      # for _ctrl in _items
+      #   _viewId = _ctrl.viewId
+      #   if ~_matchIds.indexOf( _viewId )
+      #     @changeActiveControl( _ctrl )
     # Debug output
     # console.log( 'focused: ',
     # JSON.stringify(@_listeners.focused),'active:',
