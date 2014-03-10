@@ -80,30 +80,30 @@
 
   # The default collection of simple control widgets (components)
   controls:
-    - button            # HButton
-    - clickbutton       # HClickButton (HClickValueButton)
-    - checkbox          # HCheckbox
-    - onoffbutton       # HOnOffButton
-    - radiobutton       # HRadioButton
-    - stringview        # HStringView
+    # - button            # HButton
+    # - clickbutton       # HClickButton (HClickValueButton)
+    # - checkbox          # HCheckbox
+    # - onoffbutton       # HOnOffButton
+    # - radiobutton       # HRadioButton
+    # - stringview        # HStringView
     - textcontrol       # HTextControl
     - numerictextcontrol # HNumericTextControl
-    - passwordcontrol   # HPasswordControl
+    # - passwordcontrol   # HPasswordControl
     - textarea          # HTextArea
     - searchfield       # HSearchField
-    - uploader          # HUploader
+    # - uploader          # HUploader
     - slider            # HSlider
     - vslider           # HVSlider
-    - progressbar       # HProgressBar
-    - progressindicator # HProgressIndicator
-    - imageview         # HImageView
-    - stepper           # HStepper
-    - validatorview     # HValidatorView
-    - window            # HWindow
-    - tab               # HTab & HTabView & HTabItem
-    - sheet             # HSheet
-    - alert_sheet       # HAlertSheet
-    - confirm_sheet     # HConfirmSheet
+    # - progressbar       # HProgressBar
+    # - progressindicator # HProgressIndicator
+    # - imageview         # HImageView
+    # - stepper           # HStepper
+    # - validatorview     # HValidatorView
+    # - window            # HWindow
+    # - tab               # HTab & HTabView & HTabItem
+    # - sheet             # HSheet
+    # - alert_sheet       # HAlertSheet
+    # - confirm_sheet     # HConfirmSheet
 
   # Server error message application ( the Reload / Reset Session dialog )
   servermessage:
@@ -113,10 +113,10 @@
   # These are not complete; they are still under development
   # and will be included in the controls package when finalized.
   datetime:
-    - momentjs            # moment.js by Tim Wood momentjs.com
-    - datetimevalue       # HDateTime; going to be deprecated or re-factored
-    - calendar            # HCalendar
-    - calendar_pulldown   # HCalenderPulldown
+    # - momentjs            # moment.js by Tim Wood momentjs.com
+    # - datetimevalue       # HDateTime; going to be deprecated or re-factored
+    # - calendar            # HCalendar
+    # - calendar_pulldown   # HCalenderPulldown
     - timesheet           # HTimeSheet
     - timesheet_item      # HTimeSheetItem
     - timesheet_item_edit # HTimeSheetItemEditor
