@@ -23,6 +23,7 @@ HTimeSheet = HControl.extend
     autoLabel:      false # Automatically set the label to the date, when enabled
     autoLabelFn: 'formatDate' # The name of the function to return formatted date/time
     notchesPerHour:     4 # by default 1/4 of an hour precision (15 minutes)
+    divideHours:        1 # by default all hours is shown      
     snapToNotch:     true # Snaps time to nearest notch/line
     itemOffsetLeft:    64 # Theme settings; don't enter in options
     itemOffsetRight:    0 # Theme settings; don't enter in options
@@ -84,6 +85,7 @@ HTimeSheet = HControl.extend
     _pxPerLine  = _pxPerHour / _notchesPerHour
     _bottomPos  = _rectHeight-_height-_topOffset-2
     _pxPerNotch = _pxPerHour / _notchesPerHour
+    _divideHours = @options.divideHours
 
     ELEM.setStyle( _hourParent, 'visibility', 'hidden', true )
     ELEM.setStyle( @markupElemIds.value, 'bottom', _bottomPos+'px' )
@@ -101,7 +103,7 @@ HTimeSheet = HControl.extend
 
     for _hour in [_hourStart.._hourEnd]
       _lineTop  = Math.round( _topOffset + (_hour*_pxPerHour) )
-      if _hour != _hourStart
+      if _hour != _hourStart and _hour % _divideHours == 0
         _hourTop = _lineTop + @options.hourOffsetTop
         @hourItems.push( ELEM.make( @markupElemIds.timeline, 'div',
           attr:
