@@ -106,8 +106,8 @@
     # - confirm_sheet     # HConfirmSheet
 
   # Server error message application ( the Reload / Reset Session dialog )
-  servermessage:
-    - reloadapp # ReloadApp
+  # servermessage:
+  #   - reloadapp # ReloadApp
 
   # Date and time -related control widgets (components)
   # These are not complete; they are still under development
@@ -156,31 +156,31 @@
 
 # Special packages that include other packages
 :compound_packages:
-  rsence:
-    - core
-    - default_theme
-    - controls
-    - lists
-    - datetime
-    - tables
-    - graphics
-    - chat
-    - servermessage
+  # rsence:
+  #   - core
+  #   - default_theme
+  #   - controls
+  #   - lists
+  #   - datetime
+  #   - tables
+  #   - graphics
+  #   - chat
+  #   - servermessage
   media:
     - mejs_theme
     - mediaelement
     - mediaplayers
   # code:
   #   - codemirror
-  std_widgets:
-    - default_theme
-    - controls
-    - lists
-    - datetime
-    - tables
-    - graphics
-    - chat
-    - servermessage
+  # std_widgets:
+  #   - default_theme
+  #   - controls
+  #   - lists
+  #   - datetime
+  #   - tables
+  #   - graphics
+  #   - chat
+  #   - servermessage
 
 # List of variables and other names beginning
 # with a underscore that should not be obfuscated
@@ -226,4 +226,4 @@
 #  - 0 means largest size, but fast compression
 #  - 9 means smallest size, but slow compression
 #  - any number in between is a compromise
-:gz_strategy: 0
+:gz_strategy: 9
