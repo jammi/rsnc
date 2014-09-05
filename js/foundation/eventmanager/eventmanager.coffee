@@ -1277,17 +1277,17 @@ EventManagerApp = HApplication.extend
     @warn('EventManager#isCmdKeyDown is deprecated, use #status.cmdKeyDown instead')
     @status.altKeyDown
   #
-  idle: ->
-    if @_topmostQueue.length
-      _items = []
-      _lastPoint = false
-      for i in [0..(@_topmostQueue.length-1)]
-        [ _point, _ctrl ] = @_topmostQueue.shift()
-        _lastPoint = _point
-        continue if _ctrl.isDead
-        continue unless _ctrl.enabled
-        _items.push( _ctrl )
-      _matchIds = @_findTopmostEnabled( _lastPoint, 'contains', null )
+  # idle: ->
+  #   if @_topmostQueue.length
+  #     _items = []
+  #     _lastPoint = false
+  #     for i in [0..(@_topmostQueue.length-1)]
+  #       [ _point, _ctrl ] = @_topmostQueue.shift()
+  #       _lastPoint = _point
+  #       continue if _ctrl.isDead
+  #       continue unless _ctrl.enabled
+  #       _items.push( _ctrl )
+  #     _matchIds = @_findTopmostEnabled( _lastPoint, 'contains', null )
       # for _ctrl in _items
       #   _viewId = _ctrl.viewId
       #   if ~_matchIds.indexOf( _viewId )
