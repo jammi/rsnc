@@ -299,6 +299,12 @@ HView = UtilMethods.extend({
     // destructable timeouts:
     this.timeouts = [];
 
+    // adds the parentClass as a "super" object
+    this.parent = _parent;
+
+    this.appId = this.parent.appId;
+    this.app = HSystem.apps[this.appId];
+
     if( !_options ){
       _options = {};
     }
@@ -326,14 +332,9 @@ HView = UtilMethods.extend({
       this.isHidden = true;
     }
 
-    // adds the parentClass as a "super" object
-    this.parent = _parent;
 
     this.viewId = this.parent.addView(this);
     // the parent addView method adds this.parents
-
-    this.appId = this.parent.appId;
-    this.app = HSystem.apps[this.appId];
 
     // sub-view ids, index of HView-derived objects that are found in HSystem.views[viewId]
     this.views = [];
