@@ -61,10 +61,10 @@
     - controldefaults   # HControlDefaults
     - control           # HControl
     - valueaction       # HValueAction
-    - dyncontrol        # HDynControl
-    - centerview        # HCenterView
     - scrollview        # HScrollView
-    - inlineview        # HInlineView
+    # - dyncontrol        # HDynControl
+    # - centerview        # HCenterView
+    # - inlineview        # HInlineView
 
   mediaelement:
     - mediaelement            # MediaElement
@@ -79,21 +79,21 @@
   #   - codemirror        # CodeMirror
 
   # The default collection of simple control widgets (components)
-  controls:
+  # controls:
     # - button            # HButton
     # - clickbutton       # HClickButton (HClickValueButton)
     # - checkbox          # HCheckbox
     # - onoffbutton       # HOnOffButton
     # - radiobutton       # HRadioButton
     # - stringview        # HStringView
-    - textcontrol       # HTextControl
-    - numerictextcontrol # HNumericTextControl
+    # - textcontrol       # HTextControl
+    # - numerictextcontrol # HNumericTextControl
     # - passwordcontrol   # HPasswordControl
-    - textarea          # HTextArea
-    - searchfield       # HSearchField
+    # - textarea          # HTextArea
+    # - searchfield       # HSearchField
     # - uploader          # HUploader
-    - slider            # HSlider
-    - vslider           # HVSlider
+    # - slider            # HSlider
+    # - vslider           # HVSlider
     # - progressbar       # HProgressBar
     # - progressindicator # HProgressIndicator
     # - imageview         # HImageView
@@ -112,17 +112,17 @@
   # Date and time -related control widgets (components)
   # These are not complete; they are still under development
   # and will be included in the controls package when finalized.
-  datetime:
+  # datetime:
     # - momentjs            # moment.js by Tim Wood momentjs.com
     # - datetimevalue       # HDateTime; going to be deprecated or re-factored
     # - calendar            # HCalendar
     # - calendar_pulldown   # HCalenderPulldown
-    - timesheet           # HTimeSheet
-    - timesheet_item      # HTimeSheetItem
-    - timesheet_item_edit # HTimeSheetItemEditor
-    - datepicker          # HDatePicker
-    - timepicker          # HTimePicker
-    - datetimepicker      # HDateTimePicker
+    # - timesheet           # HTimeSheet
+    # - timesheet_item      # HTimeSheetItem
+    # - timesheet_item_edit # HTimeSheetItemEditor
+    # - datepicker          # HDatePicker
+    # - timepicker          # HTimePicker
+    # - datetimepicker      # HDateTimePicker
 
   # List related control widgets (components)
   # These are not complete; they are still under development
