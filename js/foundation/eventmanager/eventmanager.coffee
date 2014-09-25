@@ -766,6 +766,7 @@ EventManagerApp = HApplication.extend
         continue
       continue if _newActive != null and _viewId == _newActive.viewId
       _ctrl = @_views[_viewId]
+      continue unless _ctrl?
       if _ctrl.isDead and !@isProduction
         console.warn('trying to deactivate dead control!')
       _ctrl.active = false
