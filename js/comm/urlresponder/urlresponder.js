@@ -76,10 +76,14 @@ COMM.URLResponder = HApplication.extend({
     if(_activate!==undefined){
       window.location.href=_activate;
     }
-    if( _urlMatcher.test( this.value ) ){
+    var _matchStr = this.value;
+    if( _urlMatcher.test( _matchStr ) ){
       _callBack.show();
+      if(~this.prevMatchStrs.indexOf(_matchStr)){
+        this.prevMatchStrs.push( _matchStr );
+      }
+      this.prevCallBacks.push( _callBack );
     }
-    // this.refresh();
   },
   
   // Checks the matchStr agains regular expressions
