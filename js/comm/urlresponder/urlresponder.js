@@ -70,13 +70,16 @@ COMM.URLResponder = HApplication.extend({
   // - activate is a flag that tells the view to be immediately 
   //   activate (and the previous one to deactivate)
   addResponder: function(_matchRegExp,_callBack,_activate){
-    this.urlMatchers.push(new RegExp(_matchRegExp));
+    var _urlMatcher = new RegExp(_matchRegExp);
+    this.urlMatchers.push( _urlMatcher );
     this.urlCallBacks.push(_callBack);
-    this.checkMatch(this.value);
     if(_activate!==undefined){
       window.location.href=_activate;
     }
-    this.refresh();
+    if( _urlMatcher.test( this.value ) ){
+      _callBack.show();
+    }
+    // this.refresh();
   },
   
   // Checks the matchStr agains regular expressions
