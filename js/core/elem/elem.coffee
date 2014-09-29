@@ -695,6 +695,11 @@ ELEM = HClass.extend
         else
           for _attrName, _attrValue of _attrs
             @setAttr( _id, _attrName, _attrValue, true )
+      _classes = _options.classes
+      if _classes?
+        if _classes instanceof Array
+          for _className in _options.classes
+            @addClassName( _id, _className )
       if _options.styles
         @setStyles( _id, _options.styles )
       if _options.html
