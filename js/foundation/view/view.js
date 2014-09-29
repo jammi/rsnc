@@ -760,7 +760,7 @@ HView = UtilMethods.extend({
       if( this.options.tabIndex !== undefined ){
         this.setTabIndex( this.options.tabIndex );
       }
-      if( this.options.focusOnCreate == true && this.options.theme !== 'mobile' ) {
+      if( this.options.focusOnCreate == true && !BROWSER_TYPE.mobile ) {
         this.setFocus();
         var _this = this;
         setTimeout( function() {
@@ -2049,7 +2049,7 @@ HView = UtilMethods.extend({
   **/
   setTabIndex: function(_tabIndex) {
     this.setAttr( 'tabIndex', _tabIndex );
-    if( _tabIndex == 1 && this.options.theme !== 'mobile' ) {
+    if( _tabIndex == 1 && !BROWSER_TYPE.mobile ) {
       this.setFocus();
     }
   },
