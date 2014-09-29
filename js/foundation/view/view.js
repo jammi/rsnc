@@ -760,7 +760,7 @@ HView = UtilMethods.extend({
       if( this.options.tabIndex !== undefined ){
         this.setTabIndex( this.options.tabIndex );
       }
-      if( this.options.focusOnCreate == true ) {
+      if( this.options.focusOnCreate == true && this.options.theme !== 'mobile' ) {
         this.setFocus();
         var _this = this;
         setTimeout( function() {
