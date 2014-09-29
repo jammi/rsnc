@@ -2049,7 +2049,7 @@ HView = UtilMethods.extend({
   **/
   setTabIndex: function(_tabIndex) {
     this.setAttr( 'tabIndex', _tabIndex );
-    if( _tabIndex == 1 ) {
+    if( _tabIndex == 1 && this.options.theme !== 'mobile' ) {
       this.setFocus();
     }
   },
