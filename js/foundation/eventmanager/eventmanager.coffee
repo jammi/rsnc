@@ -105,6 +105,7 @@ EventManagerApp = HApplication.extend
     2: -1
     crsrX: -1
     setCrsrX: (x)->
+      @mouseDownDiff[0] += Math.abs( @crsr[0] - x )
       @crsr[0] = x
       @crsrX = x
       @[2] = x
@@ -112,6 +113,7 @@ EventManagerApp = HApplication.extend
     crsrY: -1
     crsr: [ -1, -1 ]
     setCrsrY: (y)->
+      @mouseDownDiff[1] += Math.abs( @crsr[1] - y )
       @crsr[1] = y
       @crsrY = y
       @[3] = y
@@ -159,22 +161,11 @@ EventManagerApp = HApplication.extend
     setCmdKey: (f)->
       @cmdKeyDown = f
       @[9] = f
-    10: -1
-    mouseDownX: -1
-    setMouseDownX: (x)->
-      @mouseDownX = x
-      @mouseDownPos[0] = x
-      @[10] = x
-    11: -1
-    mouseDownY: -1
-    setMouseDownY: (y)->
-      @mouseDownY = y
-      @mouseDownPos[1] = y
-      @[11] = y
     mouseDownPos: [ -1, -1 ]
+    mouseDownDiff: [ 0, 0 ]
     setMouseDownPos: (x,y)->
-      @setMouseDownX(x)
-      @setMouseDownY(y)
+      @mouseDownPos = [ x, y ]
+      @mouseDownDiff = [ 0, 0 ]
     length: 12
   button1: 0
   button2: 1
@@ -215,7 +206,7 @@ EventManagerApp = HApplication.extend
   # List of used event methods for global purposes:
   _eventMethods: [
     'resize', 'mouseMove', 'doubleClick', 'contextMenu', 'click', 'mouseUp',
-    'mouseDown', 'keyUp', 'keyDown', 'mouseWheel', 'touchstart', 'touchmove', 'touchend'
+    'mouseDown', 'keyUp', 'keyDown', 'mouseWheel'
   ]
   #
   # This structure keeps track of registered elem/event/object/method; see #observe and #stopObserving
@@ -966,6 +957,9 @@ EventManagerApp = HApplication.extend
       # Firefox fires click separately.
       # the handler is contextMenu
       return true
+    if e.type == 'touchend'
+      [ xd, yd ] = @status.mouseDownDiff
+      return true if xd > 25 or yd > 25
     #
     # Focus check here
     #
@@ -1055,26 +1049,6 @@ EventManagerApp = HApplication.extend
       if _ctrl.mouseWheel?
         _stop = true if _ctrl.mouseWheel( _delta )
     Event.stop(e) if _stop
-
-  #
-  # Handles touchStart events on pads
-  touchstart: (e)->
-    EVENT.mouseDown(e)
-    [ x, y ] = @status.crsr
-
-  #
-  # Handles touchMove events on pads
-  touchmove: (e)->
-    EVENT.mouseMove(e)
-
-  #
-  # Handles touchEnd events on pads
-  touchend: (e)-> 
-    [ x0, y0] = @status.mouseDownPos
-    [ x1, y1 ] = @status.crsr
-    EVENT.mouseUp(e)
-    if Math.abs( x0 - x1 ) < 10 and Math.abs( y0 - y1 ) < 10
-      EVENT.click(e)
 
   #
   # Handles the contextMenu event

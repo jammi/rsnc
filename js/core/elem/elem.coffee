@@ -893,8 +893,8 @@ ELEM = HClass.extend
 
     _browserType = BROWSER_TYPE
     _browserType.opera    = !!~_ua.indexOf('Opera')
-    _browserType.safari   = !!~_ua.indexOf('KHTML')
-    _browserType.chrome   = !!~_ua.indexOf('Chrome')
+    _browserType.chrome   = !!~_ua.indexOf('Chrome') or !!~_ua.indexOf('CriOS')
+    _browserType.safari   = !!~_ua.indexOf('Safari') and !_browserType.chrome
     _isIE = document.all and not _browserType.opera
     if _isIE
       _browserType.ie  = _isIE

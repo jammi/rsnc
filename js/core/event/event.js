@@ -39,7 +39,7 @@ Event = {
 /** Returns true if the left mouse butten was clicked.
   **/
   isLeftClick: function(e) {
-    if( BROWSER_TYPE.ipad || BROWSER_TYPE.iphone ){
+    if( e.type == 'touchend' || BROWSER_TYPE.ipad || BROWSER_TYPE.iphone ){
       return true;
     }
     // IE: left 1, middle 4, right 2
@@ -57,17 +57,13 @@ Event = {
 
   /* Implementation of observe */
   _observeAndCache: function(_elem, _name, _function, _useCapture) {
+    _name = Event.wrapEventName( _name );
     if (!Event.observers) {
       Event.observers = [];
     }
     if (_elem && _elem.addEventListener) {
       this.observers.push([_elem, _name, _function, _useCapture]);
-      if( BROWSER_TYPE.ipad && _name == 'click') {
-        _elem.addEventListener('touchend', _function, _useCapture);
-      }
-      else{
-        _elem.addEventListener(_name, _function, _useCapture);
-      }
+      _elem.addEventListener(_name, _function, _useCapture);
     }
     else if (_elem && _elem.attachEvent) {
       this.observers.push([_elem, _name, _function, _useCapture]);
@@ -108,6 +104,7 @@ Event = {
   * removes the callback function.
   **/
   stopObserving: function(_elem, _name, _function, _useCapture) {
+    _name = Event.wrapEventName( _name );
     if( typeof _elem === 'number' ){
       _elem = ELEM.get(_elem);
     }
@@ -117,12 +114,7 @@ Event = {
     }
     _useCapture = _useCapture || false;
     if (_elem['removeEventListener']) {
-      if(BROWSER_TYPE.ipad && _name == 'click') {
-        _elem.removeEventListener('touchend', _function, _useCapture);
-      }
-      else{
-        _elem.removeEventListener(_name, _function, _useCapture);
-      }  
+      _elem.removeEventListener(_name, _function, _useCapture);
     }
     else if (detachEvent) {
       _elem.detachEvent("on" + _name, _function);
@@ -138,6 +130,17 @@ Event = {
         i++;
       }
     }
+  },
+
+  wrapEventName: function (_name) {
+    if( BROWSER_TYPE.safari && ( BROWSER_TYPE.iphone || BROWSER_TYPE.ipad ) ) {
+      if( _name === 'click' ) {
+        _name = 'touchend';
+      } else if( _name === 'mousedown' ) {
+        _name = 'touchstart';
+      }
+    }
+    return _name;
   },
 
   // List of ASCII "special characters":
