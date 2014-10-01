@@ -199,9 +199,9 @@ COMM.Transporter = HApplication.extend({
         _queue = COMM.Queue;
     console.log('failMessage title:',_title,', message:',_message);
     _this.stop = true;
-    _queue.push(function(){jsLoader.load('default_theme');});
-    _queue.push(function(){jsLoader.load('controls');});
-    _queue.push(function(){jsLoader.load('servermessage');});
+    // _queue.push(function(){jsLoader.load('default_theme');});
+    // _queue.push(function(){jsLoader.load('controls');});
+    // _queue.push(function(){jsLoader.load('servermessage');});
     _queue.push(function(){ReloadApp.nu(_title,_message);});
   },
 
