@@ -1,4 +1,4 @@
-HHTDateLabel = HControl.extend
+HHTDateLabel = HValueView.extend
   componentName: 'hht_date_label'
   markupElemNames: [ 'date', 'time' ]
 

@@ -12,16 +12,14 @@
   position: absolute;
   left: 19px; top: 19px; right: 19px; height: 38px;
   font-size: 25px;
-  visibility: hidden;
 }
 
 .mobile.hht_card > .label {
   position: absolute;
-  top: 250px; left: 3px; right: 3px; height: 40px;
+  left: 3px; right: 3px; height: 40px;
   line-height: 40px;
   font-size: 30px;
   text-align: center;
-  visibility: hidden;
 }
 
 .mobile.hht_card > .close_button {

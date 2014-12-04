@@ -1,9 +1,8 @@
-HHTCommentItem = HControl.extend
+HHTCommentItem = HValueView.extend
   componentName: 'hht_comment_item'
   markupElemNames: [ 'content', 'name' ]
 
-  controlDefaults: HControlDefaults.extend
-    dateFormat: 'DD.MM.YYYY HH:mm'
+  viewDefaults: HViewDefaults.extend
     showDate: true
 
   extDraw: ->
@@ -32,7 +31,7 @@ HHTCommentItem = HControl.extend
     
   _formatDate: ->
     if @options.showDate == true
-      moment( @value.time * 1000 ).utc().format( @options.dateFormat )
+      moment( @value.time * 1000 ).utc().format( HLocale.components.HHTDateTime.strings.date_time_format )
     else
       ''
   
@@ -42,7 +41,6 @@ HHTCommentItem = HControl.extend
     else
       HHT_UTIL.linkifyHTML( @escapeHTML( @value.value ) ) + '<br />'
       
-
   drawSubviews: ->
     ELEM.setStyle( @elemId, 'overflow-y', 'visible' )
     if @typeChr( @value.attachment ) == 'h'
@@ -51,5 +49,3 @@ HHTCommentItem = HControl.extend
         value: @value.attachment.audio_url
       )
     true
-
-

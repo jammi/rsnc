@@ -1,11 +1,11 @@
-HHTValidator = HControl.extend
+HHTValidator = HValueView.extend
   componentName: 'hht_validator'
   markupElemNames: [ 'icon' ]
   
-  formatCorrectIcon: ->
+  _formatCorrectIcon: ->
     HHT_ICONS.get( 'correct' )
 
-  formatErrorIcon: ->
+  _formatErrorIcon: ->
     HHT_ICONS.get( 'error' )
   
   refreshValue: ->
@@ -13,15 +13,13 @@ HHTValidator = HControl.extend
       if @value in [ 1, true ]
         ELEM.delClassName( @elemId, 'error' )
         ELEM.addClassName( @elemId, 'correct' )
-        ELEM.setHTML( @markupElemIds.icon, @formatCorrectIcon() )
+        ELEM.setHTML( @markupElemIds.icon, @_formatCorrectIcon() )
       else if @value in [ 0, false ]
         ELEM.delClassName( @elemId, 'correct' )
         ELEM.addClassName( @elemId, 'error' )
-        ELEM.setHTML( @markupElemIds.icon, @formatErrorIcon() )
+        ELEM.setHTML( @markupElemIds.icon, @_formatErrorIcon() )
       else
         ELEM.delClassName( @elemId, 'correct' )
         ELEM.delClassName( @elemId, 'error' )
         ELEM.setHTML( @markupElemIds.icon, '' )
-      ELEM.setStyle( @markupElemIds.icon, 'left', ( ( @rect.width - 20 ) / 2 ) + 'px' )
-      ELEM.setStyle( @markupElemIds.icon, 'top', ( ( @rect.height - 20 ) / 2 ) + 'px' )
     true

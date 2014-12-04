@@ -49,7 +49,7 @@ HHTProgressCard = HHTCard.extend
     if @options.theme == 'mobile'
       _rect = [ 20, null, 120, 45, null, 10 ]
     else
-      _rect = [ 20, null, 90, 30, null, 20 ]
+      _rect = [ 20, null, 110, 35, null, 20 ]
     @_prevButton = HHTButton.new( _rect, @,
       label: ''
       click: => @_prevButtonClick()
@@ -57,7 +57,7 @@ HHTProgressCard = HHTCard.extend
     if @options.theme == 'mobile'
       _rect = [ null, null, 120, 45, 20, 10 ]
     else
-      _rect = [ null, null, 90, 30, 20, 20 ]
+      _rect = [ null, null, 110, 35, 20, 20 ]
     @_nextButton = HHTButton.new( _rect, @,
       label: ''
       click: => @_nextButtonClick()

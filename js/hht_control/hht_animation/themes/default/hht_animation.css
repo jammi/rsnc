@@ -75,43 +75,6 @@
   opacity: 1;
 }
 
-.popup_anim {
-  animation-name: popup_frames;
-  animation-duration: 0.2s;
-  animation-iteration-count: 1;
-  animation-timing-function: ease-in;
-  transform-origin: 0px 0px;
-
-  -o-animation-name: popup_frames;
-  -o-animation-duration: 0.2s;
-  -o-animation-iteration-count: 1;
-  -o-animation-timing-function: ease-in;
-  -o-transform-origin: 0px 0px;
-
-  -ms-animation-name: popup_frames;
-  -ms-animation-duration: 0.2s;
-  -ms-animation-iteration-count: 1;
-  -ms-animation-timing-function: ease-in;
-  -ms-transform-origin: 0px 0px;
-
-  -moz-animation-name: popup_frames;
-  -moz-animation-duration: 0.2s;
-  -moz-animation-iteration-count: 1;
-  -moz-animation-timing-function: ease-in;
-  -moz-transform-origin: 0px 0px;
-
-  -webkit-animation-name: popup_frames;
-  -webkit-animation-duration: 0.2s;
-  -webkit-animation-iteration-count: 1;
-  -webkit-animation-timing-function: ease-in;
-  -webkit-transform-origin: 0px 0px;
-}
-
-@-webkit-keyframes popup_frames {
-  from { -webkit-transform: scale(0.2) }
-  to { -webkit-transform: scale(1) }
-}
-
 @-keyframes shaking_frames {
   0% { transform: translate(7px, 1px) }
   10% { transform: translate(-14px, -2px) }

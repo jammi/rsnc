@@ -34,7 +34,7 @@
 .default.hht_dropdown > .label {
   position: absolute;
   left: 8px; top: 1px; right: 16px; bottom: 1px;
-  line-height: 28px;
+  line-height: 30px;
   color: #000;
   font-size: 16px;
   vertical-align: middle;
@@ -67,7 +67,7 @@
 
 .default.hht_dropdown > .indicator {
   position: absolute;
-  right: 2px; width: 10px; top: 6px; height: 18px;
+  right: 2px; width: 10px; top: calc(50% - 9px); height: 18px;
 }
 
 .default.hht_dropdown.disabled > .indicator {

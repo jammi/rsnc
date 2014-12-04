@@ -1,6 +1,6 @@
 .default.hht_label > .value {
   position: absolute;
-  left: 0px; top: 0px; right: 0px; bottom: 0px;
+  left: 0px; top: calc(50% - 15px); right: 0px; height: 30px;
   font-size: 16px;
   text-overflow: ellipsis;
   overflow: hidden;

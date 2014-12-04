@@ -1,6 +1,6 @@
-HHTCommentView = HControl.extend
+HHTCommentView = HView.extend
 
-  controlDefaults: HControlDefaults.extend
+  viewDefaults: HViewDefaults.extend
     showButton: true
     showDate: true
     paddingTop: 30
@@ -25,7 +25,6 @@ HHTCommentView = HControl.extend
   
   drawSubviews: ->
     @comments = HHTCommentList.new( [ 0, 0, null, null, 0, @options.editorHeight ], @,
-      theme: @theme
       bind: @options.values.comment_output
       markSeenValue: @options.values.mark_seen
       itemClass: @options.itemClass
@@ -34,7 +33,6 @@ HHTCommentView = HControl.extend
         showDate: @options.showDate
     )
     @editor = HHTCommentEditor.new( [ 0, null, null, @options.editorHeight, 0, 0 ], @,
-      theme: @theme
       inputValue: @options.values.comment_input
       smsEnabled: @options.values.sms_enabled
       showButton: @options.showButton

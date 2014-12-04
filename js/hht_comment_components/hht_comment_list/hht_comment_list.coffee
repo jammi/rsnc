@@ -1,9 +1,7 @@
-HHTCommentList = HScrollView.extend
+HHTCommentList = HValueView.extend
   componentName: 'hht_comment_list'
 
-  controlDefaults: HScrollView.prototype.controlDefaults.extend
-    scrollX: false
-    scrollY: 'auto'
+  viewDefaults: HViewDefaults.extend
     emptyText: false #String
     paddingTop: 30
     itemGap: 5
@@ -70,3 +68,6 @@ HHTCommentList = HScrollView.extend
     _elem.scrollTop = _top
     @_markSeen()
     true
+
+  drawSubviews: ->
+    @setStyle( 'overflow-y', 'auto' )

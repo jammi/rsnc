@@ -18,7 +18,7 @@
 .default.hht_onoffbutton > .on > .bg,
 .default.hht_onoffbutton > .off > .bg {
   position: absolute;
-  left: 0px; top: 0px; right: 0px; bottom: 0px;
+  left: 1px; top: 1px; right: 1px; bottom: 1px;
   border: 1px solid #7f8C8D;
   border-radius: 5px;
   -webkit-transition-property: color, background; 

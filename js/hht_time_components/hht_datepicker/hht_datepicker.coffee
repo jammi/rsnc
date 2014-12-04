@@ -15,7 +15,7 @@ HHTDatePicker = HControl.extend
 
   customOptions: (_options)->
     _options.useUTC = HLocale.dateTime.defaultOptions.useUTC if _options.useUTC == null
-    _options.fieldFormat = HLocale.dateTime.strings.dateFormat if _options.fieldFormat == null
+    _options.fieldFormat = HLocale.components.HHTDateTime.strings.date_format if _options.fieldFormat == null
 
   _formatIcon: ->
     HHT_ICONS.get( 'calendar' )

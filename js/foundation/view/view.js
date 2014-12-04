@@ -1758,8 +1758,12 @@ HView = UtilMethods.extend({
   **/
   resizeTo: function(_width, _height) {
     var _rect = this.rect;
-    _rect.right = _rect.left + _width;
-    _rect.bottom = _rect.top + _height;
+    if(_width !== undefined){
+      _rect.right = _rect.left + _width;
+    }
+    if(_height !== undefined ){
+      _rect.bottom = _rect.top + _height;
+    }
     _rect.updateSecondaryValues();
     this.drawRect();
     return this;
@@ -2042,6 +2046,15 @@ HView = UtilMethods.extend({
   **/
   pageY: function() {
     return ELEM._getVisibleTopPosition( this.elemId );
+  },
+
+  inElem: function( _elem, x, y ) {
+    var _pos = ELEM.getVisiblePosition( _elem );
+    var _size = ELEM.getSize( _elem );
+    return !( x < _pos[0] || 
+              x > _pos[0] + _size[0] || 
+              y < _pos[1] ||
+              y > _pos[1] + _size[1] );
   },
 
 /** Set tabindex attribute for element

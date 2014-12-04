@@ -10,8 +10,9 @@ HHTGrid = HView.extend
     colGaps: []
 
   constructor: ( _rect, _parent, _opts ) ->
-    @rowIndex = 0
-    @colIndex = 0
+    @_rowIndex = 0
+    @_colIndex = 0
+    @_moveOffetY = 0
     @base( _rect, _parent, _opts )
 
   getRowGap: ( _row, _col ) ->
@@ -70,7 +71,7 @@ HHTGrid = HView.extend
       [ _offsetX, _offsetY, _offsetW, _offsetH ] = [ 0, 0, 0, 0 ]
     [ 
       @getItemLeft( _row, _col ) + _offsetX,
-      @getItemTop( _row, _col ) + _offsetY,
+      @getItemTop( _row, _col ) + _offsetY + @_moveOffetY,
       @getItemWidth( _row, _col ) + _offsetW,
       @getItemHeight( _row, _col ) + _offsetH,
       @getItemRight( _row, _col ),
@@ -78,18 +79,21 @@ HHTGrid = HView.extend
     ]
 
   nextItem: ->
-    @colIndex += 1
-    if @colIndex >= @options.colCount
+    @_colIndex += 1
+    if @_colIndex >= @options.colCount
       @nextRow()
 
   nextRow: ->
-    @rowIndex += 1
-    @colIndex = 0    
+    @_rowIndex += 1
+    @_colIndex = 0
 
   addItem: ( _class, _opts, _offsetRect ) ->
-    _item = @setItem( @rowIndex, @colIndex, _class, _opts, _offsetRect )
+    _item = @setItem( @_rowIndex, @_colIndex, _class, _opts, _offsetRect )
     @nextItem()
     _item
 
   setItem: ( _row, _col, _class, _opts, _offsetRect ) ->
     _class.new( @getItemRect( _row, _col, _offsetRect ), @, _opts )
+
+  moveDown: ( _offset ) ->
+    @_moveOffetY += _offset

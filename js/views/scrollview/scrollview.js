@@ -4,8 +4,8 @@
 //  - scrollX: true | false | 'auto'
 //  - scrollY: true | false | 'auto'
 var//RSence.Views
-HScrollView = HControl.extend({
-  controlDefaults: HControlDefaults.extend({
+HScrollView = HValueView.extend({
+  viewDefaults: HViewDefaults.extend({
     scrollX: true,
     scrollY: true
   }),

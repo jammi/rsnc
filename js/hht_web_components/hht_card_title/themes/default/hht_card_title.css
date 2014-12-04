@@ -8,6 +8,10 @@
   vertical-align: middle;
 }
 
+.default.hht_card_title.show_line {
+  border-bottom: 2px solid #00AEEF;
+}
+
 .default.hht_card_title > .label {
   position: relative;
   display: inline-block;

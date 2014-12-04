@@ -52,6 +52,7 @@ HHTModalApp = HHTGUIApp.extend
     [ _w + ( _viewW - _w - _newW ) / 2, ( _viewH - _newH ) / 2 ]
 
   _updatePos: ->
+    return false unless @view?
     [ _w, _h ] = [ -@_gap, 0 ]
     for _item in @_items
       continue if _item.isHidden

@@ -46,11 +46,17 @@ HHTUploadButton = HControl.extend
   calcWidth: ->
     @button.calcWidth()
 
+  setLabel: ( _label )->
+    @button.setLabel( _label )
+
+  setIcon: ( _icon )->
+    @button.setIcon( _icon )
+
   setUploadKey: ( _uploadKey ) ->
     @button.setLabel( @options.label )
     @button.setEnabled( true )
     @setStyleOfPart( 'form', 'visibility', 'inherit' )
-    @setAttrOfPart( 'form', 'action', '/U/' + _uploadKey, true )
+    @setAttrOfPart( 'form', 'action', 'U/' + _uploadKey, true )
     @setAttrOfPart( 'file', 'value', '', true )
     @uploadKey = _uploadKey
 

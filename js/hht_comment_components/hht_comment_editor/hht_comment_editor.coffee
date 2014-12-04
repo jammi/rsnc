@@ -1,7 +1,7 @@
-HHTCommentEditor = HControl.extend
+HHTCommentEditor = HValueView.extend
   componentName: 'hht_comment_editor'
 
-  controlDefaults: HControlDefaults.extend
+  viewDefaults: HViewDefaults.extend
     showButton: true
 
   defaultKey: ->

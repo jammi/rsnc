@@ -11,8 +11,10 @@ HHTLocaleApp = HHTGUIApp.extend
     moment.locale( _lang, _data )
     true
 
-  _updateLocalized: ( _localized ) ->
+  drawSubviews: ->
+    _localized = @options.localized
     return unless @typeChr( _localized ) == 'h'
+
     #DateTime
     @_setMoment( 'en', _localized.moment )
 
@@ -42,10 +44,4 @@ HHTLocaleApp = HHTGUIApp.extend
 
     #EventInOut
     HLocale.components.EventInOut = { strings: _localized.event_in_out }
-
-  drawSubviews: ->
-    HValueAction.new( @,
-      bind: @options.valueIds.localized
-      action: '_updateLocalized'
-    )
-    true    
+    true

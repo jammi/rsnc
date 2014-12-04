@@ -1,30 +1,28 @@
 HHTTextControl = HControl.extend
   componentName: 'hht_textcontrol'
   markupElemNames: [ 'bg', 'value', 'help' ]
+
   controlDefaults: HControl.prototype.controlDefaults.extend
     helpText: null
     refreshOnBlur:  true
+    refreshOnChange: true
     refreshOnInput: true
-    enableValue: null
+    fontSize: null
+    type: 'gray' # gray, white
 
   defaultEvents:
-    textEnter: true
+    textEnter: false
     click: true
 
   textSelectable: true
-  hasTextFocus: false
   fieldName: 'input'
   fieldType: 'text'
 
   constructor: (_rect, _parent, _options) ->
+    @hasTextFocus = false
     if _options.fieldType?
       @fieldType = _options.fieldType
     @base( _rect, _parent, _options )
-    if @options.enableValue
-      HValueAction.new( @,
-        bind: @options.enableValue
-        action: 'setEnabled'
-      )
     if @options.validValue
       HValueAction.new( @,
         bind: @options.validValue
@@ -37,6 +35,7 @@ HHTTextControl = HControl.extend
     _elemId = @markupElemIds.value
     Event.stopObserving( _elemId, 'focus', @_textFocusFn )
     Event.stopObserving( _elemId, 'blur', @_textBlurFn )
+    Event.stopObserving( _elemId, 'input', @_textChangeFn )
     @base()
 
   drawMarkup: ->
@@ -53,8 +52,17 @@ HHTTextControl = HControl.extend
     @setCSSClass( 'value', 'input' )
     @_textFocusFn = => @textFocus()
     @_textBlurFn = => @textBlur()
+    @_textChangeFn = => @textChange()
     Event.observe( _elemId, 'focus', @_textFocusFn )
     Event.observe( _elemId, 'blur', @_textBlurFn )
+    Event.observe( _elemId, 'input', @_textChangeFn )
+ 
+    @setCSSClass( @options.type )
+    if @options.fontSize
+      @setStyleOfPart( 'value', 'font-size', @options.fontSize + 'px' )
+      @setStyleOfPart( 'help', 'font-size', @options.fontSize + 'px' )
+    @setStyleOfPart( 'help', 'line-height', @rect.height + 'px' )
+    @
 
   refreshValue: ->
     @setTextFieldValue( @value )
@@ -82,9 +90,8 @@ HHTTextControl = HControl.extend
   
   setFocus: ->
     _elem = @getInputElement()
-    if _elem?
-      _elem.focus()
-      @setSelectionRange( @value.length, @value.length ) if @typeChr(@value) == 's'
+    _elem.focus() if _elem?
+    @setSelectionRange( @value.length, @value.length ) if @typeChr(@value) == 's'
 
   lostActiveStatus: (_prevActive)->
     @base(_prevActive)
@@ -95,7 +102,7 @@ HHTTextControl = HControl.extend
   setStyle: (_name, _value, _cacheOverride)->
     @base(_name, _value, _cacheOverride)
     return unless @markupElemIds? && @markupElemIds.value?
-    @setStyleOfPart('value', _name, _value, _cacheOverride)
+    @setStyleOfPart( 'value', _name, _value, _cacheOverride )
 
   click: ->
     @getInputElement().focus() unless @hasTextFocus
@@ -114,16 +121,16 @@ HHTTextControl = HControl.extend
         @setEnabled(_flag) unless @isDead
 
   setValid: ( _flag ) ->
-    @toggleCSSClass( @elemId, 'invalid', !_flag )
+    @toggleCSSClass( @elemId, 'invalid', ( _flag in [ 0, false ] ) )
 
   _clipboardEventTimer: null
 
-  _getChangeEventFn: ->
-    _this = @
-    return (e)->
-      clearTimeout( _this._clipboardEventTimer ) if _this._clipboardEventTimer
-      _this._clipboardEventTimer = setTimeout( ( -> _this.clipboardEvent() ), 200 )
-      return true
+  # _getChangeEventFn: ->
+  #   _this = @
+  #   return (e)->
+  #     clearTimeout( _this._clipboardEventTimer ) if _this._clipboardEventTimer
+  #     _this._clipboardEventTimer = setTimeout( ( -> _this.clipboardEvent() ), 200 )
+  #     return true
 
   _changedFieldValue: (_value1,_value2) ->
     _value1 != _value2
@@ -161,11 +168,17 @@ HHTTextControl = HControl.extend
       @refreshValue()
     true
 
+  textChange: ->
+    if @options.refreshOnChange
+      @_updateValueFromField()
+      @refreshValue()
+    true
+
   ### = Description
   ## Placeholder method for validation of the value.
   ##
   ###
-  validateText: (_value)-> @fieldToValue(_value)
+  validateText: (_value) -> @fieldToValue(_value)
 
   ### = Description
   ## Returns the input element or null, if no input element created (yet).

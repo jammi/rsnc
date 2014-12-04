@@ -1,4 +1,4 @@
-HHTIconLabel = HControl.extend
+HHTIconLabel = HValueView.extend
   componentName: 'hht_icon_label'
   markupElemNames: [ 'icon', 'value' ]
 

@@ -6,8 +6,15 @@
   position: absolute;
   left: 0px; top: 0px; right: 0px; bottom: 0px;
   z-index: 1;
-  background-color: #ecf0f1;
   border-radius: 5px;
+}
+
+.default.hht_textcontrol.gray > .bg {
+  background-color: #ecf0f1;
+}
+
+.default.hht_textcontrol.white > .bg {
+  background-color: #fff;
 }
 
 .default.hht_textcontrol.disabled > .bg {
@@ -55,7 +62,6 @@
   left: 4px; top: 0px; right: 0; bottom: 0;
   z-index: 2;
   font-size: 15px; 
-  line-height: 30px;
   vertical-align: middle;
 }
 

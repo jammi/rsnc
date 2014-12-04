@@ -124,6 +124,13 @@ ELEM = HClass.extend
     @_elements[_id]
 
   ###
+  Returns an element by its id attribute
+  ###
+  getByAttrId: ( _attrId ) ->
+    @get( @bindId( _attrId ) )
+
+
+  ###
   Sets the innerHTML contents of the element
   ###
   setHTML: (_id, _html)->
@@ -329,11 +336,19 @@ ELEM = HClass.extend
     null
 
   ###
-  Gets box coordinates [ x, y, width, height )
+  Gets box coordinates [ x, y, width, height ]
   ###
   getBoxCoords: (_id)->
     [ x, y ] = @getPosition( _id )
     [ w, h ] = @getSize( _id )
+    [ x, y, w, h ]
+
+  ###
+  Returns the visible box coordinates of the element as a [ left, top, width, height ]
+  ###
+  getVisibleBoxCoords: (_id)->
+    [ x, y ] = @getVisiblePosition( _id )
+    [ w, h ] = @getVisibleSize( _id )
     [ x, y, w, h ]
 
   ###

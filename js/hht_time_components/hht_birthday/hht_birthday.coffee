@@ -1,4 +1,4 @@
-HHTBirthday = HControl.extend
+HHTBirthday = HValueView.extend
 
   _itemList: ->
     if @theme == 'mobile'
@@ -27,7 +27,7 @@ HHTBirthday = HControl.extend
       refreshValue: ->
         @base()
         @parent._updateDate()
-    ).new( [ 0, 0, 45, 30 ], @,
+    ).new( [ 0, 0, 45, null, null, 0 ], @,
       value: d
       fieldMin: 1
       fieldMax: 31
@@ -37,7 +37,7 @@ HHTBirthday = HControl.extend
       refreshValue: ->
         @base()
         @parent._updateDate()
-    ).new( [ 50, 0, null, 30, 65, null ], @,
+    ).new( [ 50, 0, null, null, 65, 0 ], @,
       value: m
       items: @_itemList()
       sortBy: false
@@ -47,7 +47,7 @@ HHTBirthday = HControl.extend
       refreshValue: ->
         @base()
         @parent._updateDate()
-    ).new( [ null, 0, 60, 30, 0, null ], @,
+    ).new( [ null, 0, 60, null, 0, 0 ], @,
       value: y
       fieldMin: 1900
       fieldMax: 2010

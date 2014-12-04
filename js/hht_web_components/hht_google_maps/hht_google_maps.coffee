@@ -145,7 +145,7 @@ HHTGoogleMaps = HControl.extend
     @_listener = _listener
     GoogleMapsLoader.load()
     HValueAction.new( @,
-      bind: GoogleMapsLoader.stateValue
+      bind: GoogleMapsLoader.state
       action: '_onLoad'
     )
     return true

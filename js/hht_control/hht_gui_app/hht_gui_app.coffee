@@ -24,6 +24,7 @@ HHTGUIApp = HApplication.extend
     @extDraw() if @typeChr( @extDraw ) == '>'
     @_drawView()
     @drawSubviews()
+    setTimeout( ( -> HSystem._updateFlexibleRects() ), 1200 )
     true
 
   _setMeta: (_name,_content) ->
@@ -90,10 +91,6 @@ HHTGUIApp = HApplication.extend
     _view.rect.setWidth( _viewW )
     _view.drawRect()
     true
-  
-  setAlign: ( _view, _rect, _pos ) ->
-    _left = ELEM.windowSize()[0] * _pos / 6 - _rect[2] / 2
-    _view.setRect( [ _left, _rect[1], _rect[2], _rect[3] ] )
 
   drawSubviews: ->
     true

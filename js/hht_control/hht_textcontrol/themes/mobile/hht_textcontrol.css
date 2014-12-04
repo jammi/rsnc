@@ -10,6 +10,14 @@
   border-radius: 5px;
 }
 
+.mobile.hht_textcontrol.gray > .bg {
+  background-color: #ecf0f1;
+}
+
+.mobile.hht_textcontrol.white > .bg {
+  background-color: #fff;
+}
+
 .mobile.hht_textcontrol.disabled > .bg {
   background-color: #fff;
 }

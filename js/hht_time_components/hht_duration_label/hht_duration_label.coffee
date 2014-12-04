@@ -1,4 +1,4 @@
-HHTDurationLabel = HControl.extend
+HHTDurationLabel = HValueView.extend
   componentName: 'hht_duration_label'
   markupElemNames: [ 'value' ]
 

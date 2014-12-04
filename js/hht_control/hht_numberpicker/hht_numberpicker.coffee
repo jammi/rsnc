@@ -32,6 +32,7 @@ HHTNumberPicker = HControl.extend
     ).new( _rect, @,
       value: @options.value
       bind: @options.bind
+      enabled: @enabled
       style: @options.textStyle
       fieldMin: @options.fieldMin
       fieldMax: @options.fieldMax

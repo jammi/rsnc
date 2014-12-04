@@ -60,6 +60,14 @@ HHTButton = HControl.extend
   _formatLabel: ->
     @options.label
 
+  setLabel: ( _label ) ->
+    @options.label = _label
+    ELEM.setHTML( @markupElemIds.label, @_formatLabel() )
+
+  setIcon: ( _icon ) ->
+    @options.icon = _icon
+    ELEM.setHTML( @markupElemIds.icon, @_formatIcon() )
+
   setType: ( _type ) ->
     _validTypes = [ 'blue', 'white', 'green', 'orange' ]
     _type = 'blue' unless _type in _validTypes

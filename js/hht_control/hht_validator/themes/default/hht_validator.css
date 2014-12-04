@@ -1,6 +1,6 @@
 .default.hht_validator > .icon {
   position: absolute;
-  left: 0; top: 0px; width: 20px; height: 20px;
+  left: calc(50% - 10px); top: calc(50% - 10px); width: 20px; height: 20px;
 }
 
 .default.hht_validator.correct > .icon > svg {

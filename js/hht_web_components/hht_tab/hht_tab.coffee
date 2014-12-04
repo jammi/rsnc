@@ -1,8 +1,8 @@
-HHTTab = HControl.extend
+HHTTab = HValueView.extend
   componentName: 'hht_tab'
   markupElemNames: [ 'items', 'tabs' ]
   
-  controlDefaults: HControlDefaults.extend
+  viewDefaults: HViewDefaults.extend
     itemGap: 20
 
   constructor: (_rect, _parent, _options) ->

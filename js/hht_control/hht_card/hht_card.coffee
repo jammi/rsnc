@@ -1,7 +1,5 @@
 HHTCard = HControl.extend
   componentName: 'hht_card'
-  markupElemNames: [ 'title', 'label' ]
-  defaultEvents: { resize: true }
 
   escKey: ->
     if @options.closeFunction instanceof Function
@@ -9,32 +7,28 @@ HHTCard = HControl.extend
       return true
     false
 
+  die: ->
+    ELEM.del( @_labelId ) if @_labelId?
+    ELEM.del( @_titleId ) if @_titleId?
+    @base()
+
   extDraw: ->
     if @options.label?
-      @alignLabel()
-      @setStyleOfPart( 'label', 'visibility', 'inherit' )
+      @setLabel( @options.label )
     if @options.title?
-      @setStyleOfPart( 'title', 'visibility', 'inherit' )
+      @setTitle( @options.title )
     true
 
-  _formatLabel: ->
-    if @options.label?
-      return @options.label
-    else
-      return ''
-      
-  _formatTitle: ->
-    if @options.title?
-      return @options.title
-    else
-      return ''
+  setLabel: ( _label ) ->
+    unless @_labelId?
+      @_labelId = ELEM.make( @elemId, 'div',
+        classes: [ 'label' ]
+      )
+    ELEM.setHTML( @_labelId, _label )
     
-  alignLabel: ->
-    @setStyleOfPart( 'label', 'top', "#{@rect.height / 2 - 20}px" )
-    
-  resize: ->
-    @alignLabel()
-
   setTitle: ( _title ) ->
-    ELEM.setHTML( @markupElemIds.title, _title )
-    true 
+    unless @_titleId
+      @_titleId = ELEM.make( @elemId, 'div',
+        classes: [ 'title' ]
+      )
+    ELEM.setHTML( @_titleId, _title )

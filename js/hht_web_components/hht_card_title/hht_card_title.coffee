@@ -1,11 +1,18 @@
-HHTCardTitle = HControl.extend
+HHTCardTitle = HValueView.extend
   componentName: 'hht_card_title'
 
-  controlDefaults: HControlDefaults.extend
+  viewDefaults: HViewDefaults.extend
     textSelectable: false
     valueKey: false
-    prefix: ""
-    suffix = ""
+    prefix: ''
+    suffix: ''
+    showLine: false
+
+  constructor: ( _rect, _parent, _options ) ->
+    @base( _rect, _parent, _options )
+    if @options.showLine
+      @setCSSClass( 'show_line' )
+    true
 
   die: ->
     @_delItems()

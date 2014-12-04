@@ -1,6 +1,6 @@
-HHTProgressTab = HControl.extend
+HHTProgressTab = HValueView.extend
 
-  controlDefaults: HControlDefaults.extend
+  controlDefaults: HViewDefaults.extend
     scrollY: false
 
   extDraw: ->

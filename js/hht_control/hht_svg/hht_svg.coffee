@@ -1,6 +1,6 @@
-HHTSvg = HControl.extend
-  controlDefaults: HControlDefaults.extend
-    value: ''
-
+HHTSvg = HValueView.extend
   refreshValue: ->
-    ELEM.setHTML( @elemId, @value )
+    _value = @value
+    unless @typeChr( _value ) == 's'
+      _value = ''
+    ELEM.setHTML( @elemId, _value )

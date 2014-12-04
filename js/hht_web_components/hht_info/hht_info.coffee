@@ -11,6 +11,7 @@ HHTInfo = HControl.extend
     diffX: 0
     diffY: 5
     direction: 'right'
+    convertLineBreaks: false
 
   escKey: ->
     @_hidePopup()
@@ -63,10 +64,12 @@ HHTInfo = HControl.extend
               @parent.lostActiveStatus( _obj )
         ).new( [ 30, 15, null, null, 15, 15 ], @,
           value: _this.value
+          convertLineBreaks: @options.convertLineBreaks
         )
     ).new( [ x, y, @options.popupWidth, @options.popupHeight ], @app.view,
       value: @value
       direction: @options.direction
+      convertLineBreaks: @options.convertLineBreaks
     )
     ELEM.flush()
     EVENT.changeActiveControl( @_popup )

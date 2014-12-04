@@ -6,7 +6,7 @@ HHTMobileApp = HHTGUIApp.extend
       _wrapper.die()
     @base()
 
-  constructor: (_options) ->
+  constructor: ( _options ) ->
     @_wrappers = []
     @viewIndex = 0
     @hashTag = "#{_options.label}"

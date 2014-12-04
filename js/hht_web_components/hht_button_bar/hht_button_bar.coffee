@@ -1,7 +1,7 @@
-HHTButtonBar = HControl.extend
+HHTButtonBar = HView.extend
   componentName: 'hht_button_bar'
 
-  controlDefaults: HControlDefaults.extend
+  viewDefaults: HViewDefaults.extend
     gap: 0
     align: 'right'
 

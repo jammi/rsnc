@@ -4,12 +4,15 @@ HHTDialog = HControl.extend
   controlDefaults: HControlDefaults.extend
     width: 500
     height: 200
+    title: null
+    type: 'modal' #modal, #hover
 
   defaultEvents:
     resize: true
 
   constructor: ( _rect, _parent, _opts ) ->
     @base( _rect, _parent, _opts )
+    @setCSSClass( @options.type )
     ELEM.flush()
     
   resize: ->
@@ -60,7 +63,7 @@ HHTDialog = HControl.extend
   
   extDraw: ->
     @createSubview( HHTCard, [ 0, 0, @options.width, @options.height ],
-      theme: @options.theme 
+      title: @options.title
     )
     @bringToFront()
     true

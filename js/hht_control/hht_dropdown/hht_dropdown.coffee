@@ -1,6 +1,6 @@
 HHTDropdown = HControl.extend
   componentName: 'hht_dropdown'
-  markupElemNames: [ 'icon', 'label' ]
+  markupElemNames: [ 'icon', 'label', 'help' ]
   defaultEvents:
     click: true
     resize: true
@@ -41,6 +41,8 @@ HHTDropdown = HControl.extend
   drawMarkup: ->
     @base()
     @toggleCSSClass( @elemId, 'has_icons', @options.iconSource? )
+    @setStyleOfPart( 'label', 'line-height', ELEM.getSize( @elemId )[1] + 'px' )
+    @setStyleOfPart( 'help', 'line-height', ELEM.getSize( @elemId )[1] + 'px' )
     @_onFocusFn = => EVENT.changeActiveControl( @ )
     Event.observe( @elemId, 'focus', @_onFocusFn )
     @
