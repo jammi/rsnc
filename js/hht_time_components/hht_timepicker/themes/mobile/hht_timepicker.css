@@ -1,0 +1,72 @@
+.mobile.hht_timepicker {
+  overflow: visible;
+}
+
+.mobile.hht_timepicker > .bg {
+  position: absolute;
+  left: 0px; top: 0px; right: 0px; bottom: 0px;
+  background-color: #ecf0f1;
+  border-radius: 5px;
+}
+
+.mobile.hht_timepicker.disabled > .bg {
+  background-color: #fff;
+}
+
+.mobile.hht_timepicker > .input_parent {
+  position: absolute;
+  left: 0px; top: 0px; right: 22px; bottom: 0px;
+}
+
+.mobile.hht_timepicker > .input_parent > .input {
+  position: absolute;
+  left: 0px; top: 0px; right: 0px; bottom: 0px;
+  width: 100%; height: 100%;
+  display: block;
+  font-size: 15px;
+  color: #000;
+  resize: none;
+  vertical-align: middle;
+  padding-left: 4px; padding-right: 4px;
+  border: 0;
+  background-color: transparent;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.mobile.hht_timepicker > .input_parent > .input::-ms-clear {
+  display: none;
+}
+
+.mobile.hht_timepicker.disabled > .input_parent > .input {
+  color: #7f8C8D;
+  -webkit-text-fill-color: #7f8C8D;
+}
+
+.mobile.hht_timepicker > .input_parent > .input:focus {
+  outline-color: transparent;
+  outline-style: none;
+}
+
+.mobile.hht_timepicker > .icon {
+  position: absolute; 
+  top: 0px; right: 2px; width: 20px; bottom: 0px;
+}
+
+.mobile.hht_timepicker > .icon:hover {
+  cursor: pointer;
+}
+
+.mobile.hht_timepicker > .icon > svg {
+  position: absolute;
+  right: 0px; top: 5px; width: 20px; height: 20px;
+  fill: #7f8C8D;
+  stroke: #7f8C8D;
+}
+
+.mobile.hht_timepicker.enabled > .icon:hover > svg {
+  fill: #5FABF1;
+  stroke: #5FABF1;
+}
+

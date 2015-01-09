@@ -1,0 +1,14 @@
+.mobile.hht_mobile_navi_button > .icon {
+  position: absolute;
+  left: 12px; top: 12px; right: 12px; bottom: 12px;
+}
+
+.mobile.hht_mobile_navi_button > .icon > svg {
+  fill: #fff;
+  stroke: #fff;
+}
+
+.mobile.hht_mobile_navi_button.clicked > .icon {
+  fill: #5FABF1;
+  stroke: #5FABF1;
+}

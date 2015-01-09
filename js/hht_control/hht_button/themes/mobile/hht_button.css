@@ -1,0 +1,126 @@
+.mobile.hht_button {
+  outline: 0;
+  cursor: pointer;
+  border-style: solid;
+  border-radius: 5px;
+  border-width: 2px;
+  box-sizing:border-box;
+  -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+}
+
+.mobile.hht_button.disabled {
+  cursor: default;  
+}
+
+.mobile.hht_button > .label {
+  position: absolute;
+  left: 6px; right: 6px; top: 0px; bottom: 0px;
+  text-align: center; 
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mobile.hht_button.has_icon > .label {
+  left: 30px;
+  text-align: left;
+}
+
+.mobile.hht_button > .icon {
+  position: absolute;
+  left: 0; top: 0; width: 0; bottom: 0;
+  visibility: hidden;
+}
+
+.mobile.hht_button.has_icon > .icon {
+  left: 4px; top: 10px; width: 20px; height: 20px;
+  visibility: inherit;
+}
+
+.mobile.hht_button > .icon > svg {
+  fill: #7f8C8D;
+  stroke: #7f8C8D;
+}
+
+.mobile.hht_button.enabled.active > .icon > svg {
+  fill: #5FABF1;
+  stroke: #5FABF1;
+}
+
+/*Blue*/
+.mobile.hht_button.blue {
+  border-color: #5FABF1;
+  background-color: #FFF;
+}
+.mobile.hht_button.blue.disabled {
+  background-color: #FFF;
+  border-color: #939598;
+}
+.mobile.hht_button.blue.enabled.active {
+  border-width: 3px;
+}
+.mobile.hht_button.blue > .label {
+  color: #5FABF1;
+}
+.mobile.hht_button.blue.disabled > .label {
+  color: #7f8C8D;
+}
+
+
+/*Orange*/
+.mobile.hht_button.orange {
+  border-color: #F39C12;
+  background-color: #FFF;
+}
+.mobile.hht_button.orange.disabled {
+  background-color: #FFF;
+  border-color: #939598;
+}
+.mobile.hht_button.orange.enabled.active {
+  border-width: 3px;
+}
+.mobile.hht_button.orange > .label {
+  color: #F39C12;
+}
+.mobile.hht_button.orange.disabled > .label {
+  color: #7f8C8D;
+}
+
+/*Green*/
+.mobile.hht_button.green {
+  border-color: #27AE60;
+  background-color: #FFF;
+}
+.mobile.hht_button.green.disabled {
+  background-color: #FFF;
+  border-color: #939598;
+}
+.mobile.hht_button.green.enabled.active {
+  border-width: 3px;
+}
+.mobile.hht_button.green > .label {
+  color: #27AE60; 
+}
+.mobile.hht_button.green.disabled > .label {
+  color: #7f8C8D;
+}
+
+/*White*/
+.mobile.hht_button.white {
+  border-color: #FFF;
+  background-color: #FFF;
+}
+.mobile.hht_button.white.disabled {
+  background-color: #FFF;
+  border-color: #FFF;
+}
+.mobile.hht_button.white.enabled.active {
+  background: #FFF;
+}
+.mobile.hht_button.white > .label {
+  color: #7f8C8D;
+}
+.mobile.hht_button.white.enabled.active > .label {
+  color: #5FABF1;
+}

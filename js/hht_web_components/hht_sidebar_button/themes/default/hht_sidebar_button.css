@@ -1,0 +1,49 @@
+.default.hht_sidebar_button {
+  cursor: pointer;
+}
+
+.default.hht_sidebar_button > .bg {
+  position: absolute;
+  left: 7px; top: 0px; right: 0px; bottom: 0px;
+  border-top: 1px solid #7f8C8D;
+  border-bottom: 1px solid #7f8C8D;
+  background-color: #FFF;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.default.hht_sidebar_button:not(.selected) > .bg {
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+  border-left: 1px solid #7f8C8D;
+  border-right: 1px solid #7f8C8D;
+}
+
+.default.hht_sidebar_button > .mark {
+  position: absolute;
+  top: 0px; left: 0px; width: 7px; bottom: 0px;
+  background-color: #5FABF1;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+.default.hht_sidebar_button:not(.selected) > .mark {
+  visibility: hidden;
+}
+
+.default.hht_sidebar_button > .label {
+  -ms-transform: rotate(-90deg); /* IE 9 */
+  -webkit-transform: rotate(-90deg); /* Chrome, Safari, Opera */
+  transform: rotate(-90deg);
+  text-shadow: 0 0 0;
+  position: absolute;
+  left: -32px; top: 40px; width: 100px; height: 25px;
+  line-height: 25px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.default.hht_sidebar_button:hover > .label {
+  color: #5FABF1;
+}

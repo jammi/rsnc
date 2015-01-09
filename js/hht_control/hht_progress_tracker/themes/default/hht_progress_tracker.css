@@ -1,0 +1,62 @@
+.default.hht_progress_tracker > .line {
+  position: absolute;
+  left: 20px; top: 20px; right: 25px; height: 1px;
+  border-top: 1px dotted #7f8C8D;
+}
+
+.default.hht_progress_tracker > .step {
+  position: absolute;
+  top: 0px; bottom: 30px; width: 200px;
+}
+
+.default.hht_progress_tracker > .step > .circle {
+  position: absolute;
+  top: 5px; width: 30px; height: 30px;
+}
+
+.default.hht_progress_tracker > .step > .circle > svg {
+  position: absolute;
+  left: 0px; top: 0px; right: 0px; bottom: 0px;
+}
+
+.default.hht_progress_tracker > .step > .circle > svg > circle {
+  fill: #7f8C8D;
+}
+
+.default.hht_progress_tracker > .step.completed > .circle > svg > circle {
+  fill: #5FABF1;
+}
+
+.default.hht_progress_tracker > .step > .number {
+  position: absolute;
+  top: 5px; width: 30px; height: 30px;
+  font-size: 16px;
+  color: #FFF;
+  vertical-align: middle;
+  text-align: center;
+  line-height: 30px;
+}
+
+.default.hht_progress_tracker > .step > .label {
+  position: absolute;
+  left: 0px; right: 0px; top: 40px; height: 30px;
+  font-size: 16px;
+  vertical-align: middle;
+  line-height: 30px;
+}
+
+.default.hht_progress_tracker > .step.first > .label {
+  text-align: left;
+}
+
+.default.hht_progress_tracker > .step.middle > .label {
+  text-align: center;
+}
+
+.default.hht_progress_tracker > .step.last > .label {
+  text-align: right;
+}
+
+.default.hht_progress_tracker > .step.completed > .label {
+  color: #5FABF1;
+}

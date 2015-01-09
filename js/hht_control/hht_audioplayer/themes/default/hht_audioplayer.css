@@ -1,0 +1,16 @@
+.default.hht_audioplayer {
+  cursor: pointer;
+}
+
+.default.hht_audioplayer > .button {
+  position: absolute;
+  left: 0px; top: 0px; right: 0px; bottom: 0px;
+}
+
+.default.hht_audioplayer > .button > svg {
+  fill: #7f8C8D;
+}
+
+.default.hht_audioplayer:hover > .button > svg {
+  fill: #5FABF1;
+}

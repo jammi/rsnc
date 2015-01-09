@@ -1,0 +1,15 @@
+.hht_notification {
+  position: absolute;
+  top: 100px; height: 40px;
+  background-color: white;
+  font-size: 14px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 40px;
+  color: #000;
+  z-index: 1000;
+  border: 1px #5FABF1 solid;
+  animation: fadein_frames 0.5s;
+  -moz-animation: fadein_frames 0.5s;
+  -webkit-animation: fadein_frames 0.5s;
+}

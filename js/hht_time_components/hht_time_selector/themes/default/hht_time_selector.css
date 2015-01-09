@@ -1,0 +1,72 @@
+.default.hht_time_selector {
+  background-color: #FFF;
+  border-radius: 10px;
+  border: 3px solid #00AEFF;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.default.hht_time_selector > .hours_up {
+  cursor: pointer;
+  position: absolute;
+  left: 15px; top: 0px; width: 30px; height: 30px;
+}
+
+.default.hht_time_selector > .hours {
+  position: absolute;
+  left: 5px; top: 30px; width: 50px; height: 30px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 30px;
+  font-size: 20px;
+}
+
+.default.hht_time_selector > .hours_down {
+  cursor: pointer;
+  position: absolute;
+  left: 15px; top: 60px; width: 30px; height: 30px;
+}
+
+.default.hht_time_selector > .mins_up {
+  cursor: pointer;
+  position: absolute;
+  left: 65px; top: 0px; width: 30px; height: 30px;
+}
+
+.default.hht_time_selector > .mins {
+  position: absolute;
+  left: 55px; top: 30px; width: 50px; height: 30px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 30px;
+  font-size: 20px;
+}
+
+.default.hht_time_selector > .mins_down {
+  cursor: pointer;
+  position: absolute;
+  left: 65px; top: 60px; width: 30px; height: 30px;
+}
+
+.default.hht_time_selector svg {
+  position: absolute;
+  left: 5px; top: 5px; width: 20px; height: 20px;
+}
+
+.default.hht_time_selector > .mins_down:hover > svg,
+.default.hht_time_selector > .mins_up:hover > svg,
+.default.hht_time_selector > .hours_down:hover > svg,
+.default.hht_time_selector > .hours_up:hover > svg {
+  fill: #5FABF1;
+  stroke: #5FABF1;
+}
+
+.default.hht_time_selector > .am_pm {
+  position: absolute;
+  left: 90px; top: 30px; width: 50px; height: 30px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 30px;
+  font-size: 20px;
+}
