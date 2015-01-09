@@ -44,13 +44,13 @@
 }
 
 .mobile.hht_button.enabled.active > .icon > svg {
-  fill: #00AEEF;
-  stroke: #00AEEF;
+  fill: #5FABF1;
+  stroke: #5FABF1;
 }
 
 /*Blue*/
 .mobile.hht_button.blue {
-  border-color: #00AEEF;
+  border-color: #5FABF1;
   background-color: #FFF;
 }
 .mobile.hht_button.blue.disabled {
@@ -61,7 +61,7 @@
   border-width: 3px;
 }
 .mobile.hht_button.blue > .label {
-  color: #00AEEF;
+  color: #5FABF1;
 }
 .mobile.hht_button.blue.disabled > .label {
   color: #7f8C8D;
@@ -122,5 +122,5 @@
   color: #7f8C8D;
 }
 .mobile.hht_button.white.enabled.active > .label {
-  color: #00AEEF;
+  color: #5FABF1;
 }

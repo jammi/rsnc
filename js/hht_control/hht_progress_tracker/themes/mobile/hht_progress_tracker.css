@@ -24,7 +24,7 @@
 }
 
 .mobile.hht_progress_tracker > .step.completed > .circle > svg > circle {
-  fill: #00AEEF;
+  fill: #5FABF1;
 }
 
 .mobile.hht_progress_tracker > .step > .number {
@@ -58,5 +58,5 @@
 }
 
 .mobile.hht_progress_tracker > .step.completed > .label {
-  color: #00AEEF;
+  color: #5FABF1;
 }

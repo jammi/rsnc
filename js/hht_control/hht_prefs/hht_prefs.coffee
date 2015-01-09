@@ -1,19 +1,19 @@
 HHT_PREFS =
   calendarColors: 
-    exercise: '#00AEEF'
-    my: '#00AEEF'
+    exercise: '#5FABF1'
+    my: '#5FABF1'
     team: '#F39C12'
     shared: '#27AE60'
   tableColors: 
-    my: '#00AEEF'
+    my: '#5FABF1'
     team: '#F39C12'
     shared: '#27AE60'
   folderColors: 
-    my: '#00AEEF'
+    my: '#5FABF1'
     team: '#F39C12'
     shared: '#27AE60'
   contactColors:
-    my: '#00AEEF'
+    my: '#5FABF1'
     team: '#F39C12'
     club: '#F39C12'
     league: '#F39C12'
@@ -43,12 +43,13 @@ HHT_COLORS =
     '#31AF70' #Green2  #10
     '#8E44AD' #Pink2   #11
     '#9B7CD2' #Pink 3  #12
-    '#8B572A', #Brown  #13
-    '#7ED321', #Green 3 #14
-    '#F5A623', #Orange  #15
-    '#4C4C4C', #Light Black #16
-    '#B8E986', #Light Light Green #17
+    '#8B572A' #Brown  #13
+    '#7ED321' #Green 3 #14
+    '#F5A623' #Orange  #15
+    '#4C4C4C' #Light Black #16
+    '#B8E986' #Light Light Green #17
   ]
 
   get:( i ) ->
+    i = parseInt( i )
     @palette[ i % @palette.length ]

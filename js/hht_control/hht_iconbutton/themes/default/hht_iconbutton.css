@@ -25,8 +25,8 @@
 }
 
 .default.hht_iconbutton:hover > .icon > svg {
-  fill: #00AEEF;
-  stroke: #00AEEF;
+  fill: #5FABF1;
+  stroke: #5FABF1;
 }
 
 .default.hht_iconbutton > .icon > svg > * > .bg {
@@ -40,8 +40,8 @@
 }
 
 .default.hht_iconbutton:hover > .icon > svg > * > .bg {
-  stroke: #00AEEF;
-  fill: #00AEEF;
+  stroke: #5FABF1;
+  fill: #5FABF1;
 }
 
 .default.hht_iconbutton:hover > .icon > svg > * > .border {

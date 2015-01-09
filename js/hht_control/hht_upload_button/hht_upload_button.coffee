@@ -53,6 +53,7 @@ HHTUploadButton = HControl.extend
     @button.setIcon( _icon )
 
   setUploadKey: ( _uploadKey ) ->
+    @uploadKey = null
     @button.setLabel( @options.label )
     @button.setEnabled( true )
     @setStyleOfPart( 'form', 'visibility', 'inherit' )
@@ -90,7 +91,8 @@ HHTUploadButton = HControl.extend
           @getNewUploadKey()
 
   upload: ->
-    @setValue( '1:::' + @uploadKey )
+    if @uploadKey?
+      @setValue( '1:::' + @uploadKey )
 
   getNewUploadKey: ->
     @setValue( '4:::' + @uploadKey )

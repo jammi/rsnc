@@ -1,26 +1,27 @@
-HHTFullScreenView = HControl.extend
-
-  constructor: (_rect, _parent, _options) ->
-    @base( _rect, _parent, _options )
-    @_onFullScreenChangeEventListener = ( e ) => @_onFullScreenChange()
-    document.addEventListener( 'fullscreenchange', @_onFullScreenChangeEventListener )
-    document.addEventListener( 'mozfullscreenchange', @_onFullScreenChangeEventListener )
-    document.addEventListener( 'webkitfullscreenchange', @_onFullScreenChangeEventListener )
-    ELEM.setStyle( @elemId, 'background-color', '#FFF' )
+HHTFullScreenView = UtilMethods.extend
 
   die: ->
-    document.removeEventListener( 'fullscreenchange', @_onFullScreenChangeEventListener )
-    document.removeEventListener( 'mozfullscreenchange', @_onFullScreenChangeEventListener )
-    document.removeEventListener( 'webkitfullscreenchange', @_onFullScreenChangeEventListener )
+    if @_listenersActivated == true
+      document.removeEventListener( 'fullscreenchange', @_onFullScreenChangeEventListener )
+      document.removeEventListener( 'mozfullscreenchange', @_onFullScreenChangeEventListener )
+      document.removeEventListener( 'webkitfullscreenchange', @_onFullScreenChangeEventListener )
     @base()
 
   _isFullScreen: ->
     ( document.fullScreenElement? || document.mozFullScreen || document.webkitIsFullScreen )
 
-  onFullScreenChange: ( _isFullScreen ) ->
-    true
+  _requestFullScreen: ( _targetView ) ->
+    unless @_listenersActivated
+      @_onFullScreenChangeEventListener = ( e ) => @_onFullScreenChange()
+      document.addEventListener( 'fullscreenchange', @_onFullScreenChangeEventListener )
+      document.addEventListener( 'mozfullscreenchange', @_onFullScreenChangeEventListener )
+      document.addEventListener( 'webkitfullscreenchange', @_onFullScreenChangeEventListener )
+      @_listenersActivated = true
 
-  _requestFullScreen: ->
+    if _targetView?
+      @_targetView = _targetView
+    else
+      @_targetView = @
     _elem = ELEM.get( @app.elemId )
     if _elem.requestFullScreen?
       _elem.requestFullScreen()
@@ -32,29 +33,22 @@ HHTFullScreenView = HControl.extend
 
   _onFullScreenChange: ( e ) ->
     if @_isFullScreen()
-      @_oldParent = @parent
-      @_oldLeft = ELEM.getStyle( @elemId, 'left' )
-      @_oldTop = ELEM.getStyle( @elemId, 'top' )
-      @_oldRight = ELEM.getStyle( @elemId, 'right' )
-      @_oldBottom = ELEM.getStyle( @elemId, 'bottom' )
-      @_oldZIndex = ELEM.getStyle( @elemId, 'z-index' )
-      @parent.removeView( @viewId )
-      @app.addView( @ )
-      ELEM.moveToParent( @elemId, @app.elemId )
-      ELEM.setStyle( @elemId, 'left', 0 )
-      ELEM.setStyle( @elemId, 'top', 0 )
-      ELEM.setStyle( @elemId, 'right', 0 )
-      ELEM.setStyle( @elemId, 'bottom', 0 )
-      ELEM.setStyle( @elemId, 'z-index', 30000 )
+      @_oldParent = @_targetView.parent
+      @_oldRect = @_targetView.rect.toArray()
+      @_oldZIndex = ELEM.getStyle( @_targetView.elemId, 'z-index' )
+      @parent.removeView( @_targetView.viewId )
+      @app.addView( @_targetView )
+      ELEM.moveToParent( @_targetView.elemId, @app.elemId )
+      @_targetView.setRect( [ 0, 0, null, null, 0, 0 ] )
+      @_targetView.drawRect()
+      ELEM.setStyle( @_targetView.elemId, 'z-index', 30000 )
     else
-      @app.removeView( @viewId )
-      @_oldParent.addView( @ )
-      ELEM.moveToParent( @elemId, @_oldParent.elemId )
+      @app.removeView( @_targetView.viewId )
+      @_oldParent.addView( @_targetView )
+      ELEM.moveToParent( @_targetView.elemId, @_oldParent.elemId )
 
-      ELEM.setStyle( @elemId, 'left', @_oldLeft )
-      ELEM.setStyle( @elemId, 'top', @_oldTop )
-      ELEM.setStyle( @elemId, 'right', @_oldRight )
-      ELEM.setStyle( @elemId, 'bottom', @_oldBottom )
+      @_targetView.setRect( @_oldRect )
+      @_targetView.drawRect()
       ELEM.setStyle( @elemId, 'z-index', @_oldZIndex )
     @onFullScreenChange( @_isFullScreen() )
     setTimeout( ( => 

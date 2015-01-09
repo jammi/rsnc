@@ -4,9 +4,10 @@
   border-style: solid;
   border-radius: 5px;
   border-width: 2px;
-  box-sizing:border-box;
-  -moz-box-sizing:border-box;
-  -webkit-box-sizing:border-box;
+  margin: -1px 1px 1px -1px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
   -webkit-transition-property: color, background; 
   -webkit-transition-duration: 0.2s, 0.2s; 
   -webkit-transition-timing-function: linear, ease-in;
@@ -63,13 +64,13 @@
 
 .default.hht_button:hover > .icon > svg,
 .default.hht_button.enabled.active > .icon > svg {
-  fill: #00AEEF;
-  stroke: #00AEEF;
+  fill: #5FABF1;
+  stroke: #5FABF1;
 }
 
 /*Cancel Button*/
 .default.hht_button.cancel:hover > .icon > svg {
-  fill: #00AEEF;
+  fill: #5FABF1;
 }
 .default.hht_button.cancel:hover > .icon > svg > * > .border {
   fill: #FFF;
@@ -81,7 +82,7 @@
 
 /*Complete Button*/
 .default.hht_button.complete:hover > .icon > svg {
-  fill: #00AEEF;
+  fill: #5FABF1;
 }
 .default.hht_button.complete:hover > .icon > svg > * > .border {
   fill: #FFF;
@@ -93,11 +94,11 @@
 
 /*Blue*/
 .default.hht_button.blue {
-  border-color: #00AEEF;
+  border-color: #5FABF1;
   background-color: #FFF;
 }
 .default.hht_button.blue:hover {
-  background-color: #00AEEF;
+  background-color: #5FABF1;
 }
 .default.hht_button.blue.disabled {
   background-color: #FFF;
@@ -107,7 +108,7 @@
   border-width: 3px;
 }
 .default.hht_button.blue > .label {
-  color: #00AEEF;
+  color: #5FABF1;
 }
 .default.hht_button.blue.disabled > .label {
   color: #7f8C8D;
@@ -185,8 +186,8 @@
   color: #7f8C8D;
 }
 .default.hht_button.white.enabled:hover > .label {
-  color: #00AEEF;
+  color: #5FABF1;
 }
 .default.hht_button.white.enabled.active > .label {
-  color: #00AEEF;
+  color: #5FABF1;
 }

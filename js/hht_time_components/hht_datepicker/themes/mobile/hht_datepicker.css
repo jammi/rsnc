@@ -78,8 +78,8 @@
 }
 
 .mobile.hht_datepicker.enabled > .icon:hover > svg {
-  fill: #00AEEF;
-  stroke: #00AEEF;
+  fill: #5FABF1;
+  stroke: #5FABF1;
 }
 
 .mobile.hht_datepicker.show_weekday > .bg {

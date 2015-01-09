@@ -15,7 +15,7 @@ HHTPopup = HView.extend
       _rect = [ 3, 3, null, null, 3, 18 ]
     if @options.direction == 'bottom'
       _rect = [ 3, 18, null, null, 3, 3 ]
-    @_view = HControl.extend(
+    _parentView = HControl.extend(
       defaultEvents:
         resize: true
       resize: ->
@@ -29,18 +29,38 @@ HHTPopup = HView.extend
         else
           HHTPopupManager.closePopup()
     ).new( _rect, @ )
+
+    [ w, h ] = ELEM.getSize( @elemId )
+    if @options.barbXOffset != 0
+      @setStyleOfPart( 'barb', 'left', ( w / 2 + @options.barbXOffset - 15 ) + 'px')
+    if @options.barbYOffset != 0
+      @setStyleOfPart( 'barb', 'top', ( h / 2 + @options.barbYOffset - 15 ) + 'px' )
+
     @setStyle( 'pointer-events', 'none' )
+    @setCSSClass( @options.direction )
+    @setCSSClass( 'popup_anim' )
+
+    _view = @options.viewClass.new( [ 10, 10, null, null, 10, 10 ], _parentView, @options.viewOpts )
+    _closeButton = HHTIconButton.new( [ null, 5, 30, 30, 5, null ], _parentView,
+      type: 'close'
+      iconSize: 10
+      click: => HHTPopupManager.closePopup()
+    )
+    _view.setStyle( 'pointer-events', 'auto' )
+    _closeButton.setStyle( 'pointer-events', 'auto' )
+    EVENT.changeActiveControl( _parentView )
+    ELEM.flush()
     true
 
 HHTPopupManager =
-  popup: null
+  _popup: null
 
   closePopup: ->
-    _popup = @popup
-    @popup = null
-    if _popup?
-      _popup.hide()
-      _popup.dieSoon()
+    _p = @_popup
+    @_popup = null
+    if _p?
+      _p.hide()
+      _p.dieSoon()
 
   newPopup: ( _rect, _parent, _class, _opts ) ->
     @closePopup()
@@ -52,6 +72,7 @@ HHTPopupManager =
     else
       [ tx, ty, tw, th ] = [ x, y, 1, 1 ]
     y = ty  + ( th - h ) / 2
+    [ _barbXOffset, _barbYOffset ] = [ 0, 0 ]
     if _parent.elemId
       [ _parentW, _parentH ] = ELEM.getSize( _parent.elemId )
     else
@@ -59,21 +80,24 @@ HHTPopupManager =
     if x > _parentW - w
       x = tx - w
       _direction = 'left'
-      _viewRect = [ 10, 10, null, null, 10, 10 ]
     else
       _direction = 'right'
-      _viewRect = [ 10, 10, null, null, 10, 10 ]
 
-    @popup = HHTPopup.new( [ x, y, w, h ], _parent,
+    if y < 0
+      _barbYOffset = y
+      y = 0
+    if y > _parentH - h
+      _barbYOffset = y - ( _parentH - h )
+      y = _parentH - h
+
+    @_popup = HHTPopup.new( [ x, y, w, h ], _parent,
+      viewClass: _class
+      viewOpts: _opts
       direction: _direction
+      barbXOffset: _barbXOffset
+      barbYOffset: _barbYOffset
     )
-    ELEM.addClassName( @popup.elemId, _direction )
-    ELEM.addClassName( @popup.elemId, 'popup_anim' )
-    _view = _class.new( _viewRect, @popup._view, _opts )
-    _view.setStyle( 'pointer-events', 'auto' )
-    EVENT.changeActiveControl( @popup._view )
-    ELEM.flush()
-    @popup
+    @_popup
 
   newVPopup: ( _rect, _parent, _class, _opts ) ->
     @closePopup()
@@ -85,6 +109,7 @@ HHTPopupManager =
     else
       [ tx, ty, tw, th ] = [ x, y, 1, 1 ]
     x = tx  + ( tw - w ) / 2
+    [ _barbXOffset, _barbYOffset ] = [ 0, 0 ]
 
     if _parent.elemId
       [ _parentW, _parentH ] = ELEM.getSize( _parent.elemId )
@@ -93,18 +118,21 @@ HHTPopupManager =
     if y > _parentH - h
       y = ty - h
       _direction = 'top'
-      _viewRect = [ 10, 10, null, null, 10, 10 ]
     else
       _direction = 'bottom'
-      _viewRect = [ 10, 10, null, null, 10, 10 ]
 
-    @popup = HHTPopup.new( [ x, y, w, h ], _parent,
+    if x < 0
+      _barbXOffset = x
+      x = 0
+    if x > _parentW - w
+      _barbXOffset = x - ( _parentW - w )
+      x = _parentW - w
+
+    @_popup = HHTPopup.new( [ x, y, w, h ], _parent,
+      viewClass: _class
+      viewOpts: _opts
       direction: _direction
+      barbXOffset: _barbXOffset
+      barbYOffset: _barbYOffset
     )
-    ELEM.addClassName( @popup.elemId, _direction )
-    ELEM.addClassName( @popup.elemId, 'popup_anim' )
-    _view = _class.new( _viewRect, @popup._view, _opts )
-    _view.setStyle( 'pointer-events', 'auto' )
-    EVENT.changeActiveControl( @popup._view )
-    ELEM.flush()
-    @popup
+    @_popup

@@ -8,7 +8,7 @@
 
 .mobile.hht_checkbox > .icon {
   position: absolute; 
-  left: 2px; top: top: 7px; width: 16px; height: 16px;
+  left: 2px; top: 7px; width: 16px; height: 16px;
   margin-top: auto;
   margin-bottom: auto;
 }
@@ -20,7 +20,7 @@
 
 .mobile.hht_checkbox.active > .icon > svg,
 .mobile.hht_checkbox.enabled:hover > .icon > svg {
-  fill: #00AEEF;
+  fill: #5FABF1;
 }
 
 .mobile.hht_checkbox > .label {
@@ -45,5 +45,5 @@
 
 .mobile.hht_checkbox.active > .label,
 .mobile.hht_checkbox.enabled:hover > .label {
-  color: #00AEEF;
+  color: #5FABF1;
 }

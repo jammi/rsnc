@@ -33,7 +33,7 @@ HHTProgressTracker = HControl.extend
       classes: [ 'step', _pos ]
     )
 
-    unless @options.theme == 'mobile'
+    unless @theme == 'mobile'
       _labelElem = ELEM.make( _stepElem, 'div',
         html: _label
         classes: ['label']

@@ -127,6 +127,21 @@
   -webkit-transform-origin: 50% 100%;
 }
 
+@keyframes popup_frames {
+  from { transform: scale(0.2) }
+  to { transform: scale(1) }
+}
+
+@-ms-keyframes popup_frames {
+  from { -ms-transform: scale(0.2) }
+  to { -ms-transform: scale(1) }
+}
+
+@-moz-keyframes popup_frames {
+  from { -moz-transform: scale(0.2) }
+  to { -moz-transform: scale(1) }
+}
+
 @-webkit-keyframes popup_frames {
   from { -webkit-transform: scale(0.2) }
   to { -webkit-transform: scale(1) }

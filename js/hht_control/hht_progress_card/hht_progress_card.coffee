@@ -8,29 +8,19 @@ HHTProgressCard = HHTCard.extend
     tabOpts: []
 
   _drawTitle: ->
-    if @options.theme == 'mobile'
-      _rect = [ 21, 14, null, 30, 20, null ]
-    else
-      _rect = [ 20, 20, null, 38, 20, null ]
-    @_title = HHTCardTitle.new( _rect, @,
-      value: ''
-      style: { fontSize: '25px' }
-    )
-    if @options.theme == 'mobile'
-      _rect = [ 0, 46, null, 2, 0, null ]
-    else
-      _rect = [ 20, 58, null, 2, 20, null ]
-    HView.new( _rect, @,
-      style: { borderBottom: '2px solid #00AEEF' }
-    )
+    if @theme != 'mobile'
+      @_title = HHTCardTitle.new( [ 20, 20, null, 38, 20, null ], @,
+        value: ''
+        style: { fontSize: '25px' }
+        showLine: true
+      )
 
   _drawTracker: ->
-    if @options.theme == 'mobile'
+    if @theme == 'mobile'
       _rect = [ 20, null, null, 40, 20, 70 ]
     else
       _rect = [ 20, null, null, 70, 20, 60 ]
     @_tracker = HHTProgressTracker.new( _rect, @,
-      theme: @options.theme
       bind: @options.bind
       items: @options.tabTitles
     )
@@ -46,7 +36,7 @@ HHTProgressCard = HHTCard.extend
       @setValue( @value + 1 )
 
   _drawButtons: ->
-    if @options.theme == 'mobile'
+    if @theme == 'mobile'
       _rect = [ 20, null, 120, 45, null, 10 ]
     else
       _rect = [ 20, null, 110, 35, null, 20 ]
@@ -54,7 +44,7 @@ HHTProgressCard = HHTCard.extend
       label: ''
       click: => @_prevButtonClick()
     )
-    if @options.theme == 'mobile'
+    if @theme == 'mobile'
       _rect = [ null, null, 120, 45, 20, 10 ]
     else
       _rect = [ null, null, 110, 35, 20, 20 ]
@@ -86,8 +76,8 @@ HHTProgressCard = HHTCard.extend
       _opts = @options.tabOpts[@value]
     else
       _opts = {}
-    if @options.theme == 'mobile'
-      _rect = [ 20, 50, null, null, 20, 115 ]
+    if @theme == 'mobile'
+      _rect = [ 20, 10, null, null, 20, 115 ]
     else
       _rect = [ 20, 60, null, null, 20, 140 ]
     @_content = _class.new( _rect, @, _opts )
@@ -97,7 +87,8 @@ HHTProgressCard = HHTCard.extend
       _title = @options.tabTitles[@value]
     else
       _title = ''
-    @_title.setValue( _title )
+    if @_title?
+      @_title.setValue( _title )
     _prevLabel = @_content.prevLabel()
     _nextLabel = @_content.nextLabel()
     if _prevLabel?

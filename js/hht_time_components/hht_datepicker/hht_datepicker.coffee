@@ -141,7 +141,9 @@ HHTDatePicker = HControl.extend
     @hasTextFocus = false
     @_textFocusFn = => @textFocus()
     @_textBlurFn = => @textBlur()
-    @_iconClickFn = => @openCalendar()
+    @_iconClickFn = =>
+      if @enabled
+        @openCalendar()
     Event.observe( @markupElemIds.value, 'focus', @_textFocusFn )
     Event.observe( @markupElemIds.value, 'blur', @_textBlurFn )
     Event.observe( @markupElemIds.weekday, 'click', @_iconClickFn )

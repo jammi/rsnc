@@ -2,7 +2,7 @@
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
-  background-color: #00AEEF;
+  background-color: #5FABF1;
   border-radius: 10px;
 }
 
@@ -99,6 +99,6 @@
 }
 
 .default.hht_mini_calendar > .days > .day:hover > .number {
-  background-color: #00AEEF;
+  background-color: #5FABF1;
   color: #FFF;
 }

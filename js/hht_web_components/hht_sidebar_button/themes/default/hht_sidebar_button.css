@@ -23,7 +23,7 @@
 .default.hht_sidebar_button > .mark {
   position: absolute;
   top: 0px; left: 0px; width: 7px; bottom: 0px;
-  background-color: #00AEEF;
+  background-color: #5FABF1;
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
 }
@@ -45,5 +45,5 @@
 }
 
 .default.hht_sidebar_button:hover > .label {
-  color: #00AEEF;
+  color: #5FABF1;
 }

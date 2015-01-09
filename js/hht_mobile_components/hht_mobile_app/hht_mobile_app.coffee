@@ -7,10 +7,13 @@ HHTMobileApp = HHTGUIApp.extend
     @base()
 
   constructor: ( _options ) ->
+    @_round = 0
     @_wrappers = []
+    @_visibleWrappers = []
     @viewIndex = 0
-    @hashTag = "#{_options.label}"
+    @hashTag = "#/#{_options.label}"
     @base( _options )
+    @_checkDefaultView()
     @_screenRotateFn = => @_onScreenRotated()
     Event.observe( window, 'orientationchange', @_screenRotateFn )
 
@@ -20,9 +23,9 @@ HHTMobileApp = HHTGUIApp.extend
   prevPage: ->
     history.go( -1 )
 
-  changeSubview: ( _name ) ->
+  changeSubview: ( _index ) ->
     unless @options.disableHashTag
-      location.href = "#/#{@hashTag}/#{_name}"
+      location.href = "#{@hashTag}/#{_index}"
     true
 
   isHorizontal: ->
@@ -51,12 +54,12 @@ HHTMobileApp = HHTGUIApp.extend
   setViewIndex: ( _viewIndex ) ->
     @viewIndex = _viewIndex
 
-  addSubview: ( _class, _opts, _activate ) ->
-    _app = @
+  addSubview: ( _class, _opts, _active ) ->
     _opts = {} unless @typeChr( _opts ) == 'h'
     _index = @_wrappers.length
     @_wrappers.push HClass.extend(
-      constructor: ( _hashTag, _index, _enabled ) ->
+      constructor: ( _app, _hashTag, _index, _enabled ) ->
+        @_app = _app
         @_hashTag = _hashTag
         @_index = _index
         @_enabled = _enabled
@@ -68,21 +71,43 @@ HHTMobileApp = HHTGUIApp.extend
           @_content = null
         if @_enabled
           COMM.urlResponder.delResponder( "#{@_hashTag}/#{@_index}", @ )
+        @_delFromList()
       show: ->
         unless @_content?
-          @_content = _class.new( _app._viewRect(), _app, _opts )
-          _app.setViewIndex( @_index )
+          @_content = _class.new( @_app._viewRect(), @_app, _opts )
+          @_app.setViewIndex( @_index )
           ELEM.flush()
           HSystem._updateFlexibleRects()
+          @_addToList()
       hide: ->
         if @_content?
           @_content.die()
           @_content = null
+        @_delFromList()
+
+      _addToList: ->
+        @_app._visibleWrappers.push( @_index )
+
+      _delFromList: ->
+        i = @_app._visibleWrappers.indexOf( @_index )
+        @_app._visibleWrappers.splice( i, 1 )
+
     ).nu(
+      @,
       @hashTag,
       _index,
       ( @options.disableHashTag != true )
     )
-    if _activate
+    if _active
       @changeSubview( _index )
     true
+
+  _checkDefaultView: ->
+    return if @options.disableHashTag
+    if @_visibleWrappers.length == 0
+      _regex = new RegExp( @hashTag )
+      if _regex.test( location.href )
+        location.replace( "#{@hashTag}/#{0}" )
+
+  onIdle: ->
+    @_checkDefaultView()

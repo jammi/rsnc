@@ -20,7 +20,7 @@
 
 .default.hht_checkbox.active > .icon > svg,
 .default.hht_checkbox.enabled:hover > .icon > svg {
-  fill: #00AEEF;
+  fill: #5FABF1;
 }
 
 .default.hht_checkbox > .label {
@@ -45,5 +45,5 @@
 
 .default.hht_checkbox.active > .label,
 .default.hht_checkbox.enabled:hover > .label {
-  color: #00AEEF;
+  color: #5FABF1;
 }

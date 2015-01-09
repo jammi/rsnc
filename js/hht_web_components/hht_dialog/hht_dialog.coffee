@@ -127,11 +127,6 @@ HHTTextControlDialog = HHTYesNoDialog.extend
     true
 
   drawContent: ->
-    HHTCardTitle.new( [ 20, 20, null, 35, 20, null ], @subview,
-      value: @options.title
-      style:
-        borderBottom: '#00AAEF 2px solid'
-    )
     @editor = HHTTextControl.extend(
       refreshValue: ->
         @base()

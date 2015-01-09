@@ -9,7 +9,7 @@
   cursor: pointer;
   top: 0px; left: 0px; right: 0px; bottom: 0px;
   background: #FFF;
-  border-bottom: 2px solid #00AEEF;
+  border-bottom: 2px solid #5FABF1;
 }
 
 .default.hht_accordion_item > .label {
@@ -26,7 +26,7 @@
 
 .default.hht_accordion_item:hover > .label,
 .default.hht_accordion_item.selected > .label {
-  color: #00AEEF;
+  color: #5FABF1;
 }
 
 .default.hht_accordion_item > .button {
@@ -47,8 +47,8 @@
 }
 
 .default.hht_accordion_item > .button:hover > svg {
-  fill: #00AEEF;
-  stroke: #00AEEF;
+  fill: #5FABF1;
+  stroke: #5FABF1;
 }
 
 .default.hht_accordion_item > .indicator {

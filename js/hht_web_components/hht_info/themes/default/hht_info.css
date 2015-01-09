@@ -12,7 +12,7 @@
 }
 
 .default.hht_info:hover > .icon > svg {
-  fill: #00AEEF;
+  fill: #5FABF1;
 }
 
 .default.hht_info > .label {
@@ -26,5 +26,5 @@
 }
 
 .default.hht_info:hover > .label {
-  color: #00AEEF;
+  color: #5FABF1;
 }

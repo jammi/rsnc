@@ -58,8 +58,8 @@
 .default.hht_time_selector > .mins_up:hover > svg,
 .default.hht_time_selector > .hours_down:hover > svg,
 .default.hht_time_selector > .hours_up:hover > svg {
-  fill: #00AEEF;
-  stroke: #00AEEF;
+  fill: #5FABF1;
+  stroke: #5FABF1;
 }
 
 .default.hht_time_selector > .am_pm {

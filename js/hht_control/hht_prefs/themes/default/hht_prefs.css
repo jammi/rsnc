@@ -25,6 +25,10 @@
   outline: 0;
 }
 
+.click_anim:active {
+  background-color: #D4EBFA;
+}
+
 .icon32 {
   position: absolute;
   width: 32px; height: 32px;

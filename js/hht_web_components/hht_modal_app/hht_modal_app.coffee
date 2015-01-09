@@ -25,7 +25,7 @@ HHTModalApp = HHTGUIApp.extend
     true
 
   addItem: ( _class, _w, _h, _opts ) ->
-    if @options.theme == 'mobile'
+    if @theme == 'mobile'
       [ _w, _h ] = ELEM.windowSize()
     [ _x, _y ] = @_calcPos( _w, _h )
     _item = _class.new( [ _x, _y, _w, _h ], @view, _opts )

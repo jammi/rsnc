@@ -20,7 +20,7 @@
 }
 
 .default.hht_table_indicator > .item:hover circle {
-  stroke: #00AEEF;
+  stroke: #5FABF1;
   fill: #FFF;
   animation: fadein_frames 1s;
   -moz-animation: fadein_frames 1s;
@@ -28,16 +28,16 @@
 }
 
 .default.hht_table_indicator > .item:hover path {
-  stroke: #00AEEF;
+  stroke: #5FABF1;
 }
 
 .default.hht_table_indicator > .item.selected circle {
-  fill: #00AEEF;
+  fill: #5FABF1;
 }
 
 .default.hht_table_indicator > .item.selected:hover circle {
   stroke: none;
-  fill: #00AEEF;
+  fill: #5FABF1;
   animation: none;
   -moz-animation: none;
   -webkit-animation: none;
@@ -57,7 +57,7 @@
 }
 
 .default.hht_table_indicator > .item:hover > .number {
-  color: #00AEEF; 
+  color: #5FABF1; 
 }
 
 .default.hht_table_indicator > .item.selected:hover > .number {
