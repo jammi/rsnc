@@ -1,6 +1,6 @@
 HHTOnOffButton = HControl.extend
   componentName: 'hht_onoffbutton'
-  markupElemNames: [ 'on', 'off' ]
+  markupElemNames: [ 'on', 'off', 'on_label', 'off_label' ]
   controlDefaults: HControlDefaults.extend
     onValue: true
     offValue: false
@@ -14,18 +14,23 @@ HHTOnOffButton = HControl.extend
     @_clickOnFn = =>
       if @enabled
         if @value != @options.onValue
+          _oldValue = @value
           @setValue( @options.onValue )
-          @options.onChange( @ )
+          @options.onChange( @, _oldValue, @value )
         @options.onOnClick( @ )
     @_clickOffFn = =>
       if @enabled
         if @value != @options.offValue
+          _oldValue = @value
           @setValue( @options.offValue )
-          @options.onChange( @ )
+          @options.onChange( @, _oldValue, @value )
         @options.onOffClick( @ )
       true
     Event.observe( @markupElemIds.on, 'click', @_clickOnFn )
     Event.observe( @markupElemIds.off, 'click', @_clickOffFn )
+    if @theme == 'mobile'
+      @setStyleOfPart( 'on_label', 'line-height', @rect.height + 'px' )
+      @setStyleOfPart( 'off_label', 'line-height', @rect.height + 'px' )
 
   die: ->
     Event.stopObserving( @markupElemIds.on, 'click', @_clickOnFn )

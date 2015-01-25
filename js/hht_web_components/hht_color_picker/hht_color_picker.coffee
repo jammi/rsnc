@@ -7,6 +7,12 @@ HHTColorPicker = HControl.extend
   controlDefaults: HControlDefaults.extend
     colors: [ 10, 0, 13, 5, 14, 11, 9, 15, 16, 6, 17 ]
 
+  die: ->
+    if @_selItem?
+      ELEM.del( @_selItem )
+      @_selItem = null
+    @base()
+
   click: ( x, y ) ->
     return unless @enabled
     for _item, i in @_items
@@ -42,6 +48,6 @@ HHTColorPicker = HControl.extend
     for _color in @options.colors
       @_items.push @_makeItem( HHT_COLORS.get( _color ), _left )
       _left += 30
-    unless @value >= 0
-      @setValue( 0 ) 
+    unless @value in @options.colors
+      @setValue( @options.colors[0] )
     true

@@ -302,12 +302,18 @@ HView = UtilMethods.extend({
     // adds the parentClass as a "super" object
     this.parent = _parent;
 
-    this.appId = this.parent.appId;
-    this.app = HSystem.apps[this.appId];
-
     if( !_options ){
       _options = {};
     }
+
+    if( HSystem.apps[_options.appId] !== undefined ) {
+      this.appId = _options.appId;
+    } else {
+      this.appId = this.parent.appId;
+    }
+    this.app = HSystem.apps[this.appId];
+
+
     if(!this.isinherited){
       _options = (this.viewDefaults.extend(_options)).nu(this);
     }
@@ -2048,13 +2054,10 @@ HView = UtilMethods.extend({
     return ELEM._getVisibleTopPosition( this.elemId );
   },
 
-  inElem: function( _elem, x, y ) {
-    var _pos = ELEM.getVisiblePosition( _elem );
-    var _size = ELEM.getSize( _elem );
-    return !( x < _pos[0] || 
-              x > _pos[0] + _size[0] || 
-              y < _pos[1] ||
-              y > _pos[1] + _size[1] );
+  inElem: function( _elemId, x, y ) {
+    var p = ELEM.getVisiblePosition( _elemId, true );
+    var s = ELEM.getSize( _elemId );
+    return !( x < p[0] || x > p[0] + s[0] || y < p[1] || y > p[1] + s[1] );
   },
 
 /** Set tabindex attribute for element

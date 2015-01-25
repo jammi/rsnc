@@ -72,14 +72,11 @@
 
 .default.hht_mini_calendar > .days > .day > .number {
   position: absolute;
-  left: calc( 50% - 14px );
-  top: calc( 50% - 14px );
-  width: 28px; height: 28px;
+  left: 0px; right: 0px; bottom: 0px;
   font-size: 14px;
   text-align: center;
   vertical-align: middle;
-  line-height: 28px;
-  border-radius: 16px;
+  line-height: 30px;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;

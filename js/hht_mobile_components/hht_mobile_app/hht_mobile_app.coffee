@@ -17,8 +17,8 @@ HHTMobileApp = HHTGUIApp.extend
     @_screenRotateFn = => @_onScreenRotated()
     Event.observe( window, 'orientationchange', @_screenRotateFn )
 
-  _drawView: ->
-    true
+  drawView: ( _rect ) ->
+    null
 
   prevPage: ->
     history.go( -1 )

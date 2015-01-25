@@ -957,9 +957,8 @@ EventManagerApp = HApplication.extend
       # Firefox fires click separately.
       # the handler is contextMenu
       return true
-    if e.type == 'touchend'
-      [ xd, yd ] = @status.mouseDownDiff
-      return true if xd > 25 or yd > 25
+    [ xd, yd ] = @status.mouseDownDiff
+    return true if xd > 25 or yd > 25
     #
     # Focus check here
     #

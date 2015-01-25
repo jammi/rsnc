@@ -41,8 +41,11 @@ HHTDropdown = HControl.extend
   drawMarkup: ->
     @base()
     @toggleCSSClass( @elemId, 'has_icons', @options.iconSource? )
-    @setStyleOfPart( 'label', 'line-height', ELEM.getSize( @elemId )[1] + 'px' )
-    @setStyleOfPart( 'help', 'line-height', ELEM.getSize( @elemId )[1] + 'px' )
+    @setStyleOfPart( 'label', 'line-height', ( ELEM.getSize( @elemId )[1] - 2 ) + 'px' )
+    @setStyleOfPart( 'help', 'line-height', ( ELEM.getSize( @elemId )[1] - 2 )  + 'px' )
+    _styles = @options.style || @options.styles || {}
+    ELEM.setStyles( @markupElemIds.label, _styles )
+    ELEM.setStyles( @markupElemIds.help, _styles )
     @_onFocusFn = => EVENT.changeActiveControl( @ )
     Event.observe( @elemId, 'focus', @_onFocusFn )
     @

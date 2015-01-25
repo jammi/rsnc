@@ -78,7 +78,10 @@ HHTButton = HControl.extend
   
   calcWidth: ->
     _width = @stringWidth( @label, null, @markupElemIds.label )
-    _width += 15
+    if @options.type == 'blue'
+      _width += 25
+    else
+      _width += 15
     _width += 30 if @options.icon
     _width
   

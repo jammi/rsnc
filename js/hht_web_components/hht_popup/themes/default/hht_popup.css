@@ -2,8 +2,8 @@
   position: absolute;
   padding: 0px;
   background: #FFF;
-  border: 1px solid #DDD;
-  border-radius: 8px;
+  border: 1px solid #aaa;
+  border-radius: 6px;
 }
 
 .default.hht_popup.right > .bg {
@@ -28,8 +28,8 @@
   width: 20px;
   height: 20px;
   background: #FFF;
-  border-left: 1px solid #DDD;
-  border-bottom: 1px solid #DDD;
+  border-left: 1px solid #aaa;
+  border-bottom: 1px solid #aaa;
 }
 
 .default.hht_popup.right > .bg > .barb {

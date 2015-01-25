@@ -134,11 +134,11 @@
     - hht_card_title
     - hht_button_bar
     - hht_accordion_list
-    # Table components
     - hht_table
     - hht_table_row
     - hht_table_indicator
     - hht_color_picker
+    - hht_symbol_picker
 
   hht_mobile_components:
     - hht_mobile_app

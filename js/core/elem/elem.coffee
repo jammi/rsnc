@@ -235,35 +235,38 @@ ELEM = HClass.extend
 
   ###
   Calculates the visible left position of an element
+  If _noOwnScoll is true, method not include scrollLeft of element itself.
   ###
-  _getVisibleLeftPosition: (_id)->
+  _getVisibleLeftPosition: (_id,_noOwnScoll)->
     _elem = @_elements[_id]
     x = 0
     while _elem != document.body
       x += _elem.offsetLeft
-      if _elem != @_elements[_id]
+      if !_noOwnScoll or _elem != @_elements[_id]
         x -= _elem.scrollLeft
       _elem = _elem.parentNode
     x
 
   ###
   Calculates the visible top position of an element
+  If _noOwnScoll is true, method not include scrollTop of element itself.
   ###
-  _getVisibleTopPosition: (_id)->
+  _getVisibleTopPosition: (_id,_noOwnScoll)->
     _elem = @_elements[_id]
     y = 0
     while _elem != document.body
       y += _elem.offsetTop
-      if _elem != @_elements[_id]
+      if !_noOwnScoll or _elem != @_elements[_id]
         y -= _elem.scrollTop
       _elem = _elem.parentNode
     y
 
   ###
   Returns the visible position of the element as a [ left, top ] tuple
+  If _noOwnScoll is true, method not include scrollLeft and scrollTop of element itself.
   ###
-  getVisiblePosition: (_id)->
-    [ @_getVisibleLeftPosition(_id), @_getVisibleTopPosition(_id) ]
+  getVisiblePosition: (_id, _noOwnScoll )->
+    [ @_getVisibleLeftPosition(_id,_noOwnScoll), @_getVisibleTopPosition(_id,_noOwnScoll) ]
 
   ###
   Returns the opacity on the element as a number equaling or between 0 and 1

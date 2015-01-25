@@ -1,8 +1,3 @@
-.default.hht_onoffbutton {
-  position: absolute;
-  left: 0; top: 0; right: 0; bottom: 0;
-}
-
 /*Both buttons*/
 .default.hht_onoffbutton > .on, 
 .default.hht_onoffbutton > .off {
@@ -35,10 +30,10 @@
 .default.hht_onoffbutton > .on > .label,
 .default.hht_onoffbutton > .off > .label {
   position: absolute;
-  left: 0px; top: 0px; right: 0px; bottom: 0px;
+  left: 0px; top: calc( 50% - 12px ); right: 0px; height: 24px;
   text-align: center; 
   vertical-align: middle;
-  line-height: 25px;
+  line-height: 24px;
   font-size: 13px;
 }
 
@@ -51,7 +46,7 @@
 
 /*ON button*/
 .default.hht_onoffbutton > .on {
-  left: 0px; top: 0px; width: 47%; height: 25px;
+  left: 0px; top: 0px; width: 47%; bottom: 0px;
 }
 
 .default.hht_onoffbutton > .on.selected > .bg,
@@ -62,7 +57,7 @@
 
 /*OFF button*/
 .default.hht_onoffbutton > .off {
-  right: 0px; top: 0px; width: 47%; height: 25px;
+  right: 0px; top: 0px; width: 47%; bottom: 0px;
 }
 
 .default.hht_onoffbutton > .off.selected > .bg,

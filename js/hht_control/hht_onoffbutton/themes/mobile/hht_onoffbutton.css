@@ -51,7 +51,7 @@
 
 /*ON button*/
 .mobile.hht_onoffbutton > .on {
-  left: 0px; top: 0px; width: 47%; height: 25px;
+  left: 0px; top: 0px; width: 47%; bottom: 0px;
 }
 
 .mobile.hht_onoffbutton > .on.selected > .bg,
@@ -62,7 +62,7 @@
 
 /*OFF button*/
 .mobile.hht_onoffbutton > .off {
-  right: 0px; top: 0px; width: 47%; height: 25px;
+  right: 0px; top: 0px; width: 47%; bottom: 0px;
 }
 
 .mobile.hht_onoffbutton > .off.selected > .bg,

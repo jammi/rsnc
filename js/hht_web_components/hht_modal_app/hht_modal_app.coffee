@@ -66,10 +66,10 @@ HHTModalApp = HHTGUIApp.extend
       _item.offsetTo( _left, _top )
       _left += _item.rect.width + @_gap      
 
-  _drawView: ->
+  drawView: ( _rect ) ->
     @_bg = HControl.new( [ 0, 0, 1000, 640, 0, 0 ], @ )
     ELEM.addClassName( @_bg.elemId, 'bg_anim_start' )
-    @view = HControl.extend(
+    HControl.extend(
       defaultEvents: { resize: true }
       resize: -> @parent.resize()
     ).new( [ 0, 0, 1000, 640, 0, 0 ], @ )

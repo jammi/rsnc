@@ -1,5 +1,6 @@
 HHTCard = HControl.extend
   componentName: 'hht_card'
+  markupElemNames: [ 'title' ]
 
   escKey: ->
     if @options.closeFunction instanceof Function
@@ -27,8 +28,9 @@ HHTCard = HControl.extend
     ELEM.setHTML( @_labelId, _label )
     
   setTitle: ( _title ) ->
-    unless @_titleId
-      @_titleId = ELEM.make( @elemId, 'div',
-        classes: [ 'title' ]
-      )
-    ELEM.setHTML( @_titleId, _title )
+    if @typeChr( _title ) == 's' and _title.length > 0
+      @toggleCSSClass( @elemId, 'show_title', true )
+      ELEM.setHTML( @markupElemIds.title, _title )
+    else
+      @toggleCSSClass( @elemId, 'show_title', false )
+      ELEM.setHTML( @markupElemIds.title, '' )

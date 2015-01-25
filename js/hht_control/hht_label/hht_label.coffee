@@ -31,11 +31,13 @@ HHTLabel = HValueView.extend
   refreshValue: ->
     if @markupElemIds?
       _value = @value
-      if @options.valueKey? and @typeChr( _value ) == 'h'
-        _value = _value[@options.valueKey]
-      if @typeChr( _value ) in [ '~', '-' ]
+      if @options.valueKey?
+        if @typeChr( _value ) == 'h'
+          _value = _value[@options.valueKey]
+        else
+          _value = ''
+      unless @typeChr( _value ) in [ 'n', 's' ]
         _value = ''
-      else
       if @options.prefix
         _value = @options.prefix + _value
       if @options.suffix

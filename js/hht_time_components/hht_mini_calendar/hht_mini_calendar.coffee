@@ -3,7 +3,8 @@ HHTMiniCalendar = HControl.extend
   markupElemNames: [ 'left_arrow', 'right_arrow', 'title', 'days' ]
 
   controlDefaults: HControlDefaults.extend
-    fieldFormat: 'MMMM, YYYY'
+    headerFormat: 'MMMM, YYYY'
+    weekdayFormat: 'D'
     useUTC: true
 
   defaultEvents:
@@ -57,10 +58,10 @@ HHTMiniCalendar = HControl.extend
     _selectedDate = @moment( @value * 1000 )
     _today = @moment()
     _month = @_viewDate.month()
-    ELEM.setHTML( @markupElemIds.title, @_viewDate.format( @options.fieldFormat ) )
+    ELEM.setHTML( @markupElemIds.title, @_viewDate.format( @options.headerFormat ) )
     _date = @moment( @_viewDate.unix() * 1000 ).startOf( 'month' ).startOf( 'week' )
     for _elem in @_days
-      ELEM.setHTML( _elem, '<div class="number">' + _date.format( 'D' ) + '</div>' )
+      ELEM.setHTML( _elem, '<div class="number">' + _date.format( @options.weekdayFormat ) + '</div>' )
       @toggleCSSClass( _elem, 'active_month', _date.month() == _month )
       @toggleCSSClass( _elem, 'selected', _date.isSame( _selectedDate, 'day' ) )
       @toggleCSSClass( _elem, 'today', _date.isSame( _today, 'day' ) )
@@ -76,8 +77,8 @@ HHTMiniCalendar = HControl.extend
         styles:
           left: ( _dow * 100 / 7 ) + '%'
           top: '0px'
-          width: 'calc( 100% / 7 - 5px )'
-          height: 'calc( 100% / 6 - 5px )'
+          width: 'calc( 100% / 7 )'
+          height: 'calc( 100% / 6 )'
       )
       @_dayNames.push( _elemId )
       _date.add( 1, 'days' )
@@ -89,15 +90,10 @@ HHTMiniCalendar = HControl.extend
           styles:
             left: ( _dow * 100 / 7 ) + '%'
             top: ( (_week + 1) * 100 / 7 ) + '%'
-            width: 'calc( 100% / 7 - 5px )'
-            height: 'calc( 100% / 6 - 5px )'
+            width: 'calc( 100% / 7 )'
+            height: 'calc( 100% / 6 )'
         )
         @_days.push( _elemId )
-    true
-
-    true
-
-  _updateDays: ->
     true
 
   _prevMonth: ->
@@ -108,18 +104,22 @@ HHTMiniCalendar = HControl.extend
     @_viewDate.add( 1, 'months' )
     @_updateView()
 
+  refreshValue: ->
+    if @typeChr( @value ) == 'n'
+      @_viewDate = @moment( @value * 1000 )
+      @_updateView()
+    true
+
   die: ->
     Event.stopObserving( @markupElemIds.left_arrow, 'click', @_leftClickFn )
     Event.stopObserving( @markupElemIds.right_arrow, 'click', @_rightClickFn )
     @base()
 
   drawSubviews: ->
-    @_viewDate = @moment( @value * 1000 )
     @_days = []
     @_dayNames = []
     @_drawSelector()
     @_drawDays()
-    @_updateView()
     @_leftClickFn = => @_prevMonth()
     @_rightClickFn = => @_nextMonth()
     Event.observe( @markupElemIds.left_arrow, 'click', @_leftClickFn )

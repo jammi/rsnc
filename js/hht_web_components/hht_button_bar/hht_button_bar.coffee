@@ -21,9 +21,9 @@ HHTButtonBar = HView.extend
       _w = _b.rect.width
       _h = _b.rect.height
       if @options.align == 'right'
-        _b.setRect( [ null, 0, _w, _h, @pos, null ] )
+        _b.setRect( [ null, 1, _w, _h, @pos, null ] )
       else
-        _b.setRect( [ @pos, 0, _w, _h ] )
+        _b.setRect( [ @pos, 1, _w, _h ] )
       _b.drawRect()
       @pos += _w + @options.gap
     HSystem._updateFlexibleRects()
@@ -33,13 +33,13 @@ HHTButtonBar = HView.extend
     _class = HHTButton unless _class?
     _visible = true unless _visible?
     _opts['visible'] = _visible
-    _opts['type'] = 'white'
+    _opts['type'] = 'white' unless _opts.type?
     _button = _class.new( [ 0, 0, 80, 30 ], @, _opts )
     _w = _button.calcWidth()
     if @options.align == 'right'
-      _button.setRect( [ null, 0, _w, @rect.height, @pos, null ] )
+      _button.setRect( [ null, 1, _w, @rect.height - 2 , @pos, null ] )
     else
-      _button.setRect( [ @pos, 0, _w, @rect.height ] )
+      _button.setRect( [ @pos, 1, _w, @rect.height - 2  ] )
     _button.drawRect()
     @buttons.push( _button )
     if _visible

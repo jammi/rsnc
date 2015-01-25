@@ -21,9 +21,9 @@ HHTGUIApp = HApplication.extend
       @valueObj.bind( _this )
     else
       @value = _options.value
-    @extDraw() if @typeChr( @extDraw ) == '>'
-    @_drawView()
+    @extDraw()
     @drawSubviews()
+    ELEM.flush()
     setTimeout( ( -> HSystem._updateFlexibleRects() ), 1200 )
     true
 
@@ -39,6 +39,9 @@ HHTGUIApp = HApplication.extend
       document.head.appendChild( _meta )
     _meta
 
+  extDraw: ->
+    @view = @drawView( @options.rect )
+
   resize: ->
     true
   
@@ -52,12 +55,12 @@ HHTGUIApp = HApplication.extend
       _values[ _valueName ] = HVM.values[ _valueId ]
     _values
 
-  _drawView: ->
-    return unless @typeChr( @options.rect ) == 'a'
+  drawView: ( _rect )->
+    return unless @typeChr( _rect ) == 'a'
     _styles = {}
     _styles['backgroundColor'] = @options.color if @options.color?
     _styles['opacity'] = @options.opacity if @options.opacity?
-    @view = HControl.extend(
+    HControl.extend(
       resize: ->
         @parent.resize()
     ).new( @options.rect, @,
