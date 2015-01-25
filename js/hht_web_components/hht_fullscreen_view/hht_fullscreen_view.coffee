@@ -27,8 +27,8 @@ HHTFullScreenView = UtilMethods.extend
       _elem.requestFullScreen()
     else if _elem.mozRequestFullScreen?
       _elem.mozRequestFullScreen()
-    else if _elem.webkitRequestFullScreen?
-      _elem.webkitRequestFullScreen()
+    else if _elem.webkitRequestFullscreen?
+      _elem.webkitRequestFullscreen()
     return true
 
   _onFullScreenChange: ( e ) ->

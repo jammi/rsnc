@@ -240,7 +240,9 @@ ELEM = HClass.extend
     _elem = @_elements[_id]
     x = 0
     while _elem != document.body
-      x += _elem.offsetLeft - _elem.scrollLeft
+      x += _elem.offsetLeft
+      if _elem != @_elements[_id]
+        x -= _elem.scrollLeft
       _elem = _elem.parentNode
     x
 
@@ -251,7 +253,9 @@ ELEM = HClass.extend
     _elem = @_elements[_id]
     y = 0
     while _elem != document.body
-      y += _elem.offsetTop - _elem.scrollTop
+      y += _elem.offsetTop
+      if _elem != @_elements[_id]
+        y -= _elem.scrollTop
       _elem = _elem.parentNode
     y
 
