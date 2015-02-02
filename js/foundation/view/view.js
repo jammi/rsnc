@@ -32,10 +32,9 @@ HView = UtilMethods.extend({
   **/
   themePath:   null,
 
-/** True, if the component using absolute positioning.
-  * False, if the component is using relative positioning.
+/** Component CSS position type: absolute, relative, fixed
   **/
-  isAbsolute: true,
+  cssPosition: 'absolute',
 
 /** The display mode to use.
   * Defaults to 'block'.
@@ -466,44 +465,6 @@ HView = UtilMethods.extend({
   },
 
 /** = Description
-  * The +_flag+ enables or disables the absolute positioning mode.
-  * (It's enabled by default). If absolute positioning mode is
-  * off, the coordinate system has little or no effect.
-  *
-  * = Parameters
-  * +_flag+::    Boolean flag (true/false). Enables
-  *              absolute positioning when true.
-  *              Enables relative positioning when false.
-  *
-  * = Returns
-  * +self+
-  **/
-  setAbsolute: function(_flag){
-    if(_flag===undefined){_flag=true;}
-    this.isAbsolute = _flag;
-    return this;
-  },
-
-/** = Description
-  * The +_flag+ enables or disables the relative positioning mode.
-  * (It's disabled by default). If relative positioning mode is
-  * on, the coordinate system has little or no effect.
-  *
-  * = Parameters
-  * +_flag+::    Boolean flag (true/false). Enables
-  *              absolute relative when true.
-  *              Enables absolute positioning when false.
-  *
-  * = Returns
-  * +self+
-  **/
-  setRelative: function(_flag){
-    if(_flag===undefined){_flag=true;}
-    this.isAbsolute = (!_flag);
-    return this;
-  },
-
-/** = Description
   * Used by html theme templates to get the theme-specific full image path.
   *
   * = Returns
@@ -604,9 +565,7 @@ HView = UtilMethods.extend({
 
       ELEM.setStyle(this.elemId,'overflow','hidden',true);
       ELEM.setStyle(this.elemId,'visibility','hidden',true);
-
-      if(this.isAbsolute){   ELEM.setStyle(this.elemId,'position','absolute'); }
-      else {                 ELEM.setStyle(this.elemId,'position','relative'); }
+      ELEM.setStyle(this.elemId,'position',this.cssPosition);
 
       // Theme name => CSS class name
       if(this.preserveTheme){
@@ -978,11 +937,12 @@ HView = UtilMethods.extend({
     if(this.parent.elemId === 0){
       var
       _winSize = ELEM.windowSize(),
-      _docSize = ELEM.getScrollSize(0);
+      _docSize = ELEM.getScrollSize(0),
+      _isAbsolute = ( this.cssPosition === 'absolute' );
       // console.log('winSize:',JSON.stringify(_winSize),', docSize:',JSON.stringify(_docSize));
-      if( _docSize[0] > _winSize[0] || _docSize[1] > _winSize[1] ){
-        _winSize = _docSize;
-      }
+      // if( _isAbsolute && ( _docSize[0] > _winSize[0] || _docSize[1] > _winSize[1] ) ){
+      //   _winSize = _docSize;
+      // }
       return [ _winSize[0], _winSize[1] ];
     }
     else {
@@ -1513,8 +1473,12 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  toggle: function() {
-    if(this.isHidden) {
+  toggle: function( _visible ) {
+    if( _visible == true || _visible == 1 ) {
+      this.show();
+    } else if( _visible == false || _visible == 0 ) {
+      this.hide();
+    } else if(this.isHidden) {
       this.show();
     } else {
       this.hide();

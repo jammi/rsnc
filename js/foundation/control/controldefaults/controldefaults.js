@@ -52,6 +52,10 @@ HControlDefaults = HClass.extend({
 
 /** The default focus value of the component.
   **/
-  focusOnCreate: false
+  focusOnCreate: false,
+
+/**  Use utc time as default
+  **/
+  useUTC: true
 
 });

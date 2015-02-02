@@ -21,7 +21,11 @@ HViewDefaults = HClass.extend({
 
 /** The default value of the component
   **/
-  value: 0
+  value: 0,
+
+/**  Use utc time as default
+  **/
+  useUTC: true
 
 });
 

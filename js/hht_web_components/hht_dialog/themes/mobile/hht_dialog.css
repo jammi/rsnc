@@ -1,8 +1,0 @@
-.default.hht_dialog > .dimmer {
-  position: absolute;
-  overflow: hidden;
-  cursor: inherit;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #000;
-  opacity: 0.5;
-}
