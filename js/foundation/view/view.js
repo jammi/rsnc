@@ -32,9 +32,22 @@ HView = UtilMethods.extend({
   **/
   themePath:   null,
 
-/** Component CSS position type: absolute, relative, fixed
+/** Component CSS position type: absolute|relative|fixed
   **/
   cssPosition: 'absolute',
+
+
+/** Component CSS overflow type: false|visible|hidden|scroll|auto|initial|inherit
+  **/
+  cssOverflow: 'hidden',
+
+/** Component CSS overflow-x type: false|visible|hidden|scroll|auto|initial|inherit
+  **/
+  cssOverflowY: false,
+
+/** Component CSS overflow-x type: false|visible|hidden|scroll|auto|initial|inherit
+  **/
+  cssOverflowX: false,
 
 /** The display mode to use.
   * Defaults to 'block'.
@@ -563,7 +576,15 @@ HView = UtilMethods.extend({
 
       this._makeElem(this._getParentElemId());
 
-      ELEM.setStyle(this.elemId,'overflow','hidden',true);
+      if( this.cssOverflowY == false && this.cssOverflowX == false ) {
+        ELEM.setStyle(this.elemId,'overflow',this.cssOverflow,true);
+      }
+      if( this.cssOverflowY != false ) {
+        ELEM.setStyle(this.elemId,'overflow-y',this.cssOverflowY,true);
+      }
+      if( this.cssOverflowX != false ) {
+        ELEM.setStyle(this.elemId,'overflow-x',this.cssOverflowX,true);
+      }
       ELEM.setStyle(this.elemId,'visibility','hidden',true);
       ELEM.setStyle(this.elemId,'position',this.cssPosition);
 
@@ -1728,10 +1749,10 @@ HView = UtilMethods.extend({
   **/
   resizeTo: function(_width, _height) {
     var _rect = this.rect;
-    if(_width !== undefined){
+    if( this.typeChr( _width ) === 'n' ) {
       _rect.right = _rect.left + _width;
     }
-    if(_height !== undefined ){
+    if( this.typeChr( _height ) === 'n' ){
       _rect.bottom = _rect.top + _height;
     }
     _rect.updateSecondaryValues();
