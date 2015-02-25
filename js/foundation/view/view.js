@@ -2019,9 +2019,13 @@ HView = UtilMethods.extend({
   },
 
   inElem: function( _elemId, x, y ) {
-    var p = ELEM.getVisiblePosition( _elemId, true );
-    var s = ELEM.getSize( _elemId );
-    return !( x < p[0] || x > p[0] + s[0] || y < p[1] || y > p[1] + s[1] );
+    if( this.typeChr( x ) === 'n' && this.typeChr( x ) === 'n' ) {
+      var p = ELEM.getVisiblePosition( _elemId, true ),
+          s = ELEM.getSize( _elemId );
+      return !( x < p[0] || x > p[0] + s[0] || y < p[1] || y > p[1] + s[1] );
+    } else {
+      return false;
+    }
   },
 
 /** Set tabindex attribute for element
