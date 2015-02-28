@@ -1542,12 +1542,21 @@ HView = UtilMethods.extend({
   * Should normally be called from the parent.
   *
   **/
-  die: function() {
-    if(this.isDead && !this.isProduction){
-      console.warn('double kill!');
-      return;
+  die: function( _delay ) {
+    if( this.isDead ) {
+      return false;
     }
     this.isDead = true;
+    if( this.typeChr( _delay ) === 'n' ) {
+      var _this = this;
+      setTimeout( function() { _this.dieMethods(); }, _delay );
+    } else {
+      this.dieMethods();
+    }
+    return true;
+  },
+
+  dieMethods: function() {
     // hide self, makes destruction seem faster
     this.hide();
     this.drawn = false;
