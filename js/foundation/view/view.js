@@ -1181,7 +1181,7 @@ HView = UtilMethods.extend({
       this.rect = _rect;
     }
     this.rect.bind(this);
-    this.refresh();
+    // this.refresh();
     return this;
   },
 
