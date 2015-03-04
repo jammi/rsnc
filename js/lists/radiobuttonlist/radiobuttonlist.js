@@ -63,7 +63,9 @@ HRadioButtonList = HListItemControl.extend({
       var
       _prevIndex = this.radioButtonIndexValue.value,
       _listLen = _listItems.length;
-      this.radioButtonIndexValue.set(-1);
+      if (this.radioButtonIndexValue) {
+        this.radioButtonIndexValue.set(-1);
+      }
       if( _listLen > 0 ){
         if( _listLen-1 < _prevIndex ){
           this.setValue(this.listItems[_listLen-1][0]);

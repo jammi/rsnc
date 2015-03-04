@@ -1130,25 +1130,26 @@ EventManagerApp = HApplication.extend
   # that responds true to _methodName. If _ctrl is undefined, use
   # a special default rule of auto-selecting the active control and
   # checking all of its siblings before traversing.
-  defaultKey: (_methodName,_ctrl,_testedIds)->
-    return true if _ctrl? and _ctrl[_methodName]? and _ctrl[_methodName]() == true
+  defaultKey: (_methodName, _ctrl, _testedIds) ->
+    return true if _ctrl?[_methodName]?() == true
     return null unless @_listeners.active
     _ctrl = @_views[@_listeners.active[0]] unless _ctrl?
+    return null unless _ctrl?
     _ctrlId = _ctrl.viewId
     return null if ~_testedIds.indexOf(_ctrlId)
-    return true if _ctrl[_methodName]? and _ctrl[_methodName]() == true
+    return true if _ctrl?[_methodName]?() == true
     _stop = null
     _testedIds.push(_ctrlId)
     for _viewId in _ctrl.parent.views
       continue if ~_testedIds.indexOf(_viewId)
-      continue if _ctrl.viewId == _viewId
+      continue if _ctrl? and _ctrl.viewId == _viewId
       _ctrl = @_views[_viewId]
-      if _ctrl[_methodName]?
+      if _ctrl?[_methodName]?
         _stopStatus = _ctrl[_methodName]()
         if _stopStatus == false or _stopStatus == true
           _stop = _stopStatus unless _stop
       return _stop if _stop != null
-    return true if _ctrl.parent? and @defaultKey(_methodName,_ctrl.parent,_testedIds) == true
+    return true if _ctrl?.parent? and @defaultKey(_methodName, _ctrl.parent, _testedIds) == true
     null
   #
   # Handles the keyDown event
