@@ -6,19 +6,21 @@
 # Ideal for event logging purposes.
 HPushValue = HValue.extend
   constructor: (_id,_value)->
-    @buffer = [_value]
-    @base(_id,_value)
+    @buffer = []
+    @base( _id, null )
   toSync: ->
     _arr = []
     _histLen = @buffer.length
-    for i in [0..(_histLen)]
+    for i in [0..(_histLen-1)]
       _arr.push( @buffer.shift() )
+    @value = null
     _arr
   set: (_value)->
     @buffer.push(_value)
-    @value = _value
+    @value = _value 
     COMM.Values.changed(@)
     @refresh()
+
   die: ->
     @buffer = null
     delete @buffer
