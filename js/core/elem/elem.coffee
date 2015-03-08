@@ -353,9 +353,9 @@ ELEM = HClass.extend
   ###
   Returns the visible box coordinates of the element as a [ left, top, width, height ]
   ###
-  getVisibleBoxCoords: (_id)->
-    [ x, y ] = @getVisiblePosition( _id )
-    [ w, h ] = @getVisibleSize( _id )
+  getVisibleBoxCoords: (_id, _noOwnScoll)->
+    [ x, y ] = @getVisiblePosition( _id, _noOwnScoll )
+    [ w, h ] = @getVisibleSize( _id, _noOwnScoll )
     [ x, y, w, h ]
 
   ###
