@@ -224,13 +224,12 @@ HSystem = {
         function(){
           if( _this.busyApps[ _appId ] === true ) {
             if (new Date().getTime() > _startedWaiting + _this.maxAppRunTime) {
-              clearTimeout(_timeout);
+              clearInterval(_timeout);
               _this._forceKillApp( _appId );
             }
-            else {
-              clearTimeout(_timeout);
-              _this._forceKillApp( _appId );
-            }
+          } else {
+            clearInterval(_timeout);
+            _this._forceKillApp( _appId );
           }
         }, 10
       );
