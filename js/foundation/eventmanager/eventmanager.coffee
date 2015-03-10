@@ -678,31 +678,9 @@ EventManagerApp = HApplication.extend
       for _viewId in _parentIds
         continue if _viewId == _selfId
         _view = _views[_viewId]
-        if _view.parent.hasAncestor( HView )
-          _parent = _view.parent
-          if _parent.markupElemIds? and _parent.markupElemIds.subview?
-            _subviewId = _parent.markupElemIds.subview
-            [ _subX, _subY ] = ELEM.getPosition( _subviewId )
-          else
-            [ _subX, _subY ] = [ 0, 0 ]
-          if _area.offsetTo? # is a rectangle
-            _searchArea = HRect.new(_area).offsetTo(
-              _area.left-_parent.pageX()-_subX,
-              _area.top-_parent.pageY()-_subY
-            )
-          else # is a point
-            _searchArea = HPoint.new(
-              _area.x-_parent.pageX()-_subX,
-              _area.y-_parent.pageY()-_subY
-            )
-        else if _view.parent.hasAncestor( HApplication )
-          _searchArea = _area
-        else
-          console.warn('invalid view parent:',_view.parent)
-          continue
         if _view.hasAncestor? and _view.hasAncestor( HView )
-          if _view.rect[_matchMethod](_searchArea) and !_view.isHidden
-            if ~_arrOfIds.indexOf( _viewId )
+          if !_view.isHidden and _view.contains( _area.x, _area.y )
+            if _viewId in _arrOfIds
               _foundId = _search( _view.viewsZOrder.slice().reverse() )
               return _foundId unless _foundId == false
               return _viewId
@@ -716,11 +694,11 @@ EventManagerApp = HApplication.extend
   #
   # Finds the topmost drop/hover target within the area specified by rectHover
   _findTopmostDroppable: (_area,_matchMethod,_selfId)->
-    return @_findTopmostOf( @_listeners.byEvent.droppable, _area, _matchMethod, _selfId )
+    @_findTopmostOf( @_listeners.byEvent.droppable, _area, _matchMethod, _selfId )
   #
   # Finds the topmost enabled target within the area specified by area
   _findTopmostEnabled: (_area,_matchMethod,_selfId)->
-    return @_findTopmostOf( @_listeners.enabled, _area, _matchMethod, _selfId )
+    @_findTopmostOf( @_listeners.enabled, _area, _matchMethod, _selfId )
   #
   # Finds all drop/hover targets within the area specified by rectHover
   _findAllDroppable: (_area,_matchMethod,_selfId)->

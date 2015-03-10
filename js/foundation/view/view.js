@@ -2058,6 +2058,10 @@ HView = UtilMethods.extend({
     }
   },
 
+  contains: function( x, y ) {
+    return this.inElem( this.elemId, x, y );
+  },
+
 /** Set tabindex attribute for element
   **/
   setTabIndex: function(_tabIndex) {
