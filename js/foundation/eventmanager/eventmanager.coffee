@@ -678,15 +678,23 @@ EventManagerApp = HApplication.extend
       for _viewId in _parentIds
         continue if _viewId == _selfId
         _view = _views[_viewId]
-        if _view.hasAncestor? and _view.hasAncestor( HView )
-          if !_view.isHidden and _view.contains( _area.x, _area.y )
-            if _viewId in _arrOfIds
-              _foundId = _search( _view.viewsZOrder.slice().reverse() )
-              return _foundId unless _foundId == false
-              return _viewId
-            else
-              _result = _search( _view.viewsZOrder.slice().reverse() )
-              return _result unless _result == false
+        continue unless _view.hasAncestor? and _view.hasAncestor( HView )
+        continue if _view.isHidden
+        switch _matchMethod
+          when 'contains'
+            _match = _view.contains( _area.x, _area.y ) 
+          when 'intersects'
+            _match = _view.intersects( _area.x, _area.y, _area.width, _area.height )
+          else
+            _match = false
+        if _match
+          if _viewId in _arrOfIds
+            _foundId = _search( _view.viewsZOrder.slice().reverse() )
+            return _foundId unless _foundId == false
+            return _viewId
+          else
+            _result = _search( _view.viewsZOrder.slice().reverse() )
+            return _result unless _result == false
       return false
     _foundId = _search( HSystem.viewsZOrder.slice().reverse() )
     return [ _foundId ] unless _foundId == false

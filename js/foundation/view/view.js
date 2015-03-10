@@ -2062,6 +2062,13 @@ HView = UtilMethods.extend({
     return this.inElem( this.elemId, x, y );
   },
 
+  intersect: function( x, y, w, h ) {
+    var p = ELEM.getVisiblePosition( this.elemId, true ),
+        s = ELEM.getSize( this.elemId );
+    return !( p[0] > x + w || p[0] + s[0] < x ||
+              p[1] > y + h || p[1] + s[1] < y );
+  },
+
 /** Set tabindex attribute for element
   **/
   setTabIndex: function(_tabIndex) {
