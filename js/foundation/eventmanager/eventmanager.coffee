@@ -469,15 +469,10 @@ EventManagerApp = HApplication.extend
   # The HSystem._updateFlexibleRects call may not be neccessary to call
   # both before and after in all circumstances, but better be safe than sure.
   resize: (e)->
-    HSystem._updateFlexibleRects()
     ELEM.flush()
     for _viewId in @_listeners.byEvent.resize
       _ctrl = @_views[_viewId]
-      _ctrl.resize() if _ctrl.resize?
-    setTimeout(->
-      ELEM.flush()
-      HSystem._updateFlexibleRects()
-    , 100 )
+      _ctrl.resize() if _ctrl? and _ctrl.resize?
   #
   # Finds the next elem with a view_id attribute
   _findViewId: (_elem)->
@@ -532,45 +527,28 @@ EventManagerApp = HApplication.extend
         return false
       _ctrl.blur()
 
-  _debugHighlight: (_ctrl)->
-    unless @isProduction
-      unless @_debugHighlightT?
-        @_debugHighlightT = ELEM.make(0,'div')
-        @_debugHighlightR = ELEM.make(0,'div')
-        @_debugHighlightB = ELEM.make(0,'div')
-        @_debugHighlightL = ELEM.make(0,'div')
-        for _elemId in [
-          @_debugHighlightT, @_debugHighlightL,
-          @_debugHighlightB, @_debugHighlightR ]
-          ELEM.setStyles( _elemId,
+  _debugHighlight: ->
+    return if @isProduction
+    _focused = @_listeners.focused
+    if _focused.length > 0
+      _ctrl = @_views[_focused[_focused.length - 1 ]]
+      unless @_debugElem?
+        @_debugElem = ELEM.make( 0, 'div',
+          styles:
             position: 'absolute'
-            left: 0
-            top: 0
-            width: 0
-            height: 0
-            background: 'red'
+            border: '1px solid red'
             zIndex: 20000
-          )
-        for _elemId in [ @_debugHighlightT, @_debugHighlightB ]
-          ELEM.setStyle( _elemId, 'height', '1px' )
-        for _elemId in [ @_debugHighlightL, @_debugHighlightR ]
-          ELEM.setStyle( _elemId, 'width', '1px' )
-      _rect = _ctrl.rect
-      x = _ctrl.pageX()
-      y = _ctrl.pageY()
-      w = _rect.width
-      h = _rect.height
-      for _elemId in [ @_debugHighlightT, @_debugHighlightL ]
-        ELEM.setStyle( _elemId, 'left', x+'px' )
-        ELEM.setStyle( _elemId, 'top', y+'px' )
-      for _elemId in [ @_debugHighlightT, @_debugHighlightB ]
-        ELEM.setStyle( _elemId, 'width', w+'px' )
-      for _elemId in [ @_debugHighlightL, @_debugHighlightR ]
-        ELEM.setStyle( _elemId, 'height', h+'px' )
-      ELEM.setStyle( @_debugHighlightB, 'top', (y+h)+'px' )
-      ELEM.setStyle( @_debugHighlightB, 'left', x+'px' )
-      ELEM.setStyle( @_debugHighlightR, 'top', y+'px' )
-      ELEM.setStyle( @_debugHighlightR, 'left', (x+w)+'px' )
+            'pointer-events': 'none'
+            'box-sizing': 'border-box'
+            '-moz-box-sizing': 'border-box'
+            '-webkit-box-sizing': 'border-box'
+        )
+      [ x, y, w, h ] = ELEM.getVisibleBoxCoords( _ctrl.elemId )
+      ELEM.setBoxCoords( @_debugElem, [ x, y, w, h ] )
+    else if @_debugElem?
+      ELEM.del( @_debugElem )
+      @_debugElem = null
+    true
 
   #
   # Mouse movement manager. Triggered by the global mousemove event.
@@ -605,12 +583,12 @@ EventManagerApp = HApplication.extend
         if _focusCtrl?
           @blur( _focusCtrl )
         _focused.splice( _focused.indexOf(_focusId), 1 )
-      @_debugHighlight(_ctrl)
       @focus( _ctrl )
   #
   # Just split to gain namespace:
   _handleMouseMove: ( x, y )->
     @_findNewFocus(x,y)
+    @_debugHighlight()
     @_delegateMouseMove(x,y)
     _currentlyDragging = @_delegateDrag(x,y)
     return _currentlyDragging

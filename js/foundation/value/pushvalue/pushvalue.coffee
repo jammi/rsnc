@@ -13,11 +13,9 @@ HPushValue = HValue.extend
     _histLen = @buffer.length
     for i in [0..(_histLen-1)]
       _arr.push( @buffer.shift() )
-    @value = null
     _arr
   set: (_value)->
     @buffer.push(_value)
-    @value = _value 
     COMM.Values.changed(@)
     @refresh()
 
