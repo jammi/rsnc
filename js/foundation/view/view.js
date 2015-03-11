@@ -956,35 +956,9 @@ HView = UtilMethods.extend({
       return [ 0, 0 ];
     }
     if(this.parent.elemId === 0){
-      var
-      _winSize = ELEM.windowSize(),
-      _docSize = ELEM.getScrollSize(0),
-      _isAbsolute = ( this.cssPosition === 'absolute' );
-      // console.log('winSize:',JSON.stringify(_winSize),', docSize:',JSON.stringify(_docSize));
-      // if( _isAbsolute && ( _docSize[0] > _winSize[0] || _docSize[1] > _winSize[1] ) ){
-      //   _winSize = _docSize;
-      // }
-      return [ _winSize[0], _winSize[1] ];
-    }
-    else {
-      var
-      _rect = this.parent.rect,
-      _width, // = _rect.width,
-      _height, // = _rect.height;
-      _parentElemId = ( this.parent.markupElemIds && this.parent.markupElemIds.subview ) ? this.parent.markupElemIds.subview : this.parent.elemId;
-      if (this.parent.flexLeft && this.parent.flexRight){
-        _width = parseInt( ELEM.getStyle( _parentElemId, 'width', true ), 10 );
-      }
-      else {
-        _width = _rect.width;
-      }
-      if (this.parent.flexBottom && this.parent.flexTop){
-        _height = parseInt( ELEM.getStyle( _parentElemId, 'height', true ), 10 );
-      }
-      else {
-        _height = _rect.height;
-      }
-      return [ _width, _height ];
+      return ELEM.windowSize();
+    } else {
+      return ELEM.getSize( this.parent.elemId );
     }
   },
 
@@ -1180,7 +1154,9 @@ HView = UtilMethods.extend({
     else {
       this.rect = _rect;
     }
-    this.rect.bind(this);
+    if( this.rect ) {
+      this.rect.bind(this);
+    }
     // this.refresh();
     return this;
   },
