@@ -904,6 +904,9 @@ HView = UtilMethods.extend({
   * A string with the html escaped.
   **/
   escapeHTML: function( _html ) {
+    if( _html === undefined ) {
+      return '';
+    }
     if( typeof _html !== 'string' ) {
       return _html.toString();
     }
