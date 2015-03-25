@@ -622,6 +622,9 @@ HView = UtilMethods.extend({
   *
   **/
   drawRect: function() {
+    if( !this.rect ) {
+      return;
+    }
     if(!this.rect.isValid && !this.isProduction){
       console.log('invalid rect:',this.rect);//,ELEM.get(this.elemId));
     }
