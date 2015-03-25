@@ -92,6 +92,7 @@ HThemeManager = HClass.extend
     return '' unless @themeHTMLTemplates[_themeName][_componentName]?
     [_tmplJS, _tmplHTML] = @themeHTMLTemplates[_themeName][_componentName]
     _rect   = _view.rect
+    _rect = [ 0, 0, 0, 0 ] unless _rect?
     _callArgs = [_view.elemId.toString(), _rect.width, _rect.height]
     _tmplHTML = _tmplHTML.replace(/\]I\[/g,_callArgs[0]).replace(/\]W\[/g,_callArgs[1]).replace(/\]H\[/g,_callArgs[2])
     return _tmplHTML if _tmplJS.length == 0
