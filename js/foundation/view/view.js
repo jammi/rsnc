@@ -527,6 +527,23 @@ HView = UtilMethods.extend({
 
 /** --
   * = Description
+  * Delete elems by ids by calling ELEM.del for each id.
+  * If elems is not array, do nothing.
+  * Return always new empty array
+  * ++
+  **/
+  _delElems: function( _elems ) {
+    if( this.typeChr( _elems ) === 'a' ) {
+      var i = 0;
+      for( i = 0; i < _elems.length; i++ ) {
+        ELEM.del( _elems[i] );
+      }
+    }
+    return [];
+  },
+
+/** --
+  * = Description
   * The _getParentElemId method returns the ELEM ID of the parent.
   * ++
   **/
