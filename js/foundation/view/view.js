@@ -766,15 +766,15 @@ HView = UtilMethods.extend({
       if( this.options.tabIndex !== undefined ){
         this.setTabIndex( this.options.tabIndex );
       }
+      if(!this.isHidden){
+        this.show();
+      }
       if( this.options.focusOnCreate == true && !BROWSER_TYPE.mobile ) {
         this.setFocus();
         var _this = this;
-        setTimeout( function() {
-          _this.setFocus()
-        }, 300 );
-      }
-      if(!this.isHidden){
-        this.show();
+        // setTimeout( function() {
+        //   _this.setFocus()
+        // }, 300 );
       }
     }
     this.refresh();
