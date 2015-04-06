@@ -25,6 +25,7 @@ BROWSER_TYPE =
   ipad: false
   android: false
   mobile: false
+  # WARN: These are soon deprecated, better system is being worked on in foundation/locale_settings
   lang_en: false
   lang_fi: false
 
@@ -919,11 +920,13 @@ ELEM = HClass.extend
     _browserType.ipad = _iPad
     _browserType.android = !!~_ua.indexOf('Android')
     _browserType.mobile = !!~_av.indexOf('Mobile')
+
+    # WARN: this language hack is going to be deprecated once there's a proper system around:
     if !!~_lang.indexOf('fi')
       _browserType.lang_fi = true
     else
       _browserType.lang_en = true
-      
+
     @_domWaiter()
     null
 
