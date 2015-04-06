@@ -23,7 +23,11 @@ HAudioPlayer = HControl.extend
       # 'timeLeft'
     ]
   play: ->
-    @_mediaElement.play() if @_mediaElement?
+    if @_mediaElement?
+      @_mediaElement.setVolume( 1 )
+      @_mediaElement.setMuted( false )
+      @_mediaElement.addEventListener( 'ended', ( => @_mediaEnded() ), false )
+      @_mediaElement.play() 
     @_playStopButton.setLabel(@options.stopLabel) if @_playStopButton?
     @_playPauseButton.setLabel(@options.pauseLabel) if @_playPauseButton?
   pause: ->
@@ -41,8 +45,7 @@ HAudioPlayer = HControl.extend
   skipBack: ->
     @seek()
   idle: ->
-    if @playing and @_mediaElement?
-      console.log('position:',@_mediaElement.currentPosition())
+    true
   playStop: ->
     if @playing
       @stop()
@@ -137,9 +140,12 @@ HAudioPlayer = HControl.extend
     @_enableAll( @enabled )
   _mediaFailed: ->
     console.log('HAudioPlayer media failure:',arguments)
+  _mediaEnded:->
+    @stop() 
+    @playing = false
   die: ->
-    @stop()
-    ELEM.del(@_audioElementId)
+    @pause()
+    ELEM.del(@_audioElementId) if @_audioElementId?
     @base()
   extDraw: ->
     _opt = @options

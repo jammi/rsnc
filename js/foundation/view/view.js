@@ -299,6 +299,12 @@ HView = UtilMethods.extend({
     // destructable timeouts:
     this.timeouts = [];
 
+    // adds the parentClass as a "super" object
+    this.parent = _parent;
+
+    this.appId = this.parent.appId;
+    this.app = HSystem.apps[this.appId];
+
     if( !_options ){
       _options = {};
     }
@@ -326,14 +332,9 @@ HView = UtilMethods.extend({
       this.isHidden = true;
     }
 
-    // adds the parentClass as a "super" object
-    this.parent = _parent;
 
     this.viewId = this.parent.addView(this);
     // the parent addView method adds this.parents
-
-    this.appId = this.parent.appId;
-    this.app = HSystem.apps[this.appId];
 
     // sub-view ids, index of HView-derived objects that are found in HSystem.views[viewId]
     this.views = [];
@@ -726,6 +727,7 @@ HView = UtilMethods.extend({
       if(this.componentName!==undefined){
         this.drawMarkup();
       }
+
       else if(BROWSER_TYPE.ie && this._ieNoThrough === null){
         this._ieNoThrough = ELEM.make( this.elemId );
         ELEM.setCSS( this._ieNoThrough, 'position:absolute;left:0;top:0;bottom:0;right:0;background-color:#ffffff;font-size:0;line-height:0' );
@@ -754,6 +756,16 @@ HView = UtilMethods.extend({
       // for external testing purposes, a custom className can be defined:
       if(this.options.testClassName){
         ELEM.addClassName(this.elemId,this.options.testClassName);
+      }
+      if( this.options.tabIndex !== undefined ){
+        this.setTabIndex( this.options.tabIndex );
+      }
+      if( this.options.focusOnCreate == true && !BROWSER_TYPE.mobile ) {
+        this.setFocus();
+        var _this = this;
+        setTimeout( function() {
+          _this.setFocus()
+        }, 300 );
       }
       if(!this.isHidden){
         this.show();
@@ -2031,6 +2043,23 @@ HView = UtilMethods.extend({
   **/
   pageY: function() {
     return ELEM._getVisibleTopPosition( this.elemId );
+  },
+
+/** Set tabindex attribute for element
+  **/
+  setTabIndex: function(_tabIndex) {
+    this.setAttr( 'tabIndex', _tabIndex );
+    if( _tabIndex == 1 && !BROWSER_TYPE.mobile ) {
+      this.setFocus();
+    }
+  },
+
+  setFocus: function() {
+    var _elem = ELEM.get( this.elemId );
+    if(_elem !== undefined){
+      _elem.focus();
+      EVENT.changeActiveControl( this );
+    }
   },
 
 /** = Description

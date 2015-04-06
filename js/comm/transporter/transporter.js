@@ -131,7 +131,7 @@ COMM.Transporter = HApplication.extend({
   * +resp+:: The response object.
   *
   **/
-  success: function(resp){
+  success: function(resp){  
     var _this = COMM.Transporter;
     if(!resp.X.responseText){
       _this.failure(resp);
@@ -149,6 +149,11 @@ COMM.Transporter = HApplication.extend({
     _errorText;
     if(_sesKey === ''){
       console.log('Invalid session, error message should follow...');
+    }
+    else if(_sesKey === _session.old_key){
+      //iPad sometimes send same request 3 times. Skip repsonder if it has same ses key than previous one.
+      console.log( "Ses key is same than previous one. Skip response." )
+      return;
     }
     else {
       _session.newKey(_sesKey);
@@ -194,9 +199,9 @@ COMM.Transporter = HApplication.extend({
         _queue = COMM.Queue;
     console.log('failMessage title:',_title,', message:',_message);
     _this.stop = true;
-    _queue.push(function(){jsLoader.load('default_theme');});
-    _queue.push(function(){jsLoader.load('controls');});
-    _queue.push(function(){jsLoader.load('servermessage');});
+    // _queue.push(function(){jsLoader.load('default_theme');});
+    // _queue.push(function(){jsLoader.load('controls');});
+    // _queue.push(function(){jsLoader.load('servermessage');});
     _queue.push(function(){ReloadApp.nu(_title,_message);});
   },
 

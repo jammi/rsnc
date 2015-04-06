@@ -88,8 +88,12 @@ HTable = HControl.extend
     _height = 24-_heightOffset
     _topAdd = 24
     _halfBorderWidth = Math.floor(_borderSize*0.5)
-    _widthOffset = _borderSize-_halfBorderWidth - 2
-    _borderLeftOffset = 0-_halfBorderWidth
+    if _borderSize == 0
+      _widthOffset = 0
+      _borderLeftOffset = 0
+    else
+      _widthOffset = _borderSize-_halfBorderWidth - 2
+      _borderLeftOffset = 0 -_halfBorderWidth
     for _colView, _colNum in @colViews
       [ _left, _width ] = @headerSizes[_colNum]
       if _colNum == 0
@@ -194,6 +198,7 @@ HTable = HControl.extend
     @sortFns = _sortFns
     ELEM.flush()
   resize: ->
+    return unless @_rows?
     @drawHeader()
     for _colNum in [0...@headerCols.length]
       _left = @headerSizes[_colNum][0] + 1
@@ -201,7 +206,8 @@ HTable = HControl.extend
       @colViews[_colNum].rect.offsetTo( _left, 0 )
       @colViews[_colNum].rect.setWidth( _width )
       @colViews[_colNum].drawRect()
-    @_drawCellStyles()
+    if @options.useCellGrid
+      @_drawCellStyles()
   drawSubviews: ->
     if @options.headerCols
       @drawHeader()
@@ -375,6 +381,8 @@ HTable = HControl.extend
           @pushTask => @_drawCellStyles()
         if @drawTableExtras?
           @pushTask => @drawTableExtras()
+      if @drawFinished?
+        @pushTask => @drawFinished()
     if _viewDefs.length > 0
       @pushTask =>
         _viewsToDraw = []

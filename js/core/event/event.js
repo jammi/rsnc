@@ -39,6 +39,9 @@ Event = {
 /** Returns true if the left mouse butten was clicked.
   **/
   isLeftClick: function(e) {
+    if( e.type == 'touchend' || BROWSER_TYPE.ipad || BROWSER_TYPE.iphone ){
+      return true;
+    }
     // IE: left 1, middle 4, right 2
     if (BROWSER_TYPE.ie && !BROWSER_TYPE.ie8 && !BROWSER_TYPE.ie9 && !BROWSER_TYPE.ie10) {
       return (e.button === 1 || e.button === 3 || e.button === 5);
@@ -54,6 +57,7 @@ Event = {
 
   /* Implementation of observe */
   _observeAndCache: function(_elem, _name, _function, _useCapture) {
+    _name = Event.wrapEventName( _name );
     if (!Event.observers) {
       Event.observers = [];
     }
@@ -100,6 +104,7 @@ Event = {
   * removes the callback function.
   **/
   stopObserving: function(_elem, _name, _function, _useCapture) {
+    _name = Event.wrapEventName( _name );
     if( typeof _elem === 'number' ){
       _elem = ELEM.get(_elem);
     }
@@ -127,11 +132,28 @@ Event = {
     }
   },
 
+  wrapEventName: function (_name) {
+    var _hasTouch = 'ontouchstart' in window;
+    if( _hasTouch && BROWSER_TYPE.safari && ( BROWSER_TYPE.iphone || BROWSER_TYPE.ipad ) ) {
+      if( _name === 'mousedown' ) {
+        _name = 'touchstart';
+      }
+      else if( _name === 'mousemove' ) {
+        _name = 'touchmove';
+      }
+      else if( _name === 'click' ) {
+        _name = 'touchend';
+      }
+    }
+    return _name;
+  },
+
   // List of ASCII "special characters":
   KEY_BACKSPACE: 8,
   KEY_TAB: 9,
   KEY_RETURN: 13,
   KEY_ESC: 27,
+  KEY_SPACE: 32,
   KEY_LEFT: 37,
   KEY_UP: 38,
   KEY_RIGHT: 39,

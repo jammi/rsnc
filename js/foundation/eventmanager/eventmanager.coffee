@@ -105,6 +105,7 @@ EventManagerApp = HApplication.extend
     2: -1
     crsrX: -1
     setCrsrX: (x)->
+      @mouseDownDiff[0] += Math.abs( @crsr[0] - x )
       @crsr[0] = x
       @crsrX = x
       @[2] = x
@@ -112,6 +113,7 @@ EventManagerApp = HApplication.extend
     crsrY: -1
     crsr: [ -1, -1 ]
     setCrsrY: (y)->
+      @mouseDownDiff[1] += Math.abs( @crsr[1] - y )
       @crsr[1] = y
       @crsrY = y
       @[3] = y
@@ -159,7 +161,12 @@ EventManagerApp = HApplication.extend
     setCmdKey: (f)->
       @cmdKeyDown = f
       @[9] = f
-    length: 10
+    mouseDownPos: [ -1, -1 ]
+    mouseDownDiff: [ 0, 0 ]
+    setMouseDownPos: (x,y)->
+      @mouseDownPos = [ x, y ]
+      @mouseDownDiff = [ 0, 0 ]
+    length: 12
   button1: 0
   button2: 1
   crsrX: 2
@@ -750,6 +757,7 @@ EventManagerApp = HApplication.extend
         continue
       continue if _newActive != null and _viewId == _newActive.viewId
       _ctrl = @_views[_viewId]
+      continue unless _ctrl?
       if _ctrl.isDead and !@isProduction
         console.warn('trying to deactivate dead control!')
       _ctrl.active = false
@@ -765,6 +773,7 @@ EventManagerApp = HApplication.extend
         _ctrl.endDrag( x, y )
       _active.splice( _idx, 1 )
       @blur(_ctrl) if ~_focused.indexOf(_viewId) and _ctrl?
+      _ctrl._lostActiveStatus(_newActive)
       _ctrl.lostActiveStatus(_newActive)
     _prevActive
   #
@@ -777,6 +786,7 @@ EventManagerApp = HApplication.extend
       _active.unshift(_ctrl.viewId)
       @focus(_ctrl) unless ~_focused.indexOf(_ctrl.viewId)
       _ctrl.active = true
+      _ctrl._gainedActiveStatus(_prevActive)
       _ctrl.gainedActiveStatus(_prevActive)
   #
   # Sets the active control
@@ -865,6 +875,7 @@ EventManagerApp = HApplication.extend
       _ctrl = @_views[_viewId]
       @changeActiveControl( _ctrl )
     [ x, y ] = @status.crsr
+    @status.setMouseDownPos(x,y)
     @_handleMouseMove(x,y)
     for _viewId in _mouseDownIds
       _ctrl = @_views[_viewId]
@@ -924,9 +935,9 @@ EventManagerApp = HApplication.extend
           _dropCtrl.endHover(_ctrl) if _dropCtrl.endHover?
           _dropCtrl.drop(_ctrl) if _dropCtrl.drop?
         _stop = true if _ctrl.endDrag( x, y, _leftClick )
-    for _viewId in _newActive
-      _ctrl = @_views[_viewId]
-      @changeActiveControl( _ctrl )
+    # for _viewId in _newActive
+    #   _ctrl = @_views[_viewId]
+    #   @changeActiveControl( _ctrl )
     @_listeners.hovered = []
     @_listeners.dragged = []
     @_cancelTextSelection() unless _endDragIds.length == 0 and _mouseUpIds.length == 0
@@ -946,6 +957,9 @@ EventManagerApp = HApplication.extend
       # Firefox fires click separately.
       # the handler is contextMenu
       return true
+    if e.type == 'touchend'
+      [ xd, yd ] = @status.mouseDownDiff
+      return true if xd > 25 or yd > 25
     #
     # Focus check here
     #
@@ -1035,6 +1049,7 @@ EventManagerApp = HApplication.extend
       if _ctrl.mouseWheel?
         _stop = true if _ctrl.mouseWheel( _delta )
     Event.stop(e) if _stop
+
   #
   # Handles the contextMenu event
   contextMenu: (e)->
@@ -1174,6 +1189,7 @@ EventManagerApp = HApplication.extend
       _ctrl = @_views[_viewId]
       if _ctrl.keyDown?
         _stop = true if _ctrl.keyDown(_keyCode)
+        break if _stop
     #
     # Some keys are special (esc and return) and they have their own
     # special events: defaultKey and escKey, which aren't limited
@@ -1200,7 +1216,7 @@ EventManagerApp = HApplication.extend
       _textEnters.push( _viewId ) if ~_enabled.indexOf( _viewId )
     for _viewId in _textEnters
       _ctrl = @_views[_viewId]
-      if _ctrl.textEnter?
+      if _ctrl? and _ctrl.textEnter?
         _stop = true if _ctrl.textEnter( _keyCode )
     if @status.hasKeyDown( _keyCode )
       for _viewId in _active
@@ -1208,8 +1224,9 @@ EventManagerApp = HApplication.extend
       @status.delKeyDown( _keyCode )
     for _viewId in _keyUppers
       _ctrl = @_views[_viewId]
-      if _ctrl.keyUp? and ~_active.indexOf( _viewId )
+      if _ctrl? and _ctrl.keyUp? and ~_active.indexOf( _viewId )
         _stop = true if _ctrl.keyUp( _keyCode )
+        break if _stop
     Event.stop(e) if _stop
   keyPress: (e)->
     # @warn('EventManager#keyPress not implemented')
@@ -1235,21 +1252,21 @@ EventManagerApp = HApplication.extend
     @warn('EventManager#isCmdKeyDown is deprecated, use #status.cmdKeyDown instead')
     @status.altKeyDown
   #
-  idle: ->
-    if @_topmostQueue.length
-      _items = []
-      _lastPoint = false
-      for i in [0..(@_topmostQueue.length-1)]
-        [ _point, _ctrl ] = @_topmostQueue.shift()
-        _lastPoint = _point
-        continue if _ctrl.isDead
-        continue unless _ctrl.enabled
-        _items.push( _ctrl )
-      _matchIds = @_findTopmostEnabled( _lastPoint, 'contains', null )
-      for _ctrl in _items
-        _viewId = _ctrl.viewId
-        if ~_matchIds.indexOf( _viewId )
-          @changeActiveControl( _ctrl )
+  # idle: ->
+  #   if @_topmostQueue.length
+  #     _items = []
+  #     _lastPoint = false
+  #     for i in [0..(@_topmostQueue.length-1)]
+  #       [ _point, _ctrl ] = @_topmostQueue.shift()
+  #       _lastPoint = _point
+  #       continue if _ctrl.isDead
+  #       continue unless _ctrl.enabled
+  #       _items.push( _ctrl )
+  #     _matchIds = @_findTopmostEnabled( _lastPoint, 'contains', null )
+      # for _ctrl in _items
+      #   _viewId = _ctrl.viewId
+      #   if ~_matchIds.indexOf( _viewId )
+      #     @changeActiveControl( _ctrl )
     # Debug output
     # console.log( 'focused: ',
     # JSON.stringify(@_listeners.focused),'active:',

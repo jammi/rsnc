@@ -23,6 +23,10 @@ BROWSER_TYPE =
   ios: false
   iphone: false # also true for iPod touch
   ipad: false
+  android: false
+  mobile: false
+  lang_en: false
+  lang_fi: false
 
 ###
 The DOM Element abstraction engine
@@ -691,6 +695,11 @@ ELEM = HClass.extend
         else
           for _attrName, _attrValue of _attrs
             @setAttr( _id, _attrName, _attrValue, true )
+      _classes = _options.classes
+      if _classes?
+        if _classes instanceof Array
+          for _className in _options.classes
+            @addClassName( _id, _className )
       if _options.styles
         @setStyles( _id, _options.styles )
       if _options.html
@@ -879,10 +888,13 @@ ELEM = HClass.extend
   ###
   _warmup: ->
     _ua = navigator.userAgent
+    _av = navigator.appVersion
+    _lang = navigator.language || navigator.userLanguage
+
     _browserType = BROWSER_TYPE
     _browserType.opera    = !!~_ua.indexOf('Opera')
-    _browserType.safari   = !!~_ua.indexOf('KHTML')
-    _browserType.chrome   = !!~_ua.indexOf('Chrome')
+    _browserType.chrome   = !!~_ua.indexOf('Chrome') or !!~_ua.indexOf('CriOS')
+    _browserType.safari   = !!~_ua.indexOf('Safari') and !_browserType.chrome
     _isIE = document.all and not _browserType.opera
     if _isIE
       _browserType.ie  = _isIE
@@ -905,6 +917,13 @@ ELEM = HClass.extend
     _browserType.ios = _iPhone or _iPad
     _browserType.iphone = _iPhone
     _browserType.ipad = _iPad
+    _browserType.android = !!~_ua.indexOf('Android')
+    _browserType.mobile = !!~_av.indexOf('Mobile')
+    if !!~_lang.indexOf('fi')
+      _browserType.lang_fi = true
+    else
+      _browserType.lang_en = true
+      
     @_domWaiter()
     null
 

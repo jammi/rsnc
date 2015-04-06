@@ -27,7 +27,7 @@ HValueAction = UtilMethods.extend({
     if( this.parent.addView instanceof Function ){
       this.viewId = this.parent.addView( this );
     }
-    this.refresh();
+    //this.refresh();
   },
   remove: function(){
     if( this.parent ) {

@@ -33,7 +33,6 @@ HTextControl = HControl.extend
     refreshOnBlur:  true
     refreshOnInput: true
     refreshOnIdle:  false
-    focusOnCreate:  false
     unit: false # unit suffix
 
   ## This flag is true, when the text input field has focus.
@@ -152,6 +151,13 @@ HTextControl = HControl.extend
     _elemId
 
   fieldType: 'text'
+  
+  setFocus: ->
+    _elem = @getInputElement()
+    if _elem?
+      _elem.focus()
+      @setSelectionRange( @value.length, @value.length ) if @typeChr(@value) == 's'
+  
   drawMarkup: ->
     @base()
     @_invalidCharWidth = @stringWidth(@_invalidChar,null,@markupElemIds.invalid)
@@ -159,17 +165,18 @@ HTextControl = HControl.extend
     if @options.snatchField?
       _elemId = @_snatchField(_parentId,@options.snatchField)
     else
+      _attrs = {
+        type: @fieldType,
+        value: @value
+      }
       if @multiline
-        _elemId = ELEM.make(_parentId,'textarea')
+        _elemId = ELEM.make(_parentId,'textarea',{attr:_attrs})
       else
-        _elemId = ELEM.make(_parentId,'input',{attr:{type:@fieldType,value:@value}})
+        _elemId = ELEM.make(_parentId,'input',{attr:_attrs})
     @markupElemIds.value = _elemId
     @setCSSClass('value','input')
     Event.observe(_elemId,'focus',=>@textFocus())
     Event.observe(_elemId,'blur',=>@textBlur())
-    if @options.focusOnCreate
-      @getInputElement().focus()
-      @setSelectionRange( @value.length, @value.length ) if @typeChr(@value) == 's'
     if BROWSER_TYPE.ie8
       @setResize( true ) unless @events.resize
       @_ie8fix()
@@ -187,6 +194,9 @@ HTextControl = HControl.extend
 
   click: ->
     @getInputElement().focus() unless @hasTextFocus
+
+  setTabIndex: ( _tabIndex )->
+    @setAttrOfPart( 'value', 'tabIndex', _tabIndex )
 
   setEnabled: (_flag)->
     @base(_flag)
