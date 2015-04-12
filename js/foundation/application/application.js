@@ -174,12 +174,18 @@ HApplication = UtilMethods.extend({
   *
   **/
   destroyAllViews: function(){
-    for(var i = 0; i < this.views.length; i++) {
+    var _views = HVM.clone( this.views );
+    this.views = [];
+    for(var i = 0; i < _views.length; i++) {
       try{
-        HSystem.views[this.views[i]].die();
+        // if( HSystem.views[_views[i]] !== undefined ) {
+        HSystem.views[_views[i]].die();
+        // } else {
+        //   console.log( "not found", _views[i] );
+        // }
       }
       catch(e){
-        console.log('unable to destroy:',this.views[i]);
+        // console.log('unable to destroy:',_views[i]);
       }
     }
   },
