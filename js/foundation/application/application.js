@@ -238,7 +238,7 @@ HApplication = UtilMethods.extend({
       10
     );
   },
-  
+
 /** = Description
   * The receiver of the +onIdle+ "poll event". The app priority defines the interval.
   *
