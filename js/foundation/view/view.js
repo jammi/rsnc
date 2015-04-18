@@ -1542,13 +1542,9 @@ HView = UtilMethods.extend({
   *
   **/
   die: function( _delay ) {
-    if( this.isDead ) {
-      return false;
-    }
-    this.isDead = true;
     if( this.typeChr( _delay ) === 'n' ) {
       var _this = this;
-      setTimeout( function() { _this.dieMethods(); }, _delay );
+      this.timeouts.push( setTimeout( function() { _this.dieMethods(); }, _delay ) );
     } else {
       this.dieMethods();
     }
@@ -1556,6 +1552,10 @@ HView = UtilMethods.extend({
   },
 
   dieMethods: function() {
+    if( this.isDead === true ) {
+      return true;
+    }
+    this.isDead = true;
     // hide self, makes destruction seem faster
     this.hide();
     this.drawn = false;
@@ -1596,8 +1596,10 @@ HView = UtilMethods.extend({
     this.rect = null;
     var _this = this;
     for( i in _this ){
-      _this[i] = null;
-      delete _this[i];
+      if( i !== 'isDead' ) {
+        _this[i] = null;
+        delete _this[i];
+      }
     }
   },
 
