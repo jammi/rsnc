@@ -726,6 +726,7 @@ HView = UtilMethods.extend({
   **/
   _ieNoThrough: null,
   draw: function() {
+    var _this = this;
     var _isDrawn = this.drawn;
     this.drawRect();
     if(!_isDrawn){
@@ -770,11 +771,7 @@ HView = UtilMethods.extend({
         this.show();
       }
       if( this.options.focusOnCreate == true && !BROWSER_TYPE.mobile ) {
-        this.setFocus();
-        var _this = this;
-        // setTimeout( function() {
-        //   _this.setFocus()
-        // }, 300 );
+        this.timeouts.push( setTimeout( function() { _this.setFocus() }, 300 ) );
       }
     }
     this.refresh();
