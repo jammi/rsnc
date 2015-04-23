@@ -640,6 +640,7 @@ HView = UtilMethods.extend({
   **/
   drawRect: function() {
     if( !this.rect ) {
+      this.drawn = true;
       return;
     }
     if(!this.rect.isValid && !this.isProduction){
