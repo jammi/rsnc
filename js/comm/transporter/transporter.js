@@ -131,7 +131,7 @@ COMM.Transporter = HApplication.extend({
   * +resp+:: The response object.
   *
   **/
-  success: function(resp){  
+  success: function(resp){
     var _this = COMM.Transporter;
     if(!resp.X.responseText){
       _this.failure(resp);
@@ -312,15 +312,15 @@ COMM.Transporter = HApplication.extend({
 /** Called by the XMLHttpRequest, when there was a failure in communication.
   **/
   failure: function(_resp){
-    var _this = COMM.Transporter;
+    var _this = COMM.Transporter,
+        _queue = COMM.Queue;
     // server didn't respond, likely network issue.. retry.
     if(_resp.X.status===0){
-      console.log(_this.serverLostMessage);
-      _this.setInterruptAnim(_resp);
+      console.log( 'Server Connection Lost: Reconnecting...' );
+    } else {
+      console.log( 'Transporter was unable to complete the synchronization request.' );
     }
-    else {
-      _this.failMessage('Transporter Error','Transporter was unable to complete the synchronization request.');
-    }
+    _queue.push( function() { _this.busy = false; } );
   },
 
 /** Starts requests.
