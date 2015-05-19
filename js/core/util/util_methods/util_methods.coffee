@@ -165,7 +165,7 @@ UtilMethods = (->
           else
             _dst[i] = _item
         else if !@isProduction
-          console.warn('updateObject; mismatching item type: ', _itemType, ' (', _item, ') vs ', @_typeChr(_dst[i]), ' (',_dst[i], ')')
+          console.warn('updateObject; mismatching item type: ', _itemType, ' (', _item, ') vs ', @typeChr(_dst[i]), ' (',_dst[i], ')')
       if _typeSrc == _typeDst
         if _typeSrc == 'a'
           for _item, i in _src
