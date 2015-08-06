@@ -13,6 +13,8 @@ BROWSER_TYPE =
   ie8: false
   ie9: false
   ie10: false
+  ie11: false
+  edge: false
   opera: false
   safari: false
   chrome: false
@@ -933,6 +935,8 @@ ELEM = HClass.extend
       _browserType.ie10 = !!~_ua.indexOf('MSIE 10')
       if _browserType.ie9
         @sha = SHA.new(16) # SHA1 needed for IE9 SVG base64 encoding
+    _browserType.ie11 = !!~_ua.indexOf('Trident/7.0')
+    _browserType.edge = !!~_ua.indexOf('Edge')
     _browserType.mac = !!~_ua.indexOf('Macintosh')
     _browserType.win = !!~_ua.indexOf('Windows')
     _browserType.firefox = !!~_ua.indexOf('Firefox')
