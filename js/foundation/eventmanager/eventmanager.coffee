@@ -579,9 +579,9 @@ EventManagerApp = HApplication.extend
   _handleMouseMove: ( x, y )->
     @_findNewFocus(x,y)
     @_debugHighlight()
-    @_delegateMouseMove(x,y)
+    _mouseMoveHandled = @_delegateMouseMove(x,y)
     _currentlyDragging = @_delegateDrag(x,y)
-    return _currentlyDragging
+    return ( _mouseMoveHandled or _currentlyDragging )
   #
   # Handle items being dragged, sending #drag(x,y) calls to them
   _delegateDrag: (x, y)->
@@ -597,10 +597,12 @@ EventManagerApp = HApplication.extend
   _delegateMouseMove: (x,y)->
     _mouseMoveItems = @_listeners.byEvent.mouseMove
     return false if _mouseMoveItems.length == 0
+    _stop = false
     for _viewId in _mouseMoveItems
       _ctrl = @_views[_viewId]
-      _ctrl.mouseMove(x,y)
-    return true
+      if _ctrl?
+        _stop = true if _ctrl.mouseMove(x,y)
+    return _stop
   #
   # Handle items wanting #startHover( _dragObj ),
   # #hover( _dragObj ) and #endHover( _dragObj ) calls
@@ -899,7 +901,7 @@ EventManagerApp = HApplication.extend
     @_cancelTextSelection() unless _endDragIds.length == 0 and _mouseUpIds.length == 0
     @_ieClassNameUnPatch() if BROWSER_TYPE.ie and @_ieClassNamePatched.length
     if Event.hasTouch()
-      Event.stop(e)
+      # Event.stop(e)
       @click(e)
     else if _stop
       Event.stop(e)
