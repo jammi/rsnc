@@ -529,6 +529,7 @@ EventManagerApp = HApplication.extend
 
   _debugHighlight: ->
     return if @isProduction
+    return if BROWSER_TYPE.mobile
     _focused = @_listeners.focused
     if _focused.length > 0
       _ctrl = @_views[_focused[_focused.length - 1 ]]
@@ -550,17 +551,6 @@ EventManagerApp = HApplication.extend
       @_debugElem = null
     true
 
-  #
-  # Mouse movement manager. Triggered by the global mousemove event.
-  # Delegates the following event responder methods to focused HControl instances:
-  # - drag
-  # - mouseMove
-  # - endHover
-  # - startHover
-  mouseMove: (e)->
-    @_modifiers(e) # fetch event modifiers
-    [ x, y ] = @status.crsr
-    Event.stop(e) if @_handleMouseMove( x, y )
   #
   # Finds new focusable components after the
   # mouse has been moved (replacement of mouseover/mouseout)
@@ -854,6 +844,7 @@ EventManagerApp = HApplication.extend
       for _viewId in _focused
         @_ieClassNamePatch(_viewId)
     Event.stop(e) if _stop
+
   #
   # Mouse button press manager. Triggered by the global mouseDown event.
   # Delegates the following event responder methods to active HControl instances:
@@ -899,6 +890,7 @@ EventManagerApp = HApplication.extend
           _dropCtrl.endHover(_ctrl) if _dropCtrl.endHover?
           _dropCtrl.drop(_ctrl) if _dropCtrl.drop?
         _stop = true if _ctrl.endDrag( x, y, _leftClick )
+
     # for _viewId in _newActive
     #   _ctrl = @_views[_viewId]
     #   @changeActiveControl( _ctrl )
@@ -906,7 +898,24 @@ EventManagerApp = HApplication.extend
     @_listeners.dragged = []
     @_cancelTextSelection() unless _endDragIds.length == 0 and _mouseUpIds.length == 0
     @_ieClassNameUnPatch() if BROWSER_TYPE.ie and @_ieClassNamePatched.length
-    Event.stop(e) if _stop
+    if Event.hasTouch()
+      Event.stop(e)
+      @click(e)
+    else if _stop
+      Event.stop(e)
+
+  #
+  # Mouse movement manager. Triggered by the global mousemove event.
+  # Delegates the following event responder methods to focused HControl instances:
+  # - drag
+  # - mouseMove
+  # - endHover
+  # - startHover
+  mouseMove: (e)->
+    @_modifiers(e) # fetch event modifiers
+    [ x, y ] = @status.crsr
+    Event.stop(e) if @_handleMouseMove( x, y )
+
   #
   # Handles mouse button clicks
   # It's different from mouseUp/mouseDown, because it's a different event,
@@ -922,7 +931,7 @@ EventManagerApp = HApplication.extend
       # the handler is contextMenu
       return true
     [ xd, yd ] = @status.mouseDownDiff
-    return true if xd > 25 or yd > 25
+    return true if xd > 20 or yd > 20
     #
     # Focus check here
     #
@@ -965,6 +974,7 @@ EventManagerApp = HApplication.extend
       )
     @_ieClassNameUnPatch() if BROWSER_TYPE.ie and @_ieClassNamePatched.length
     Event.stop(e) if _stop
+
   #
   # Handles doubleClick events
   doubleClick: (e)->

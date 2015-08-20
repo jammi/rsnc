@@ -594,7 +594,9 @@ HView = UtilMethods.extend({
       this._makeElem(this._getParentElemId());
 
       if( this.cssOverflowY == false && this.cssOverflowX == false ) {
-        ELEM.setStyle(this.elemId,'overflow',this.cssOverflow,true);
+        if( this.cssOverflow ) {
+          ELEM.setStyle(this.elemId,'overflow',this.cssOverflow,true);
+        }
       }
       if( this.cssOverflowY != false ) {
         ELEM.setStyle(this.elemId,'overflow-y',this.cssOverflowY,true);
