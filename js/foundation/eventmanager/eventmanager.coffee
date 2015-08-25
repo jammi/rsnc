@@ -845,7 +845,10 @@ EventManagerApp = HApplication.extend
     if BROWSER_TYPE.ie
       for _viewId in _focused
         @_ieClassNamePatch(_viewId)
-    Event.stop(e) if _stop
+    if e.type == 'touchstart'
+      true
+    else if _stop
+      Event.stop(e)
 
   #
   # Mouse button press manager. Triggered by the global mouseDown event.
@@ -900,8 +903,7 @@ EventManagerApp = HApplication.extend
     @_listeners.dragged = []
     @_cancelTextSelection() unless _endDragIds.length == 0 and _mouseUpIds.length == 0
     @_ieClassNameUnPatch() if BROWSER_TYPE.ie and @_ieClassNamePatched.length
-    if Event.hasTouch()
-      # Event.stop(e)
+    if e.type == 'touchend'
       @click(e)
     else if _stop
       Event.stop(e)
