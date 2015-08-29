@@ -454,8 +454,8 @@ EventManagerApp = HApplication.extend
   #
   # Handle event modifiers
   _modifiers: (e)->
-    [ _x, _y ] = ELEM.getScrollPosition(0)
-    [ x, y ] = [ Event.pointerX(e) - _x, Event.pointerY(e) - _y ]
+    # [ _x, _y ] = ELEM.getScrollPosition(0)
+    [ x, y ] = [ Event.pointerX(e), Event.pointerY(e) ]
     unless isNaN(x) or isNaN(y)
       @status.setCrsr( x, y )
     @status.setAltKey( e.altKey )
