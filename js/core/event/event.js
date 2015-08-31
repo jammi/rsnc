@@ -15,9 +15,9 @@ Event = {
   **/
   pointerX: function(e) {
     if( /touch/.test(e.type) ) {
-      return e.changedTouches[0].pageX + document.body.scrollLeft;
+      return e.changedTouches[0].pageX;
     } else {
-      return ( e.pageX || e.clientX ) + document.body.scrollLeft;
+      return ( e.pageX || e.clientX );
     }
   },
 
@@ -25,9 +25,9 @@ Event = {
   **/
   pointerY: function(e) {
     if( /touch/.test(e.type) ) {
-      return e.changedTouches[0].pageY + document.body.scrollLeft;
+      return e.changedTouches[0].pageY;
     } else {
-      return ( e.pageY || e.clientY ) + document.body.scrollLeft;
+      return ( e.pageY || e.clientY );
     }
   },
 

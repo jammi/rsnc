@@ -454,7 +454,7 @@ EventManagerApp = HApplication.extend
   #
   # Handle event modifiers
   _modifiers: (e)->
-    # [ _x, _y ] = ELEM.getScrollPosition(0)
+    [ _x, _y ] = ELEM.getScrollPosition(0)
     [ x, y ] = [ Event.pointerX(e), Event.pointerY(e) ]
     unless isNaN(x) or isNaN(y)
       @status.setCrsr( x, y )
@@ -533,6 +533,7 @@ EventManagerApp = HApplication.extend
     _focused = @_listeners.focused
     if _focused.length > 0
       _ctrl = @_views[_focused[_focused.length - 1 ]]
+      return unless _ctrl?
       unless @_debugElem?
         @_debugElem = ELEM.make( 0, 'div',
           styles:
@@ -544,8 +545,7 @@ EventManagerApp = HApplication.extend
             '-moz-box-sizing': 'border-box'
             '-webkit-box-sizing': 'border-box'
         )
-      [ x, y, w, h ] = ELEM.getVisibleBoxCoords( _ctrl.elemId )
-      ELEM.setBoxCoords( @_debugElem, [ x, y, w, h ] )
+      ELEM.setBoxCoords( @_debugElem, ELEM.getVisibleBoxCoords( _ctrl.elemId, true ) )
     else if @_debugElem?
       ELEM.del( @_debugElem )
       @_debugElem = null

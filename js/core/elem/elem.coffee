@@ -245,7 +245,8 @@ ELEM = HClass.extend
     while _elem != document.body
       x += _elem.offsetLeft
       if @_getComputedStyle( _elem, 'position' ) == 'fixed'
-        x += _elem.parentNode.scrollLeft
+        x += document.body.scrollLeft
+        break
       if !_noOwnScoll or _elem != @_elements[_id]
         x -= _elem.scrollLeft
       _elem = _elem.parentNode
@@ -261,7 +262,8 @@ ELEM = HClass.extend
     while _elem != document.body
       y += _elem.offsetTop
       if @_getComputedStyle( _elem, 'position' ) == 'fixed'
-        y += _elem.parentNode.scrollTop
+        y += document.body.scrollTop
+        break
       if !_noOwnScoll or _elem != @_elements[_id]
         y -= _elem.scrollTop
       _elem = _elem.parentNode
