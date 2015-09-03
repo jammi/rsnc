@@ -242,7 +242,7 @@ ELEM = HClass.extend
   _getVisibleLeftPosition: (_id,_noOwnScoll)->
     _elem = @_elements[_id]
     x = 0
-    while _elem != document.body
+    while _elem != document.body and _elem != null
       x += _elem.offsetLeft
       if @_getComputedStyle( _elem, 'position' ) == 'fixed'
         x += document.body.scrollLeft
@@ -259,7 +259,7 @@ ELEM = HClass.extend
   _getVisibleTopPosition: (_id,_noOwnScoll)->
     _elem = @_elements[_id]
     y = 0
-    while _elem != document.body
+    while _elem != document.body and _elem != null
       y += _elem.offsetTop
       if @_getComputedStyle( _elem, 'position' ) == 'fixed'
         y += document.body.scrollTop
