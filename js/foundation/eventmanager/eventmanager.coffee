@@ -1171,11 +1171,12 @@ EventManagerApp = HApplication.extend
     # Some keys are special (esc and return) and they have their own
     # special events: defaultKey and escKey, which aren't limited
     # to instances of HControl, but any parent object will work.
-    if not _repeating and @_defaultKeyActions[_keyCode.toString()]
+    if not _stop and not _repeating and @_defaultKeyActions[_keyCode.toString()]
       _defaultKeyMethod = @_defaultKeyActions[_keyCode.toString()]
       _stop = true if @defaultKey(_defaultKeyMethod,null,[])
     @_lastKeyDown = _keyCode
     Event.stop(e) if _stop
+
   keyUp: (e)->
     @_modifiers(e)
     _keyCode = @translateKeyCodes( e.keyCode )
@@ -1205,6 +1206,7 @@ EventManagerApp = HApplication.extend
         _stop = true if _ctrl.keyUp( _keyCode )
         break if _stop
     Event.stop(e) if _stop
+
   keyPress: (e)->
     # @warn('EventManager#keyPress not implemented')
   isKeyDown: (_keyCode)->
