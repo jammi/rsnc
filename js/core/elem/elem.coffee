@@ -201,7 +201,7 @@ ELEM = HClass.extend
       if _visible == @_getComputedStyle( _parent, _overflow )
         [ _parentClientWidth, _parentClientHeight ] = [ _parent.clientWidth, _parent.clientHeight ]
         w = _parentClientWidth - _elem.offsetLeft if w > _parentClientWidth
-        h = _parentClientWidth - _elem.offsetTop  if h > _parentClientHeight
+        h = _parentClientHeight - _elem.offsetTop  if h > _parentClientHeight
       _elem = _elem.parentNode
       break unless _parent.parentNode
       _parent = _parent.parentNode
@@ -389,7 +389,7 @@ ELEM = HClass.extend
   ###
   getVisibleBoxCoords: (_id, _noOwnScoll)->
     [ x, y ] = @getVisiblePosition( _id, _noOwnScoll )
-    [ w, h ] = @getVisibleSize( _id, _noOwnScoll )
+    [ w, h ] = @getSize( _id )
     [ x, y, w, h ]
 
   ###
