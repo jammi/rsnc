@@ -735,6 +735,7 @@ EventManagerApp = HApplication.extend
   #
   # Adds the active control
   addActiveControl: (_ctrl,_prevActive)->
+    return unless _ctrl? and _ctrl.allowActiveStatus( _prevActive )
     _active = @_listeners.active
     _focused = @_listeners.focused
     _idx = _active.indexOf( _ctrl.viewId )
@@ -747,9 +748,12 @@ EventManagerApp = HApplication.extend
   #
   # Sets the active control
   changeActiveControl: (_ctrl)->
-    return if _ctrl != null and @_views[@_listeners.active[0]] == _ctrl
-    _prevActive = @delActiveControl(_ctrl)
-    @addActiveControl(_ctrl, _prevActive) if _ctrl != null
+    _prevActive = @_views[@_listeners.active[0]]
+    return if _ctrl? and _prevActive == _ctrl
+    if _ctrl == null or _ctrl.allowActiveStatus( _prevActive )
+      @delActiveControl(_ctrl)
+      @addActiveControl(_ctrl, _prevActive)
+    true
   #
   # Method to be called, when you want to make an item draggable from outside of the EventManager
   startDragging: (_ctrl)->
