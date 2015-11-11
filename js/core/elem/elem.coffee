@@ -213,7 +213,11 @@ ELEM = HClass.extend
   getSize: (_id)->
     _elem = @_elements[_id]
     [ w, h ] = [ 0, 0 ]
-    if _elem?
+    if @_isSVGElem( _elem )
+      _rect = _elem.getBoundingClientRect()
+      console.log( "_Rect", _rect )
+      [ w, h ] = [ _rect.width, _rect.height ]
+    else if _elem?
       [ w, h ] = [ _elem.offsetWidth, _elem.offsetHeight ]
     else if !@isProduction
       console.warn( 'ELEM.getSize(', _id, '): Element not found' )
@@ -225,7 +229,10 @@ ELEM = HClass.extend
   getPosition: (_id)->
     _elem = @_elements[_id]
     [ x, y ] = [ 0, 0 ]
-    if _elem?
+    if @_isSVGElem( _elem )
+      _rect = _elem.getBoundingClientRect()
+      [ x, y ] = [ _rect.left, _rect.top ]
+    else if _elem?
       [ x, y ] = [ _elem.offsetLeft, _elem.offsetTop ]
     else if !@isProduction
       console.warn( 'ELEM.getPosition(', _id, '): Element not found' )
@@ -547,6 +554,13 @@ ELEM = HClass.extend
       _elem[_key] = _val
     null
 
+
+  ###
+  Return true if element is SVGElement
+  ###
+  _isSVGElem: ( _elem ) ->
+    ( _elem instanceof SVGElement )
+
   ###
   Gets an element attribute directly from the element
   ###
@@ -602,11 +616,32 @@ ELEM = HClass.extend
     true
 
   ###
+  Get classnames of element
+  ###
+  _getClassNames: ( _id ) ->
+    _elem = @_elements[_id]
+    if @_isSVGElem( _elem )
+      _elem.className.baseVal
+    else
+      _elem.className
+
+  ###
+  Set classnames for element
+  ###
+  _setClassNames: ( _id, _className ) ->
+    _elem = @_elements[_id]
+    if @_isSVGElem( _elem )
+      _elem.className.baseVal = _className
+    else
+      _elem.className = _className
+
+
+  ###
   Checks if the element has a named CSS className
   ###
   hasClassName: (_id, _className)->
     return null unless @_elements[_id]? # item is deleted
-    _classNames = @_elements[_id].className.split(' ')
+    _classNames = @_getClassNames( _id ).split(' ')
     return !!~_classNames.indexOf( _className )
 
   ###
@@ -616,13 +651,13 @@ ELEM = HClass.extend
     return null unless @_elements[_id]? # item is deleted
     unless @hasClassName( _id, _className )
       _elem = @_elements[_id]
-      if _elem.className.trim() == ''
-        _elem.className = _className
+      if @_getClassNames( _id ).trim() == ''
+        @_setClassNames( _id, _className )
       else
-        _classNames = _elem.className.trim().split(' ')
+        _classNames = @_getClassNames( _id ).trim().split(' ')
         _classNames.push(_className)
-        _elem.className = _classNames.join(' ')
-      @_attrCache[_id]['className'] = _elem.className
+        @_setClassNames( _id, _classNames.join(' ') )
+      @_attrCache[_id]['className'] = @_getClassNames( _id )
     null
 
   ###
@@ -632,10 +667,10 @@ ELEM = HClass.extend
     return null unless @_elements[_id]? # item is deleted
     if @hasClassName( _id, _className )
       _elem = @_elements[_id]
-      _classNames = _elem.className.split(' ')
+      _classNames = @_getClassNames( _id ).split(' ')
       _classNames.splice( _classNames.indexOf( _className ), 1 )
-      _elem.className = _classNames.join(' ')
-      @_attrCache[_id]['className'] = _elem.className
+      @_setClassNames( _id, _classNames.join(' ') )
+      @_attrCache[_id]['className'] = @_getClassNames( _id )
     null
 
   removeClassName: (_id, _className)->
