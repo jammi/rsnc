@@ -441,6 +441,9 @@ ELEM = HClass.extend
   getExtraHeight: (_id)->
     @_getExtraSize( _id, 'top' ) + @_getExtraSize( _id, 'bottom' )
 
+  isFullScreen: ->
+    ( document.fullScreenElement? || document.mozFullScreen || document.webkitIsFullScreen )
+
   ###
   Sets delay between refreshes based on the target frame rate
   ###
