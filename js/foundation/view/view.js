@@ -743,6 +743,11 @@ HView = UtilMethods.extend({
         ELEM.setCSS( this._ieNoThrough, 'position:absolute;left:0;top:0;bottom:0;right:0;background-color:#ffffff;font-size:0;line-height:0' );
         ELEM.setStyle( this._ieNoThrough, 'opacity', 0.01 );
       }
+      if(this.typeChr(this.options.classNames) === 'a'){
+        for(var i=0;i<this.options.classNames.length;i++){
+          this.setCSSClass(this.options.classNames[i]);
+        }
+      }
       if(this.options.style){
         this.setStyles( this.options.style ); // optimize
       }
