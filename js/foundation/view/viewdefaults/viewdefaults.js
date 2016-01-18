@@ -25,7 +25,7 @@ HViewDefaults = HClass.extend({
 
 /**  Use utc time as default
   **/
-  useUTC: true
+  useUTC: false
 
 });
 

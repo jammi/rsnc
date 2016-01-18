@@ -32,6 +32,15 @@ UtilMethods = (->
         return moment.utc(_date,_format)
       moment(_date,_format)
 
+    momentUnix: (_unix)->
+      if @options
+        if @options.useUTC or (@options.useUTC == null and HLocale.dateTime.defaultOptions.useUTC == true)
+          return moment.utc.unix(_unix)
+      else if HLocale.dateTime.defaultOptions.useUTC == true
+        return moment.utc.unix(_unix)
+      moment.unix(_unix)
+
+
     ###
     # Returns object type as a single-char string.
     # Use this method to detect the type of the object given.

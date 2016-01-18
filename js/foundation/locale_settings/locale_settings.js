@@ -104,7 +104,7 @@ HLocale = (UtilMethods.extend({
       AMPM: false
     },
     defaultOptions: {
-      useUTC: true,
+      useUTC: false,
       tzMinutes: 0,
       longWeekDay: false,
       shortWeekDay: false,
