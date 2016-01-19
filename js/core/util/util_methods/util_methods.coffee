@@ -34,12 +34,11 @@ UtilMethods = (->
 
     momentUnix: (_unix)->
       if @options
-        if @options.useUTC or (@options.useUTC == null and HLocale.dateTime.defaultOptions.useUTC == true)
-          return moment.utc.unix(_unix)
+        if @options.useUTC == true or (@options.useUTC == null and HLocale.dateTime.defaultOptions.useUTC == true)
+          return moment.unix(_unix).utc()
       else if HLocale.dateTime.defaultOptions.useUTC == true
-        return moment.utc.unix(_unix)
+        return moment.unix(_unix).utc()
       moment.unix(_unix)
-
 
     ###
     # Returns object type as a single-char string.
