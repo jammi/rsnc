@@ -841,7 +841,7 @@ ELEM = HClass.extend
         _value = @getOpacity(_id)
       else
         _value = @_getComputedStyle( @_elements[_id], _key )
-        _value = -1 if _key == 'z-index' and _value == 'auto'
+        # _value = -1 if _key == 'z-index' and _value == 'auto'
       _cached[_key] = _value
     else
       _value = _cached[_key]
