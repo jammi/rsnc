@@ -1064,6 +1064,14 @@ HView = UtilMethods.extend({
           _parentWidth = _parentSize[0];
           _parentHeight = _parentSize[1];
         }
+        if( _validLeftOffset && _validRightOffset && !_validWidth ) {
+          _width = 0
+          _validWidth = true;
+        }
+        if( _validTopOffset && _validBottomOffset && !_validHeight ) {
+          _height = 0
+          _validHeight = true;
+        }
 
         if( !this.isProduction ){
           if( (!_validLeftOffset && !_validRightOffset) ||
