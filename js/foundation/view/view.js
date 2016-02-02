@@ -918,38 +918,6 @@ HView = UtilMethods.extend({
   },
 
 /** = Description
-  * Method to escape HTML from text.
-  *
-  * Converts < to &lt; and > to &gt; and & to &amp;
-  *
-  * = Parameters
-  * +_html+:: The html to escape.
-  *
-  * = Returns
-  * A string with the html escaped.
-  **/
-  escapeHTML: function( _html ) {
-    if( _html === undefined || typeof _html == 'object' ) {
-      return '';
-    }
-    if( typeof _html !== 'string' ) {
-      return _html.toString();
-    }
-    for( var i=0, _reFrom, _reTo, _reArr = this._escapeHTMLArr; i < _reArr.length; i++ ){
-      _reFrom = _reArr[i][0];
-      _reTo = _reArr[i][1];
-      _html = _html.replace( _reFrom, _reTo );
-    }
-    return _html;
-  },
-  _escapeHTMLArr: [
-    [ new RegExp( /&/gmi ), '&amp;' ],
-    [ new RegExp( />/gmi ), '&gt;' ],
-    [ new RegExp( /</gmi ), '&lt;' ],
-    [ new RegExp( /\n/gmi ), '<br>' ]
-  ],
-
-/** = Description
   *
   * This method should be extended in order to redraw only specific parts. The
   * base implementation calls optimizeWidth when optimizeWidthOnRefresh is set
@@ -1086,6 +1054,7 @@ HView = UtilMethods.extend({
 
         if(_validLeftOffset && _validWidth && !_validRightOffset){
           _right = _leftOffset + _width;
+          this.setMinWidth( 0 );
         }
         else if(!_validLeftOffset && _validWidth && _validRightOffset){
           _right = _parentWidth-_validRightOffset;
@@ -1125,6 +1094,7 @@ HView = UtilMethods.extend({
 
         if(_validTopOffset && _validHeight && !_validBottomOffset){
           _bottom = _topOffset + _height;
+          this.setMinHeight( 0 );
         }
         else if(!_validTopOffset && _validHeight && _validBottomOffset){
           _bottom = _parentHeight-_validBottomOffset;

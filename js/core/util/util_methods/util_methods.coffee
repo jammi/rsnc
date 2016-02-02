@@ -40,6 +40,35 @@ UtilMethods = (->
         return moment.unix(_unix).utc()
       moment.unix(_unix)
 
+    # = Description
+    # Method to escape HTML from text.
+    #
+    # Converts < to &lt; and > to &gt; and & to &amp;
+    #
+    # = Parameters
+    # +_html+:: The html to escape.
+    #
+    # = Returns
+    # A string with the html escaped.
+    #
+    escapeHTML: ( _html ) ->
+      switch @typeChr( _html )
+        when '-', '~', 'o', '>', 'h'
+          ''
+        when 's'
+          for _re in @_escapeHTMLArr
+            _html = _html.replace( _re[0], _re[1] )
+          _html
+        else
+          _html.toString()
+
+    _escapeHTMLArr: [
+      [ new RegExp( /&/gmi ), '&amp;' ]
+      [ new RegExp( />/gmi ), '&gt;' ]
+      [ new RegExp( /</gmi ), '&lt;' ]
+      [ new RegExp( /\n/gmi ), '<br>' ]
+    ]
+
     ###
     # Returns object type as a single-char string.
     # Use this method to detect the type of the object given.
