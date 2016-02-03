@@ -766,7 +766,7 @@ HView = UtilMethods.extend({
       }
       // if options contain a sub-views function, call it with the name-space of self
       if(this.options.subviews && typeof this.options.subviews == 'function'){
-        this.options.subviews.call( this );
+        this.options.subviews.call( this, this );
       }
       // for external testing purposes, a custom className can be defined:
       if(this.options.testClassName){
@@ -962,7 +962,7 @@ HView = UtilMethods.extend({
   **/
   maxRect: function(){
     var _parentSize = this.parentSize();
-    return [ 0, 0, _parentSize[0], _parentSize[1] ];
+    return [ 0, 0, null, null, 0, 0 ];
   },
 
   minWidth: 0,
