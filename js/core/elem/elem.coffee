@@ -803,6 +803,15 @@ ELEM = HClass.extend
     _id
 
   ###
+  Returns window scroll position as [ left, top ]
+  ###
+  windowScroll: ->
+    [
+      window.pageXOffset || document.documentElement.scrollLeft
+      window.pageYOffset || document.documentElement.scrollTop
+    ]
+
+  ###
   Returns inner size of the browser window as [ width, height ]
   ###
   windowSize: ->
