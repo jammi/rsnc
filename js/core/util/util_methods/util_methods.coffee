@@ -196,9 +196,12 @@ UtilMethods = (->
       _typeDst = @typeChr(_dst)
       _merge = (_item,_src,_dst,i)=>
         _itemType = @typeChr(_item)
-        if _itemType == @typeChr(_dst[i])
+        if _itemType == @typeChr(_dst[i]) or @typeChr(_dst[i]) in [ '~', '-' ]
           if _itemType == 'a' or _itemType == 'h'
-            @updateObjects( _item, _dst[i] )
+            if _itemType == @typeChr(_dst[i])
+              @updateObject( _item, _dst[i] )
+            else
+              _dst[i] = _item
           else
             _dst[i] = _item
         else if !@isProduction
@@ -209,8 +212,7 @@ UtilMethods = (->
             _merge(_item,_src,_dst,i)
         else if _typeSrc == 'h'
           for i, _item of _src
-            _itemType = @typeChr(_item)
-            _merge(_itemType,_src,_dst,i)
+            _merge(_item,_src,_dst,i)
     # Returns a decoded Array with the decoded content of Array _arr
     _decodeArr: (_arr)->
       _output = []

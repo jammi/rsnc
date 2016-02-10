@@ -4,14 +4,14 @@ HValueAction = UtilMethods.extend
     if _rect? and _rect.hasAncestor and _rect.hasAncestor( HClass )
       _options = _parent
       _parent = _rect
-    else 
+    else
       console.warn( "Warning: the rect constructor argument of HValueAction is deprecated:", _rect )
-    
+
     @parent = _parent
     @options = _options
     if _options.value
       @value = _options.value
-    
+
     if _options.bind?
       _valueObj = _options.bind
       if @typeChr( _valueObj ) == 's'
@@ -23,7 +23,7 @@ HValueAction = UtilMethods.extend
       @viewId = @parent.addView( @ )
     @inited = true
     @
-    
+
   remove: ->
     if @parent
       _viewZIdx = @parent.viewsZOrder.indexOf(@viewId)
@@ -33,15 +33,16 @@ HValueAction = UtilMethods.extend
       @parent.viewsZOrder.splice( _viewZIdx, 1 )
       _sysUpdateZIndexOfChildrenBufferIndex = HSystem._updateZIndexOfChildrenBuffer.indexOf( @viewId )
       if ~_sysUpdateZIndexOfChildrenBufferIndex
-        HSystem._updateZIndexOfChildrenBuffer.splice( _sysUpdateZIndexOfChildrenBufferIndex, 1 )      
+        HSystem._updateZIndexOfChildrenBuffer.splice( _sysUpdateZIndexOfChildrenBufferIndex, 1 )
       @parent  = null
       @parents = []
     @
 
   die: ->
-    @parent.removeView( @viewId )
+    if @typeChr( @parent.removeView ) == '>'
+      @parent.removeView( @viewId )
     if @valueObj?
-      @valueObj.release( @ ) 
+      @valueObj.release( @ )
     @value = null
     @viewId = null
 
@@ -53,8 +54,8 @@ HValueAction = UtilMethods.extend
       if @parent? and @parent[_refreshAction]?
         if @typeChr( @parent[_refreshAction] ) == '>'
           @parent[_refreshAction]( @value )
-        else 
+        else
           @parent[_refreshAction] = @value
     true
-          
+
 HValueAction.implement( HValueResponder )
