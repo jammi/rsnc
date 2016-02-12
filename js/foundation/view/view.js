@@ -641,7 +641,10 @@ HView = UtilMethods.extend({
   *
   **/
   drawRect: function() {
-    if( !this.rect ) {
+    if(!this.rect){
+      if(this.drawn === false){
+        this._updateZIndex();
+      }
       this.drawn = true;
       return;
     }
