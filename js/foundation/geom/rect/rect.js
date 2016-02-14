@@ -609,7 +609,11 @@ HRect = HClass.extend({
     return this;
   },
   _offsetToPoint: function(_point) {
-    this._offsetToXY(_point.x, _point.y);
+    if( _point instanceof Array ) {
+      this._offsetToXY(_point[0], _point[1]);
+    } else {
+      this._offsetToXY(_point.x, _point.y);
+    }
   },
   _offsetToXY: function(x, y) {
     this.right += x-this.left;
