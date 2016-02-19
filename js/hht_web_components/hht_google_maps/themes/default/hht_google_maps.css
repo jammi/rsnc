@@ -1,0 +1,21 @@
+.default.hht_google_maps > .no_map {
+  position: absolute;
+  left: 0; top: 40%; right: 0; bottom: 0;
+  visibility: inherit;
+  font-size: 22px;
+  text-align: center;
+}
+
+.default.hht_google_maps.has_map > .no_map {
+  visibility: hidden;
+}
+
+.default.hht_google_maps > .map {
+  position: absolute;
+  left: 0; top: 0; right: 0; bottom: 0;
+  visibility: hidden;
+}
+
+.default.hht_google_maps.has_map > .map {
+  visibility: inherit;
+}

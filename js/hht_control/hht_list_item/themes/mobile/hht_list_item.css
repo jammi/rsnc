@@ -1,0 +1,19 @@
+.mobile.hht_list_item {
+  cursor: pointer;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.mobile.hht_list_item.selected {
+  background-color: #D4EBFA;
+}
+
+.mobile.hht_list_item > .label {
+  position: absolute;
+  left: 10px; top: 15px; height: 30px; right: 10px;
+  line-height: 30px;
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

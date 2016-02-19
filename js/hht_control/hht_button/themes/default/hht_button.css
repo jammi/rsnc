@@ -1,0 +1,192 @@
+.default.hht_button {
+  outline: 0;
+  cursor: pointer;
+  border-style: solid;
+  border-radius: 5px;
+  border-width: 2px;
+  box-sizing:border-box;
+  -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+  -webkit-transition-property: color, background; 
+  -webkit-transition-duration: 0.2s, 0.2s; 
+  -webkit-transition-timing-function: linear, ease-in;
+  -moz-transition-property: color, background; 
+  -moz-transition-duration: 0.2s, 0.2s; 
+  -moz-transition-timing-function: linear, ease-in;
+  transition-property: color, background; 
+  transition-duration: 0.2s, 0.2s; 
+  transition-timing-function: linear, ease-in;
+}
+
+.default.hht_button.disabled {
+  cursor: default;  
+}
+
+.default.hht_button > .label {
+  position: absolute;
+  left: 6px; right: 6px; top: 0px; bottom: 0px;
+  text-align: center; 
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.default.hht_button.has_icon > .label {
+  left: 30px;
+  text-align: left;
+}
+
+.default.hht_button > .icon {
+  position: absolute;
+  left: 0; top: 0; width: 0; bottom: 0;
+  visibility: hidden;
+}
+
+.default.hht_button.has_icon > .icon {
+  left: 4px; top: 10px; width: 20px; height: 20px;
+  visibility: inherit;
+}
+
+.default.hht_button > .icon > svg {
+  fill: #7f8C8D;
+  stroke: #7f8C8D;
+  -webkit-transition-property: stroke, fill; 
+  -webkit-transition-duration: 0.2s, 0.2s; 
+  -webkit-transition-timing-function: linear, ease-in;
+  -moz-transition-property: stroke, fill; 
+  -moz-transition-duration: 0.2s, 0.2s; 
+  -moz-transition-timing-function: linear, ease-in;
+  transition-property: stroke, fill; 
+  transition-duration: 0.2s, 0.2s; 
+  transition-timing-function: linear, ease-in;
+}
+
+.default.hht_button:hover > .icon > svg,
+.default.hht_button.enabled.active > .icon > svg {
+  fill: #00AEEF;
+  stroke: #00AEEF;
+}
+
+/*Cancel Button*/
+.default.hht_button.cancel:hover > .icon > svg {
+  fill: #00AEEF;
+}
+.default.hht_button.cancel:hover > .icon > svg > * > .border {
+  fill: #FFF;
+}
+.default.hht_button.cancel:hover > .icon > svg > * > .bg {
+  stroke: #E74C3C;
+  fill: #E74C3C;
+}
+
+/*Complete Button*/
+.default.hht_button.complete:hover > .icon > svg {
+  fill: #00AEEF;
+}
+.default.hht_button.complete:hover > .icon > svg > * > .border {
+  fill: #FFF;
+}
+.default.hht_button.complete:hover > .icon > svg > * > .bg {
+  stroke: #2ECC71;
+  fill: #2ECC71;
+}
+
+/*Blue*/
+.default.hht_button.blue {
+  border-color: #00AEEF;
+  background-color: #FFF;
+}
+.default.hht_button.blue:hover {
+  background-color: #00AEEF;
+}
+.default.hht_button.blue.disabled {
+  background-color: #FFF;
+  border-color: #939598;
+}
+.default.hht_button.blue.enabled.active {
+  border-width: 3px;
+}
+.default.hht_button.blue > .label {
+  color: #00AEEF;
+}
+.default.hht_button.blue.disabled > .label {
+  color: #7f8C8D;
+}
+.default.hht_button.blue.enabled:hover > .label {
+  color: #FFF;
+}
+/*.default.hht_button.blue.enabled.active > .label {
+  color: #FFF;
+}
+*/
+/*Orange*/
+.default.hht_button.orange {
+  border-color: #F39C12;
+  background-color: #FFF;
+}
+.default.hht_button.orange:hover {
+  background-color: #F39C12;
+}
+.default.hht_button.orange.disabled {
+  background-color: #FFF;
+  border-color: #939598;
+}
+.default.hht_button.orange.enabled.active {
+  border-width: 3px;
+}
+.default.hht_button.orange > .label {
+  color: #F39C12;
+}
+.default.hht_button.orange.disabled > .label {
+  color: #7f8C8D;
+}
+.default.hht_button.orange.enabled:hover > .label {
+  color: #FFF;
+}
+
+/*Green*/
+.default.hht_button.green {
+  border-color: #27AE60;
+  background-color: #FFF;
+}
+.default.hht_button.green:hover {
+  background-color: #27AE60;
+}
+.default.hht_button.green.disabled {
+  background-color: #FFF;
+  border-color: #939598;
+}
+.default.hht_button.green.enabled.active {
+  border-width: 3px;
+}
+.default.hht_button.green > .label {
+  color: #27AE60; 
+}
+.default.hht_button.green.disabled > .label {
+  color: #7f8C8D;
+}
+.default.hht_button.green.enabled:hover > .label {
+  color: #FFF;
+}
+
+/*White*/
+.default.hht_button.white {
+  border-color: #FFF;
+  background-color: #FFF;
+}
+.default.hht_button.white.disabled {
+  background-color: #FFF;
+  border-color: #FFF;
+}
+.default.hht_button.white.enabled.active {
+  background: #FFF;
+}
+.default.hht_button.white > .label {
+  color: #7f8C8D;
+}
+.default.hht_button.white.enabled:hover > .label {
+  color: #00AEEF;
+}
+.default.hht_button.white.enabled.active > .label {
+  color: #00AEEF;
+}

@@ -1,0 +1,30 @@
+.default.hht_info {
+  cursor: pointer;
+}
+
+.default.hht_info > .icon {
+  position: absolute;
+  left: 2px; top: 6px; width: 18px; height: 18px;
+}
+
+.default.hht_info > .icon > svg {
+  fill: #7f8C8D;
+}
+
+.default.hht_info:hover > .icon > svg {
+  fill: #00AEEF;
+}
+
+.default.hht_info > .label {
+  position: absolute;
+  left: 24px; top: 0px; height: 30px; right: 0px;
+  line-height: 30px;
+  font-size: 14px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.default.hht_info:hover > .label {
+  color: #00AEEF;
+}

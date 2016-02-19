@@ -1,0 +1,24 @@
+.mobile.hht_list_button {
+  cursor: pointer;
+}
+
+.mobile.hht_list_button.clicked {
+  background-color: #D4EBFA;
+}
+
+.mobile.hht_list_button > .label {
+  position: absolute;
+  left: 0px; top: 0px; right: 30px; bottom: 0px;
+  font-size: 16px;
+  line-height: 40px;
+}
+
+.mobile.hht_list_button > .icon {
+  position: absolute;
+  top: 10px; right: 5px; width: 20px; height: 20px;
+}
+
+.mobile.hht_list_button > .icon > svg {
+  fill: #7f8C8D;
+  stroke: #7f8C8D;
+}

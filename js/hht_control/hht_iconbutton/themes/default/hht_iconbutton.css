@@ -1,0 +1,61 @@
+.default.hht_iconbutton {
+  cursor: pointer;
+}
+
+.default.hht_iconbutton > .icon {
+  position: absolute;
+  left: 0px; top: 0px; width: 0px; height: 0px;
+}
+
+.default.hht_iconbutton > .icon * {
+  -webkit-transition-property: stroke, fill; 
+  -webkit-transition-duration: 0.2s, 0.2s; 
+  -webkit-transition-timing-function: linear, ease-in;
+  -moz-transition-property: stroke, fill; 
+  -moz-transition-duration: 0.2s, 0.2s; 
+  -moz-transition-timing-function: linear, ease-in;
+  transition-property: stroke, fill; 
+  transition-duration: 0.2s, 0.2s; 
+  transition-timing-function: linear, ease-in;
+}
+
+.default.hht_iconbutton > .icon > svg {
+  position: absolute;
+  fill: #7f8C8D;
+}
+
+.default.hht_iconbutton:hover > .icon > svg {
+  fill: #00AEEF;
+  stroke: #00AEEF;
+}
+
+.default.hht_iconbutton > .icon > svg > * > .bg {
+  stroke: #7f8C8D;
+  fill: #FFF;
+}
+
+.default.hht_iconbutton > .icon > svg > * > .border {
+  fill: #7f8C8D;
+  stroke: none;
+}
+
+.default.hht_iconbutton:hover > .icon > svg > * > .bg {
+  stroke: #00AEEF;
+  fill: #00AEEF;
+}
+
+.default.hht_iconbutton:hover > .icon > svg > * > .border {
+  fill: #FFF;
+}
+
+/*Cancel Button*/
+.default.hht_iconbutton.cancel:hover > .icon > svg > * > .bg {
+  stroke: #E74C3C;
+  fill: #E74C3C;
+}
+
+/*Complete Button*/
+.default.hht_iconbutton.complete:hover > .icon > svg > * > .bg {
+  stroke: #2ECC71;
+  fill: #2ECC71;
+}

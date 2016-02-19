@@ -1,0 +1,60 @@
+.default.hht_textarea {
+  overflow: visible;
+}
+
+.default.hht_textarea > .bg {
+  position: absolute;
+  left: 0px; top: 0px; right: 0px; bottom: 0px;
+  z-index: 1;
+  background-color: #ecf0f1;
+  border-radius: 5px;
+}
+
+.default.hht_textarea.disabled > .bg {
+  background-color: #fff;
+}
+
+.default.hht_textarea > .input {
+  position: absolute;
+  left: 0px; top: 0px; right: 0px; bottom: 0px;
+  width: 100%; height: 100%;
+  z-index: 3;
+  display: block;
+  font-size: 15px;
+  color: #000;
+  resize: none;
+  background-color: transparent;
+  vertical-align: middle;
+  word-wrap: break-word;
+  border: none;
+  padding: 3px 6px 1px 6px;
+  -moz-box-sizing:    border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing:         border-box;
+}
+
+.default.hht_textarea > .input::-ms-clear {
+  display: none;
+}
+
+.default.hht_textarea.disabled > .input {
+  color: #7f8C8D;
+  -webkit-text-fill-color: #7f8C8D;
+}
+
+.default.hht_textarea > .input:focus {
+  outline-color: transparent; outline-style: none;
+}
+
+.default.hht_textarea > .help {
+  position: absolute;
+  left: 4px; top: 3px; right: 0; bottom: 0;
+  z-index: 2;
+  font-size: 15px; 
+  line-height: 30px;
+  vertical-align: middle;
+}
+
+.default.hht_textarea.has_text > .help {
+  visibility: hidden;
+}

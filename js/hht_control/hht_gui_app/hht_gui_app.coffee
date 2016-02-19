@@ -1,0 +1,100 @@
+HHTGUIApp = HApplication.extend
+  constructor: ( _options ) ->
+    _priority = ( if _options.priority then _options.priority else 100 )
+    _allowMulti = ( if _options.allowMulti then _options.allowMulti else false )
+    _valueObj = ( if _options.valueObj then _options.valueObj else false )
+    @base( _priority, '' )
+
+    @options = HClass.extend( _options ).extend(
+      allowMulti: _allowMulti
+      pid: @appId
+      elemId: 0
+      views: []
+    ).nu()
+    @elemId = @options.elemId
+
+    if _options.localized
+      @localized = _options.localized
+    if _options.strings
+      @strings = _options.strings
+    if _valueObj
+      @valueObj.bind( _this )
+    else
+      @value = _options.value
+    @extDraw() if @typeChr( @extDraw ) == '>'
+    @_drawView()
+    @drawSubviews()
+    true
+
+  _setMeta: (_name,_content) ->
+    _old = document.getElementById( _name )
+    if _old?
+      _meta = _old
+      _meta.setAttribute( 'content', _content )
+    else
+      _meta = document.createElement( 'meta' )
+      _meta.setAttribute( 'name', _name )
+      _meta.setAttribute( 'content', _content )
+      document.head.appendChild( _meta )
+    _meta
+
+  resize: ->
+    true
+  
+  die: ->
+    @view.die() if @view?
+    @base()
+
+  getValues: ( _valueIds ) ->
+    _values = {}
+    for _valueName, _valueId of _valueIds
+      _values[ _valueName ] = HVM.values[ _valueId ]
+    _values
+
+  _drawView: ->
+    return unless @typeChr( @options.rect ) == 'a'
+    _styles = {}
+    _styles['backgroundColor'] = @options.color if @options.color?
+    _styles['opacity'] = @options.opacity if @options.opacity?
+    @view = HControl.extend(
+      resize: ->
+        @parent.resize()
+    ).new( @options.rect, @,
+      events: { resize: true }
+      style: _styles
+    )
+
+  centerView: ( _view ) ->
+    @centerViewX( _view )
+    @centerViewY( _view )
+    true
+
+  centerViewY: ( _view, _parent ) ->
+    if _parent?
+      _parentH = ELEM.getSize( _parent.elemId )[1]
+    else
+      _parentH = ELEM.windowSize()[1]
+    _viewH = _view.rect.height
+    _view.rect.setTop( Math.max( 0, Math.floor( ( _parentH - _viewH ) / 2 ) ) )
+    _view.rect.setHeight( _viewH )
+    _view.drawRect()
+    true
+  
+  centerViewX: ( _view, _parent ) ->
+    if _parent?
+      _parentW = ELEM.getSize( _parent.elemId )[0]
+    else
+      _parentW = ELEM.windowSize()[0]
+    _viewW = _view.rect.width 
+    _view.rect.setLeft( Math.max( 0, ( _parentW - _viewW ) / 2 ) )
+    _view.rect.setWidth( _viewW )
+    _view.drawRect()
+    true
+  
+  setAlign: ( _view, _rect, _pos ) ->
+    _left = ELEM.windowSize()[0] * _pos / 6 - _rect[2] / 2
+    _view.setRect( [ _left, _rect[1], _rect[2], _rect[3] ] )
+
+  drawSubviews: ->
+    true
+  

@@ -1,0 +1,13 @@
+.default.hht_table_row {
+  position: absolute;
+  left: 0; top: 0; right: 0; bottom: 0;
+}
+
+.default.hht_table_row.selected {
+  background-color: #D4EBFA;
+}
+
+.default.hht_table_row.on_edit {
+  background-color: #FFF;
+}
+  

@@ -1,0 +1,23 @@
+.default.hht_dropdown_item {
+  cursor: pointer;
+}
+
+.default.hht_dropdown_item.active {
+  background-color: #EEE;
+}
+
+.default.hht_dropdown_item.selected {
+  background-color: #D4EBFA;
+}
+
+.default.hht_dropdown_item > .label {
+  position: absolute;
+  left: 6px; top: 0px; right: 3px; bottom: 0px;
+  line-height: 30px;
+  color: #000;
+  font-size: 16px;
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

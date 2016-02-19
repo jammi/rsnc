@@ -1,0 +1,24 @@
+.default.hht_rating > .rate {
+  position: absolute;
+  top: 0px; width: 30px; height: 30px;
+}
+
+.default.hht_rating.enabled > .rate {
+  cursor: pointer;
+}
+
+.default.hht_rating > .rate1 { left: 0px; }
+.default.hht_rating > .rate2 { left: 30px; }
+.default.hht_rating > .rate3 { left: 60px; }
+.default.hht_rating > .rate4 { left: 90px; }
+.default.hht_rating > .rate5 { left: 120px; }
+
+.default.hht_rating > .rate > svg {
+  position: absolute;
+  left: 0px; top: 0px; right: 0px; bottom: 0px;
+  fill: #DDDDDD;
+}
+
+.default.hht_rating > .rate.selected > svg {
+  fill: #7f8C8D;
+}

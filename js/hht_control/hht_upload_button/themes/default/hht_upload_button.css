@@ -1,0 +1,31 @@
+.default.hht_upload_button > .uploader_iframe {
+  visibility: hidden; width: 0; height: 0; border-width: 0;
+  border: none;
+}
+
+.default.hht_upload_button > .uploader_form {
+  visibility: hidden; position: absolute; display: block;
+  left: 0; top: 0; right: 0; bottom: 0; cursor: pointer;
+  border: none;
+}
+
+.default.hht_upload_button > .uploader_form > .uploader_file_wrap {
+  position: absolute;
+  left: -350px; top: 0; bottom: 0; right: 0;
+  line-height: 200px;
+  font-size: 200px;
+}
+
+.default.hht_upload_button > .uploader_form > .uploader_file_wrap > .uploader_file {
+  position: absolute;
+  right: 0; top: 0;
+  display: block;
+  line-height: 200px;
+  font-size: 200px;
+  width: 1000px;
+  height: 200px;
+  opacity: 0.001;
+  text-align: right;
+  cursor: pointer;
+  z-index: 100;
+}

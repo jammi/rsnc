@@ -1,0 +1,12 @@
+.default.hht_validator > .icon {
+  position: absolute;
+  left: 0; top: 0px; width: 20px; height: 20px;
+}
+
+.default.hht_validator.correct > .icon > svg {
+  fill: #2ECC71;
+}
+
+.default.hht_validator.error > .icon > svg {
+  fill: #E74C3C;
+}

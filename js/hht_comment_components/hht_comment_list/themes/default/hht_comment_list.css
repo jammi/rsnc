@@ -1,0 +1,11 @@
+.default.hht_comment_list > .empty_view {
+  position: absolute;
+  left: 0px; top: 40%; right: 0px; height: 30px;
+  font-size: 20px;
+  text-align: center;
+  visibility: hidden;
+}
+
+.default.hht_comment_list.no_comments > .empty_view {
+  visibility: inherit;
+}

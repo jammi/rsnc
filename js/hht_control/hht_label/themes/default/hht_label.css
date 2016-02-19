@@ -1,0 +1,9 @@
+.default.hht_label > .value {
+  position: absolute;
+  left: 0px; top: 0px; right: 0px; bottom: 0px;
+  font-size: 16px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  line-height: 30px;
+}

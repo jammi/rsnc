@@ -134,7 +134,7 @@ Event = {
 
   wrapEventName: function (_name) {
     var _hasTouch = 'ontouchstart' in window;
-    if( _hasTouch && BROWSER_TYPE.safari && ( BROWSER_TYPE.iphone || BROWSER_TYPE.ipad ) ) {
+    if( _hasTouch && BROWSER_TYPE.safari && ( BROWSER_TYPE.iphone || BROWSER_TYPE.ipad ) ) {
       if( _name === 'mousedown' ) {
         _name = 'touchstart';
       }

@@ -1,0 +1,30 @@
+.default.hht_date_label {
+  font-size: 16px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  vertical-align: middle;
+  line-height: 30px
+}
+
+.default.hht_date_label > .date {
+  position: absolute;
+  left: 0px; top: 0px; right: 0px; bottom: 0px;
+  text-align: left;
+}
+
+.default.hht_date_label.show_time > .date {
+  right: 70px;
+}
+
+.default.hht_date_label > .time {
+  position: absolute;
+  width: 0px; top: 0px; right: 0px; bottom: 0px;
+  text-align: right;
+  visibility: hidden;
+}
+
+.default.hht_date_label.show_time > .time {
+  width: 70px;
+  visibility: inherit;
+}

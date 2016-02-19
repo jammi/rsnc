@@ -1560,7 +1560,6 @@ HView = UtilMethods.extend({
     // hide self, makes destruction seem faster
     this.hide();
     this.drawn = false;
-    this.stopAnimation();
     if( this.timeouts ){
       while( this.timeouts.length ){ clearTimeout(this.timeouts.pop()); }
       delete this.timeouts;
@@ -2277,6 +2276,3 @@ HView = UtilMethods.extend({
 
 
 });
-
-HView.implement(HMorphAnimation);
-

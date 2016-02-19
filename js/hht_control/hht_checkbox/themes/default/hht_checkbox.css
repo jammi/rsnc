@@ -1,0 +1,49 @@
+.default.hht_checkbox {
+  outline: 0;
+}
+
+.default.hht_checkbox.enabled {
+  cursor: pointer;
+}
+
+.default.hht_checkbox > .icon {
+  position: absolute; 
+  left: 2px; top: 7px; width: 16px; height: 16px;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.default.hht_checkbox > .icon > svg {
+  position: absolute; 
+  left: 0px; top: 0px;
+}
+
+.default.hht_checkbox.active > .icon > svg,
+.default.hht_checkbox.enabled:hover > .icon > svg {
+  fill: #00AEEF;
+}
+
+.default.hht_checkbox > .label {
+  position: absolute; 
+  left: 24px; right: 0px; top: 0px; height: 30px;
+  line-height: 30px;
+  text-align: left; 
+  vertical-align: middle;
+  font-size: 14px;
+}
+
+.default.hht_checkbox:not(.multiline) > .label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.default.hht_checkbox.multiline > .label {
+  padding-top: 5px;
+  line-height: 20px;
+}
+
+.default.hht_checkbox.active > .label,
+.default.hht_checkbox.enabled:hover > .label {
+  color: #00AEEF;
+}
