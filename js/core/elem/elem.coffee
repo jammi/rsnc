@@ -926,7 +926,6 @@ ELEM = HClass.extend
       _browserType.lang_fi = true
     else
       _browserType.lang_en = true
-
     @_domWaiter()
     null
 
