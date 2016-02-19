@@ -123,7 +123,7 @@ Event = {
       _elem = ELEM.get(_elem);
     }
     if (_elem === undefined) {
-      console.log('Warning Event.stopObserving of event name: "' + _name + '" called with an undefined elem!');
+      //console.log('Warning Event.stopObserving of event name: "' + _name + '" called with an undefined elem!');
       return;
     }
     _useCapture = _useCapture || false;

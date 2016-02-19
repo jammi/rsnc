@@ -212,28 +212,48 @@ ELEM = HClass.extend
   ###
   getSize: (_id)->
     _elem = @_elements[_id]
-    [ _elem.offsetWidth, _elem.offsetHeight ]
+    [ w, h ] = [ 0, 0 ]
+    if _elem?
+      [ w, h ] = [ _elem.offsetWidth, _elem.offsetHeight ]
+    else if !@isProduction
+      console.warn( 'ELEM.getSize(', _id, '): Element not found' )
+    [ w, h ]
 
   ###
   Returns the position of the element as a [ x, y ] tuple
   ###
   getPosition: (_id)->
     _elem = @_elements[_id]
-    [ _elem.offsetLeft, _elem.offsetTop ]
+    [ x, y ] = [ 0, 0 ]
+    if _elem?
+      [ x, y ] = [ _elem.offsetLeft, _elem.offsetTop ]
+    else if !@isProduction
+      console.warn( 'ELEM.getPosition(', _id, '): Element not found' )
+    [ x, y ]
 
   ###
   Returns the scroll position of the element as a [ x, y ] tuple
   ###
   getScrollPosition: (_id)->
     _elem = @_elements[_id]
-    [ _elem.scrollLeft, _elem.scrollTop ]
+    [ x, y ] = [ 0, 0 ]
+    if _elem?
+      [ x, y ] = [ _elem.scrollLeft, _elem.scrollTop ]
+    else if !@isProduction
+      console.warn( 'ELEM.getScrollPosition(', _id, '): Element not found' )
+    [ x, y ]
 
   ###
   Returns the scroll size of the element as a [ width, height ] tuple
   ###
   getScrollSize: (_id)->
     _elem = @_elements[_id]
-    [ _elem.scrollWidth, _elem.scrollHeight ]
+    [ w, h ] = [ 0, 0 ]
+    if _elem?
+      [ w, h ] = [ _elem.scrollWidth, _elem.scrollHeight ]
+    else if !@isProduction
+      console.warn( 'ELEM.getScrollSize(', _id, '): Element not found' )
+    [ w, h ]
 
   ###
   Calculates the visible left position of an element
@@ -242,14 +262,17 @@ ELEM = HClass.extend
   _getVisibleLeftPosition: (_id,_noOwnScoll)->
     _elem = @_elements[_id]
     x = 0
-    while _elem != document.body and _elem != null
-      x += _elem.offsetLeft
-      if @_getComputedStyle( _elem, 'position' ) == 'fixed'
-        x += document.body.scrollLeft
-        break
-      if !_noOwnScoll or _elem != @_elements[_id]
-        x -= _elem.scrollLeft
-      _elem = _elem.parentNode
+    if _elem?
+      while _elem != document.body
+        x += _elem.offsetLeft
+        if @_getComputedStyle( _elem, 'position' ) == 'fixed'
+          x += document.body.scrollLeft
+          break
+        if !_noOwnScoll or _elem != @_elements[_id]
+          x -= _elem.scrollLeft
+        _elem = _elem.parentNode
+    else if !@isProduction
+      console.warn( 'ELEM._getVisibleLeftPosition(', _id, '): Element not found' )
     x
 
   ###
@@ -259,14 +282,17 @@ ELEM = HClass.extend
   _getVisibleTopPosition: (_id,_noOwnScoll)->
     _elem = @_elements[_id]
     y = 0
-    while _elem != document.body and _elem != null
-      y += _elem.offsetTop
-      if @_getComputedStyle( _elem, 'position' ) == 'fixed'
-        y += document.body.scrollTop
-        break
-      if !_noOwnScoll or _elem != @_elements[_id]
-        y -= _elem.scrollTop
-      _elem = _elem.parentNode
+    if _elem?
+      while _elem != document.body
+        y += _elem.offsetTop
+        if @_getComputedStyle( _elem, 'position' ) == 'fixed'
+          y += document.body.scrollTop
+          break
+        if !_noOwnScoll or _elem != @_elements[_id]
+          y -= _elem.scrollTop
+        _elem = _elem.parentNode
+    else if !@isProduction
+      console.warn( 'ELEM._getVisibleTopPosition(', _id, '): Element not found' )
     y
 
   ###
