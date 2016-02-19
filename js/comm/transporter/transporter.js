@@ -321,7 +321,6 @@ COMM.Transporter = HApplication.extend({
       console.log( 'Transporter was unable to complete the synchronization request.' );
     }
     _queue.push( function() { _this.busy = false; } );
-    // HHTNotification.error( "Network problem" );
     window.location.reload( true );
   },
 

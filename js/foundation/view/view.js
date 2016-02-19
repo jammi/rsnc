@@ -36,7 +36,6 @@ HView = UtilMethods.extend({
   **/
   cssPosition: 'absolute',
 
-
 /** Component CSS overflow type: false|visible|hidden|scroll|auto|initial|inherit
   **/
   cssOverflow: 'hidden',
@@ -1528,6 +1527,20 @@ HView = UtilMethods.extend({
   *
   **/
   die: function( _delay ) {
+    if( this.typeChr( _delay ) === 'n' ) {
+      var _this = this;
+      this.timeouts.push( setTimeout( function() { _this.dieMethods(); }, _delay ) );
+    } else {
+      this.dieMethods();
+    }
+    return true;
+  },
+
+  dieMethods: function() {
+    if( this.isDead === true ) {
+      return true;
+    }
+    this.isDead = true;
     if( this.typeChr( _delay ) === 'n' ) {
       var _this = this;
       this.timeouts.push( setTimeout( function() { _this.dieMethods(); }, _delay ) );

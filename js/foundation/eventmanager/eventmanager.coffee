@@ -652,7 +652,7 @@ EventManagerApp = HApplication.extend
         continue if _view.isHidden
         switch _matchMethod
           when 'contains'
-            _match = _view.contains( _area.x, _area.y ) 
+            _match = _view.contains( _area.x, _area.y )
           when 'intersects'
             _match = _view.intersects( _area.x, _area.y, _area.width, _area.height )
           else

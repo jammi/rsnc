@@ -6,12 +6,10 @@ HValueAction = UtilMethods.extend
       _parent = _rect
     else
       console.warn( "Warning: the rect constructor argument of HValueAction is deprecated:", _rect )
-
     @parent = _parent
     @options = _options
     if _options.value
       @value = _options.value
-
     if _options.bind?
       _valueObj = _options.bind
       if @typeChr( _valueObj ) == 's'
