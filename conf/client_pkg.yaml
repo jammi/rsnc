@@ -57,6 +57,7 @@
     - controldefaults   # HControlDefaults
     - control           # HControl
     - valueaction       # HValueAction
+    - moment
     - default_theme
 
 :compound_packages: {}
