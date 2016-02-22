@@ -32,10 +32,21 @@ HView = UtilMethods.extend({
   **/
   themePath:   null,
 
-/** True, if the component using absolute positioning.
-  * False, if the component is using relative positioning.
+/** Component CSS position type: absolute|relative|fixed
   **/
-  isAbsolute: true,
+  cssPosition: 'absolute',
+
+/** Component CSS overflow type: false|visible|hidden|scroll|auto|initial|inherit
+  **/
+  cssOverflow: 'hidden',
+
+/** Component CSS overflow-x type: false|visible|hidden|scroll|auto|initial|inherit
+  **/
+  cssOverflowY: false,
+
+/** Component CSS overflow-x type: false|visible|hidden|scroll|auto|initial|inherit
+  **/
+  cssOverflowX: false,
 
 /** The display mode to use.
   * Defaults to 'block'.
@@ -302,12 +313,18 @@ HView = UtilMethods.extend({
     // adds the parentClass as a "super" object
     this.parent = _parent;
 
-    this.appId = this.parent.appId;
-    this.app = HSystem.apps[this.appId];
-
     if( !_options ){
       _options = {};
     }
+
+    if( HSystem.apps[_options.appId] !== undefined ) {
+      this.appId = _options.appId;
+    } else {
+      this.appId = this.parent.appId;
+    }
+    this.app = HSystem.apps[this.appId];
+
+
     if(!this.isinherited){
       _options = (this.viewDefaults.extend(_options)).nu(this);
     }
@@ -460,44 +477,6 @@ HView = UtilMethods.extend({
   },
 
 /** = Description
-  * The +_flag+ enables or disables the absolute positioning mode.
-  * (It's enabled by default). If absolute positioning mode is
-  * off, the coordinate system has little or no effect.
-  *
-  * = Parameters
-  * +_flag+::    Boolean flag (true/false). Enables
-  *              absolute positioning when true.
-  *              Enables relative positioning when false.
-  *
-  * = Returns
-  * +self+
-  **/
-  setAbsolute: function(_flag){
-    if(_flag===undefined){_flag=true;}
-    this.isAbsolute = _flag;
-    return this;
-  },
-
-/** = Description
-  * The +_flag+ enables or disables the relative positioning mode.
-  * (It's disabled by default). If relative positioning mode is
-  * on, the coordinate system has little or no effect.
-  *
-  * = Parameters
-  * +_flag+::    Boolean flag (true/false). Enables
-  *              absolute relative when true.
-  *              Enables absolute positioning when false.
-  *
-  * = Returns
-  * +self+
-  **/
-  setRelative: function(_flag){
-    if(_flag===undefined){_flag=true;}
-    this.isAbsolute = (!_flag);
-    return this;
-  },
-
-/** = Description
   * Used by html theme templates to get the theme-specific full image path.
   *
   * = Returns
@@ -543,6 +522,23 @@ HView = UtilMethods.extend({
     this.elemId = ELEM.make(_parentElemId,'div');
     ELEM.setAttr( this.elemId, 'view_id', this.viewId, true );
     ELEM.setAttr( this.elemId, 'elem_id', this.elemId, true );
+  },
+
+/** --
+  * = Description
+  * Delete elems by ids by calling ELEM.del for each id.
+  * If elems is not array, do nothing.
+  * Return always new empty array
+  * ++
+  **/
+  _delElems: function( _elems ) {
+    if( this.typeChr( _elems ) === 'a' ) {
+      var i = 0;
+      for( i = 0; i < _elems.length; i++ ) {
+        ELEM.del( _elems[i] );
+      }
+    }
+    return [];
   },
 
 /** --
@@ -596,11 +592,19 @@ HView = UtilMethods.extend({
 
       this._makeElem(this._getParentElemId());
 
-      ELEM.setStyle(this.elemId,'overflow','hidden',true);
+      if( this.cssOverflowY == false && this.cssOverflowX == false ) {
+        if( this.cssOverflow ) {
+          ELEM.setStyle(this.elemId,'overflow',this.cssOverflow,true);
+        }
+      }
+      if( this.cssOverflowY != false ) {
+        ELEM.setStyle(this.elemId,'overflow-y',this.cssOverflowY,true);
+      }
+      if( this.cssOverflowX != false ) {
+        ELEM.setStyle(this.elemId,'overflow-x',this.cssOverflowX,true);
+      }
       ELEM.setStyle(this.elemId,'visibility','hidden',true);
-
-      if(this.isAbsolute){   ELEM.setStyle(this.elemId,'position','absolute'); }
-      else {                 ELEM.setStyle(this.elemId,'position','relative'); }
+      ELEM.setStyle(this.elemId,'position',this.cssPosition);
 
       // Theme name => CSS class name
       if(this.preserveTheme){
@@ -636,6 +640,13 @@ HView = UtilMethods.extend({
   *
   **/
   drawRect: function() {
+    if(!this.rect){
+      if(this.drawn === false){
+        this._updateZIndex();
+      }
+      this.drawn = true;
+      return;
+    }
     if(!this.rect.isValid && !this.isProduction){
       console.log('invalid rect:',this.rect);//,ELEM.get(this.elemId));
     }
@@ -720,6 +731,7 @@ HView = UtilMethods.extend({
   **/
   _ieNoThrough: null,
   draw: function() {
+    var _this = this;
     var _isDrawn = this.drawn;
     this.drawRect();
     if(!_isDrawn){
@@ -732,6 +744,11 @@ HView = UtilMethods.extend({
         this._ieNoThrough = ELEM.make( this.elemId );
         ELEM.setCSS( this._ieNoThrough, 'position:absolute;left:0;top:0;bottom:0;right:0;background-color:#ffffff;font-size:0;line-height:0' );
         ELEM.setStyle( this._ieNoThrough, 'opacity', 0.01 );
+      }
+      if(this.typeChr(this.options.classNames) === 'a'){
+        for(var i=0;i<this.options.classNames.length;i++){
+          this.setCSSClass(this.options.classNames[i]);
+        }
       }
       if(this.options.style){
         this.setStyles( this.options.style ); // optimize
@@ -751,7 +768,7 @@ HView = UtilMethods.extend({
       }
       // if options contain a sub-views function, call it with the name-space of self
       if(this.options.subviews && typeof this.options.subviews == 'function'){
-        this.options.subviews.call( this );
+        this.options.subviews.call( this, this );
       }
       // for external testing purposes, a custom className can be defined:
       if(this.options.testClassName){
@@ -760,15 +777,11 @@ HView = UtilMethods.extend({
       if( this.options.tabIndex !== undefined ){
         this.setTabIndex( this.options.tabIndex );
       }
-      if( this.options.focusOnCreate == true && !BROWSER_TYPE.mobile ) {
-        this.setFocus();
-        var _this = this;
-        setTimeout( function() {
-          _this.setFocus()
-        }, 300 );
-      }
       if(!this.isHidden){
         this.show();
+      }
+      if( this.options.focusOnCreate == true && !BROWSER_TYPE.mobile ) {
+        this.timeouts.push( setTimeout( function() { _this.setFocus() }, 300 ) );
       }
     }
     this.refresh();
@@ -907,35 +920,6 @@ HView = UtilMethods.extend({
   },
 
 /** = Description
-  * Method to escape HTML from text.
-  *
-  * Converts < to &lt; and > to &gt; and & to &amp;
-  *
-  * = Parameters
-  * +_html+:: The html to escape.
-  *
-  * = Returns
-  * A string with the html escaped.
-  **/
-  escapeHTML: function( _html ) {
-    if( typeof _html !== 'string' ) {
-      return _html.toString();
-    }
-    for( var i=0, _reFrom, _reTo, _reArr = this._escapeHTMLArr; i < _reArr.length; i++ ){
-      _reFrom = _reArr[i][0];
-      _reTo = _reArr[i][1];
-      _html = _html.replace( _reFrom, _reTo );
-    }
-    return _html;
-  },
-  _escapeHTMLArr: [
-    [ new RegExp( /&/gmi ), '&amp;' ],
-    [ new RegExp( />/gmi ), '&gt;' ],
-    [ new RegExp( /</gmi ), '&lt;' ],
-    [ new RegExp( /\n/gmi ), '<br>' ]
-  ],
-
-/** = Description
   *
   * This method should be extended in order to redraw only specific parts. The
   * base implementation calls optimizeWidth when optimizeWidthOnRefresh is set
@@ -970,34 +954,9 @@ HView = UtilMethods.extend({
       return [ 0, 0 ];
     }
     if(this.parent.elemId === 0){
-      var
-      _winSize = ELEM.windowSize(),
-      _docSize = ELEM.getScrollSize(0);
-      // console.log('winSize:',JSON.stringify(_winSize),', docSize:',JSON.stringify(_docSize));
-      if( _docSize[0] > _winSize[0] || _docSize[1] > _winSize[1] ){
-        _winSize = _docSize;
-      }
-      return [ _winSize[0], _winSize[1] ];
-    }
-    else {
-      var
-      _rect = this.parent.rect,
-      _width, // = _rect.width,
-      _height, // = _rect.height;
-      _parentElemId = ( this.parent.markupElemIds && this.parent.markupElemIds.subview ) ? this.parent.markupElemIds.subview : this.parent.elemId;
-      if (this.parent.flexLeft && this.parent.flexRight){
-        _width = parseInt( ELEM.getStyle( _parentElemId, 'width', true ), 10 );
-      }
-      else {
-        _width = _rect.width;
-      }
-      if (this.parent.flexBottom && this.parent.flexTop){
-        _height = parseInt( ELEM.getStyle( _parentElemId, 'height', true ), 10 );
-      }
-      else {
-        _height = _rect.height;
-      }
-      return [ _width, _height ];
+      return ELEM.windowSize();
+    } else {
+      return ELEM.getSize( this.parent.elemId );
     }
   },
 
@@ -1005,7 +964,7 @@ HView = UtilMethods.extend({
   **/
   maxRect: function(){
     var _parentSize = this.parentSize();
-    return [ 0, 0, _parentSize[0], _parentSize[1] ];
+    return [ 0, 0, null, null, 0, 0 ];
   },
 
   minWidth: 0,
@@ -1075,6 +1034,14 @@ HView = UtilMethods.extend({
           _parentWidth = _parentSize[0];
           _parentHeight = _parentSize[1];
         }
+        if( _validLeftOffset && _validRightOffset && !_validWidth ) {
+          _width = 0
+          _validWidth = true;
+        }
+        if( _validTopOffset && _validBottomOffset && !_validHeight ) {
+          _height = 0
+          _validHeight = true;
+        }
 
         if( !this.isProduction ){
           if( (!_validLeftOffset && !_validRightOffset) ||
@@ -1089,6 +1056,7 @@ HView = UtilMethods.extend({
 
         if(_validLeftOffset && _validWidth && !_validRightOffset){
           _right = _leftOffset + _width;
+          this.setMinWidth( 0 );
         }
         else if(!_validLeftOffset && _validWidth && _validRightOffset){
           _right = _parentWidth-_validRightOffset;
@@ -1128,6 +1096,7 @@ HView = UtilMethods.extend({
 
         if(_validTopOffset && _validHeight && !_validBottomOffset){
           _bottom = _topOffset + _height;
+          this.setMinHeight( 0 );
         }
         else if(!_validTopOffset && _validHeight && _validBottomOffset){
           _bottom = _parentHeight-_validBottomOffset;
@@ -1193,8 +1162,10 @@ HView = UtilMethods.extend({
     else {
       this.rect = _rect;
     }
-    this.rect.bind(this);
-    this.refresh();
+    if( this.rect ) {
+      this.rect.bind(this);
+    }
+    // this.refresh();
     return this;
   },
 
@@ -1507,8 +1478,12 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  toggle: function() {
-    if(this.isHidden) {
+  toggle: function( _visible ) {
+    if( _visible == true || _visible == 1 ) {
+      this.show();
+    } else if( _visible == false || _visible == 0 ) {
+      this.hide();
+    } else if(this.isHidden) {
       this.show();
     } else {
       this.hide();
@@ -1551,16 +1526,38 @@ HView = UtilMethods.extend({
   * Should normally be called from the parent.
   *
   **/
-  die: function() {
-    if(this.isDead && !this.isProduction){
-      console.warn('double kill!');
-      return;
+  die: function( _delay ) {
+    if( this.typeChr( _delay ) === 'n' ) {
+      var _this = this;
+      this.timeouts.push( setTimeout( function() { _this.dieMethods(); }, _delay ) );
+    } else {
+      this.dieMethods();
+    }
+    return true;
+  },
+
+  dieMethods: function() {
+    if( this.isDead === true ) {
+      return true;
+    }
+    this.isDead = true;
+    if( this.typeChr( _delay ) === 'n' ) {
+      var _this = this;
+      this.timeouts.push( setTimeout( function() { _this.dieMethods(); }, _delay ) );
+    } else {
+      this.dieMethods();
+    }
+    return true;
+  },
+
+  dieMethods: function() {
+    if( this.isDead === true ) {
+      return true;
     }
     this.isDead = true;
     // hide self, makes destruction seem faster
     this.hide();
     this.drawn = false;
-    this.stopAnimation();
     if( this.timeouts ){
       while( this.timeouts.length ){ clearTimeout(this.timeouts.pop()); }
       delete this.timeouts;
@@ -1598,8 +1595,10 @@ HView = UtilMethods.extend({
     this.rect = null;
     var _this = this;
     for( i in _this ){
-      _this[i] = null;
-      delete _this[i];
+      if( i !== 'isDead' ) {
+        _this[i] = null;
+        delete _this[i];
+      }
     }
   },
 
@@ -1759,8 +1758,12 @@ HView = UtilMethods.extend({
   **/
   resizeTo: function(_width, _height) {
     var _rect = this.rect;
-    _rect.right = _rect.left + _width;
-    _rect.bottom = _rect.top + _height;
+    if( this.typeChr( _width ) === 'n' ) {
+      _rect.right = _rect.left + _width;
+    }
+    if( this.typeChr( _height ) === 'n' ){
+      _rect.bottom = _rect.top + _height;
+    }
     _rect.updateSecondaryValues();
     this.drawRect();
     return this;
@@ -2045,6 +2048,27 @@ HView = UtilMethods.extend({
     return ELEM._getVisibleTopPosition( this.elemId );
   },
 
+  inElem: function( _elemId, x, y ) {
+    if( this.typeChr( x ) === 'n' && this.typeChr( x ) === 'n' ) {
+      var p = ELEM.getVisiblePosition( _elemId, true ),
+          s = ELEM.getSize( _elemId );
+      return !( x < p[0] || x > p[0] + s[0] || y < p[1] || y > p[1] + s[1] );
+    } else {
+      return false;
+    }
+  },
+
+  contains: function( x, y ) {
+    return this.inElem( this.elemId, x, y );
+  },
+
+  intersect: function( x, y, w, h ) {
+    var p = ELEM.getVisiblePosition( this.elemId, true ),
+        s = ELEM.getSize( this.elemId );
+    return !( p[0] > x + w || p[0] + s[0] < x ||
+              p[1] > y + h || p[1] + s[1] < y );
+  },
+
 /** Set tabindex attribute for element
   **/
   setTabIndex: function(_tabIndex) {
@@ -2277,6 +2301,3 @@ HView = UtilMethods.extend({
 
 
 });
-
-HView.implement(HMorphAnimation);
-

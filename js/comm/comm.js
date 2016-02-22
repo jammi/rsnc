@@ -49,7 +49,7 @@ COMM = {
     if(_this.X.readyState === 4){
       var _status = _this.X.status,
           _responderName = 'on'+_status,
-          _success = ((_status >= 200 && _status < 300) || (_status === 0));
+          _success = ( _status >= 200 && _status < 300 );
       _this[_responderName]?_this[_responderName](_this):_success?_this.onSuccess(_this):_this.onFailure(_this);
     }
   },

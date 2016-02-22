@@ -116,8 +116,8 @@ HRect = HClass.extend({
       }
       _arr[0] = _view.flexLeft?_this.left:null;
       _arr[1] = _view.flexTop?_this.top:null;
-      _arr[2] = ( _view.minWidth !== 0 )?_view.minWidth:null;
-      _arr[3] = ( _view.minHeight !== 0 )?_view.minHeight:null;
+      _arr[2] = ( _view.minWidth !== 0 )?_view.minWidth:_this.width;
+      _arr[3] = ( _view.minHeight !== 0 )?_view.minHeight:_this.height;
       _arr[4] = _view.flexRight?_view.flexRightOffset:null;
       _arr[5] = _view.flexBottom?_view.flexBottomOffset:null;
       return _arr;
@@ -609,7 +609,11 @@ HRect = HClass.extend({
     return this;
   },
   _offsetToPoint: function(_point) {
-    this._offsetToXY(_point.x, _point.y);
+    if( _point instanceof Array ) {
+      this._offsetToXY(_point[0], _point[1]);
+    } else {
+      this._offsetToXY(_point.x, _point.y);
+    }
   },
   _offsetToXY: function(x, y) {
     this.right += x-this.left;

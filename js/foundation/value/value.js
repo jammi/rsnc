@@ -85,11 +85,15 @@ HValue = HClass.extend({
   **/
   set: function(_value){
     if(this.differs(_value)){
+      var _this = this;
       this.value = _value;
       if(this.id){
-        COMM.Values.changed(this);
+        COMM.Values.changed(_this);
       }
-      this.refresh();
+      // Moved refresh function insided Queue. It speed up the system.
+      // 9.1.2015 Petteri
+      COMM.Queue.push( function(){_this.refresh();} )
+      // this.refresh();
     }
   },
 

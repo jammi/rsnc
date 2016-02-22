@@ -35,7 +35,7 @@ HSystem = {
   freeAppIds: [],
 
 /** The default HSystem ticker interval. Unit is milliseconds. **/
-  defaultInterval: 10,
+  defaultInterval: 200,
 
 // The ticker interval, when window has no focus.
   _blurredInterval: 300,
@@ -62,6 +62,7 @@ HSystem = {
     var
     _appId=0,
     _priority;
+    // console.log( "tick",  this.ticks )
     // Loop through all applications:
     for( ; _appId<this.apps.length; _appId++ ){
       // Check, if the application exists:
@@ -224,13 +225,12 @@ HSystem = {
         function(){
           if( _this.busyApps[ _appId ] === true ) {
             if (new Date().getTime() > _startedWaiting + _this.maxAppRunTime) {
-              clearTimeout(_timeout);
+              clearInterval(_timeout);
               _this._forceKillApp( _appId );
             }
-            else {
-              clearTimeout(_timeout);
-              _this._forceKillApp( _appId );
-            }
+          } else {
+            clearInterval(_timeout);
+            _this._forceKillApp( _appId );
           }
         }, 10
       );

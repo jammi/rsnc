@@ -32,6 +32,43 @@ UtilMethods = (->
         return moment.utc(_date,_format)
       moment(_date,_format)
 
+    momentUnix: (_unix)->
+      if @options
+        if @options.useUTC == true or (@options.useUTC == null and HLocale.dateTime.defaultOptions.useUTC == true)
+          return moment.unix(_unix).utc()
+      else if HLocale.dateTime.defaultOptions.useUTC == true
+        return moment.unix(_unix).utc()
+      moment.unix(_unix)
+
+    # = Description
+    # Method to escape HTML from text.
+    #
+    # Converts < to &lt; and > to &gt; and & to &amp;
+    #
+    # = Parameters
+    # +_html+:: The html to escape.
+    #
+    # = Returns
+    # A string with the html escaped.
+    #
+    escapeHTML: ( _html ) ->
+      switch @typeChr( _html )
+        when '-', '~', 'o', '>', 'h'
+          ''
+        when 's'
+          for _re in @_escapeHTMLArr
+            _html = _html.replace( _re[0], _re[1] )
+          _html
+        else
+          _html.toString()
+
+    _escapeHTMLArr: [
+      [ new RegExp( /&/gmi ), '&amp;' ]
+      [ new RegExp( />/gmi ), '&gt;' ]
+      [ new RegExp( /</gmi ), '&lt;' ]
+      [ new RegExp( /\n/gmi ), '<br>' ]
+    ]
+
     ###
     # Returns object type as a single-char string.
     # Use this method to detect the type of the object given.
@@ -159,21 +196,23 @@ UtilMethods = (->
       _typeDst = @typeChr(_dst)
       _merge = (_item,_src,_dst,i)=>
         _itemType = @typeChr(_item)
-        if _itemType == @typeChr(_dst[i])
+        if _itemType == @typeChr(_dst[i]) or @typeChr(_dst[i]) in [ '~', '-' ]
           if _itemType == 'a' or _itemType == 'h'
-            @updateObjects( _item, _dst[i] )
+            if _itemType == @typeChr(_dst[i])
+              @updateObject( _item, _dst[i] )
+            else
+              _dst[i] = _item
           else
             _dst[i] = _item
         else if !@isProduction
-          console.warn('updateObject; mismatching item type: ', _itemType, ' (', _item, ') vs ', @_typeChr(_dst[i]), ' (',_dst[i], ')')
+          console.warn('updateObject; mismatching item type: ', _itemType, ' (', _item, ') vs ', @typeChr(_dst[i]), ' (',_dst[i], ')')
       if _typeSrc == _typeDst
         if _typeSrc == 'a'
           for _item, i in _src
             _merge(_item,_src,_dst,i)
         else if _typeSrc == 'h'
           for i, _item of _src
-            _itemType = @typeChr(_item)
-            _merge(_itemType,_src,_dst,i)
+            _merge(_item,_src,_dst,i)
     # Returns a decoded Array with the decoded content of Array _arr
     _decodeArr: (_arr)->
       _output = []

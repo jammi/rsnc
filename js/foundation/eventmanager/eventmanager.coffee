@@ -455,7 +455,7 @@ EventManagerApp = HApplication.extend
   # Handle event modifiers
   _modifiers: (e)->
     [ _x, _y ] = ELEM.getScrollPosition(0)
-    [ x, y ] = [ Event.pointerX(e) - _x, Event.pointerY(e) - _y ]
+    [ x, y ] = [ Event.pointerX(e), Event.pointerY(e) ]
     unless isNaN(x) or isNaN(y)
       @status.setCrsr( x, y )
     @status.setAltKey( e.altKey )
@@ -469,15 +469,10 @@ EventManagerApp = HApplication.extend
   # The HSystem._updateFlexibleRects call may not be neccessary to call
   # both before and after in all circumstances, but better be safe than sure.
   resize: (e)->
-    HSystem._updateFlexibleRects()
     ELEM.flush()
     for _viewId in @_listeners.byEvent.resize
       _ctrl = @_views[_viewId]
-      _ctrl.resize() if _ctrl.resize?
-    setTimeout(->
-      ELEM.flush()
-      HSystem._updateFlexibleRects()
-    , 100 )
+      _ctrl.resize() if _ctrl? and _ctrl.resize?
   #
   # Finds the next elem with a view_id attribute
   _findViewId: (_elem)->
@@ -532,57 +527,30 @@ EventManagerApp = HApplication.extend
         return false
       _ctrl.blur()
 
-  _debugHighlight: (_ctrl)->
-    unless @isProduction
-      unless @_debugHighlightT?
-        @_debugHighlightT = ELEM.make(0,'div')
-        @_debugHighlightR = ELEM.make(0,'div')
-        @_debugHighlightB = ELEM.make(0,'div')
-        @_debugHighlightL = ELEM.make(0,'div')
-        for _elemId in [
-          @_debugHighlightT, @_debugHighlightL,
-          @_debugHighlightB, @_debugHighlightR ]
-          ELEM.setStyles( _elemId,
+  _debugHighlight: ->
+    return if @isProduction
+    return if BROWSER_TYPE.mobile
+    _focused = @_listeners.focused
+    if _focused.length > 0
+      _ctrl = @_views[_focused[_focused.length - 1 ]]
+      return unless _ctrl?
+      unless @_debugElem?
+        @_debugElem = ELEM.make( 0, 'div',
+          styles:
             position: 'absolute'
-            left: 0
-            top: 0
-            width: 0
-            height: 0
-            background: 'red'
+            border: '1px solid red'
             zIndex: 20000
-          )
-        for _elemId in [ @_debugHighlightT, @_debugHighlightB ]
-          ELEM.setStyle( _elemId, 'height', '1px' )
-        for _elemId in [ @_debugHighlightL, @_debugHighlightR ]
-          ELEM.setStyle( _elemId, 'width', '1px' )
-      _rect = _ctrl.rect
-      x = _ctrl.pageX()
-      y = _ctrl.pageY()
-      w = _rect.width
-      h = _rect.height
-      for _elemId in [ @_debugHighlightT, @_debugHighlightL ]
-        ELEM.setStyle( _elemId, 'left', x+'px' )
-        ELEM.setStyle( _elemId, 'top', y+'px' )
-      for _elemId in [ @_debugHighlightT, @_debugHighlightB ]
-        ELEM.setStyle( _elemId, 'width', w+'px' )
-      for _elemId in [ @_debugHighlightL, @_debugHighlightR ]
-        ELEM.setStyle( _elemId, 'height', h+'px' )
-      ELEM.setStyle( @_debugHighlightB, 'top', (y+h)+'px' )
-      ELEM.setStyle( @_debugHighlightB, 'left', x+'px' )
-      ELEM.setStyle( @_debugHighlightR, 'top', y+'px' )
-      ELEM.setStyle( @_debugHighlightR, 'left', (x+w)+'px' )
+            'pointer-events': 'none'
+            'box-sizing': 'border-box'
+            '-moz-box-sizing': 'border-box'
+            '-webkit-box-sizing': 'border-box'
+        )
+      ELEM.setBoxCoords( @_debugElem, ELEM.getVisibleBoxCoords( _ctrl.elemId, true ) )
+    else if @_debugElem?
+      ELEM.del( @_debugElem )
+      @_debugElem = null
+    true
 
-  #
-  # Mouse movement manager. Triggered by the global mousemove event.
-  # Delegates the following event responder methods to focused HControl instances:
-  # - drag
-  # - mouseMove
-  # - endHover
-  # - startHover
-  mouseMove: (e)->
-    @_modifiers(e) # fetch event modifiers
-    [ x, y ] = @status.crsr
-    Event.stop(e) if @_handleMouseMove( x, y )
   #
   # Finds new focusable components after the
   # mouse has been moved (replacement of mouseover/mouseout)
@@ -605,15 +573,15 @@ EventManagerApp = HApplication.extend
         if _focusCtrl?
           @blur( _focusCtrl )
         _focused.splice( _focused.indexOf(_focusId), 1 )
-      @_debugHighlight(_ctrl)
       @focus( _ctrl )
   #
   # Just split to gain namespace:
   _handleMouseMove: ( x, y )->
     @_findNewFocus(x,y)
-    @_delegateMouseMove(x,y)
+    @_debugHighlight()
+    _mouseMoveHandled = @_delegateMouseMove(x,y)
     _currentlyDragging = @_delegateDrag(x,y)
-    return _currentlyDragging
+    return ( _mouseMoveHandled or _currentlyDragging )
   #
   # Handle items being dragged, sending #drag(x,y) calls to them
   _delegateDrag: (x, y)->
@@ -629,10 +597,12 @@ EventManagerApp = HApplication.extend
   _delegateMouseMove: (x,y)->
     _mouseMoveItems = @_listeners.byEvent.mouseMove
     return false if _mouseMoveItems.length == 0
+    _stop = false
     for _viewId in _mouseMoveItems
       _ctrl = @_views[_viewId]
-      _ctrl.mouseMove(x,y)
-    return true
+      if _ctrl?
+        _stop = true if _ctrl.mouseMove(x,y)
+    return _stop
   #
   # Handle items wanting #startHover( _dragObj ),
   # #hover( _dragObj ) and #endHover( _dragObj ) calls
@@ -678,37 +648,23 @@ EventManagerApp = HApplication.extend
       for _viewId in _parentIds
         continue if _viewId == _selfId
         _view = _views[_viewId]
-        if _view.parent.hasAncestor( HView )
-          _parent = _view.parent
-          if _parent.markupElemIds? and _parent.markupElemIds.subview?
-            _subviewId = _parent.markupElemIds.subview
-            [ _subX, _subY ] = ELEM.getPosition( _subviewId )
+        continue unless _view.hasAncestor? and _view.hasAncestor( HView )
+        continue if _view.isHidden
+        switch _matchMethod
+          when 'contains'
+            _match = _view.contains( _area.x, _area.y )
+          when 'intersects'
+            _match = _view.intersects( _area.x, _area.y, _area.width, _area.height )
           else
-            [ _subX, _subY ] = [ 0, 0 ]
-          if _area.offsetTo? # is a rectangle
-            _searchArea = HRect.new(_area).offsetTo(
-              _area.left-_parent.pageX()-_subX,
-              _area.top-_parent.pageY()-_subY
-            )
-          else # is a point
-            _searchArea = HPoint.new(
-              _area.x-_parent.pageX()-_subX,
-              _area.y-_parent.pageY()-_subY
-            )
-        else if _view.parent.hasAncestor( HApplication )
-          _searchArea = _area
-        else
-          console.warn('invalid view parent:',_view.parent)
-          continue
-        if _view.hasAncestor? and _view.hasAncestor( HView )
-          if _view.rect[_matchMethod](_searchArea) and !_view.isHidden
-            if ~_arrOfIds.indexOf( _viewId )
-              _foundId = _search( _view.viewsZOrder.slice().reverse() )
-              return _foundId unless _foundId == false
-              return _viewId
-            else
-              _result = _search( _view.viewsZOrder.slice().reverse() )
-              return _result unless _result == false
+            _match = false
+        if _match
+          if _viewId in _arrOfIds
+            _foundId = _search( _view.viewsZOrder.slice().reverse() )
+            return _foundId unless _foundId == false
+            return _viewId
+          else
+            _result = _search( _view.viewsZOrder.slice().reverse() )
+            return _result unless _result == false
       return false
     _foundId = _search( HSystem.viewsZOrder.slice().reverse() )
     return [ _foundId ] unless _foundId == false
@@ -716,11 +672,11 @@ EventManagerApp = HApplication.extend
   #
   # Finds the topmost drop/hover target within the area specified by rectHover
   _findTopmostDroppable: (_area,_matchMethod,_selfId)->
-    return @_findTopmostOf( @_listeners.byEvent.droppable, _area, _matchMethod, _selfId )
+    @_findTopmostOf( @_listeners.byEvent.droppable, _area, _matchMethod, _selfId )
   #
   # Finds the topmost enabled target within the area specified by area
   _findTopmostEnabled: (_area,_matchMethod,_selfId)->
-    return @_findTopmostOf( @_listeners.enabled, _area, _matchMethod, _selfId )
+    @_findTopmostOf( @_listeners.enabled, _area, _matchMethod, _selfId )
   #
   # Finds all drop/hover targets within the area specified by rectHover
   _findAllDroppable: (_area,_matchMethod,_selfId)->
@@ -779,6 +735,7 @@ EventManagerApp = HApplication.extend
   #
   # Adds the active control
   addActiveControl: (_ctrl,_prevActive)->
+    return unless _ctrl? and _ctrl.allowActiveStatus( _prevActive )
     _active = @_listeners.active
     _focused = @_listeners.focused
     _idx = _active.indexOf( _ctrl.viewId )
@@ -791,9 +748,12 @@ EventManagerApp = HApplication.extend
   #
   # Sets the active control
   changeActiveControl: (_ctrl)->
-    return if _ctrl != null and @_views[@_listeners.active[0]] == _ctrl
-    _prevActive = @delActiveControl(_ctrl)
-    @addActiveControl(_ctrl, _prevActive) if _ctrl != null
+    _prevActive = @_views[@_listeners.active[0]]
+    return if _ctrl? and _prevActive == _ctrl
+    if _ctrl == null or _ctrl.allowActiveStatus( _prevActive )
+      @delActiveControl(_ctrl)
+      @addActiveControl(_ctrl, _prevActive)
+    true
   #
   # Method to be called, when you want to make an item draggable from outside of the EventManager
   startDragging: (_ctrl)->
@@ -889,7 +849,11 @@ EventManagerApp = HApplication.extend
     if BROWSER_TYPE.ie
       for _viewId in _focused
         @_ieClassNamePatch(_viewId)
-    Event.stop(e) if _stop
+    if e.type == 'touchstart'
+      true
+    else if _stop
+      Event.stop(e)
+
   #
   # Mouse button press manager. Triggered by the global mouseDown event.
   # Delegates the following event responder methods to active HControl instances:
@@ -935,6 +899,7 @@ EventManagerApp = HApplication.extend
           _dropCtrl.endHover(_ctrl) if _dropCtrl.endHover?
           _dropCtrl.drop(_ctrl) if _dropCtrl.drop?
         _stop = true if _ctrl.endDrag( x, y, _leftClick )
+
     # for _viewId in _newActive
     #   _ctrl = @_views[_viewId]
     #   @changeActiveControl( _ctrl )
@@ -942,7 +907,23 @@ EventManagerApp = HApplication.extend
     @_listeners.dragged = []
     @_cancelTextSelection() unless _endDragIds.length == 0 and _mouseUpIds.length == 0
     @_ieClassNameUnPatch() if BROWSER_TYPE.ie and @_ieClassNamePatched.length
-    Event.stop(e) if _stop
+    if e.type == 'touchend'
+      @click(e)
+    else if _stop
+      Event.stop(e)
+
+  #
+  # Mouse movement manager. Triggered by the global mousemove event.
+  # Delegates the following event responder methods to focused HControl instances:
+  # - drag
+  # - mouseMove
+  # - endHover
+  # - startHover
+  mouseMove: (e)->
+    @_modifiers(e) # fetch event modifiers
+    [ x, y ] = @status.crsr
+    Event.stop(e) if @_handleMouseMove( x, y )
+
   #
   # Handles mouse button clicks
   # It's different from mouseUp/mouseDown, because it's a different event,
@@ -957,9 +938,8 @@ EventManagerApp = HApplication.extend
       # Firefox fires click separately.
       # the handler is contextMenu
       return true
-    if e.type == 'touchend'
-      [ xd, yd ] = @status.mouseDownDiff
-      return true if xd > 25 or yd > 25
+    [ xd, yd ] = @status.mouseDownDiff
+    return true if xd > 20 or yd > 20
     #
     # Focus check here
     #
@@ -1002,6 +982,7 @@ EventManagerApp = HApplication.extend
       )
     @_ieClassNameUnPatch() if BROWSER_TYPE.ie and @_ieClassNamePatched.length
     Event.stop(e) if _stop
+
   #
   # Handles doubleClick events
   doubleClick: (e)->
@@ -1145,26 +1126,26 @@ EventManagerApp = HApplication.extend
   # that responds true to _methodName. If _ctrl is undefined, use
   # a special default rule of auto-selecting the active control and
   # checking all of its siblings before traversing.
-  defaultKey: (_methodName, _ctrl, _testedIds) ->
-    return true if _ctrl?[_methodName]?() == true
+  defaultKey: (_methodName,_ctrl,_testedIds)->
+    return true if _ctrl? and _ctrl[_methodName]? and _ctrl[_methodName]() == true
     return null unless @_listeners.active
     _ctrl = @_views[@_listeners.active[0]] unless _ctrl?
     return null unless _ctrl?
     _ctrlId = _ctrl.viewId
     return null if ~_testedIds.indexOf(_ctrlId)
-    return true if _ctrl?[_methodName]?() == true
+    return true if _ctrl[_methodName]? and _ctrl[_methodName]() == true
     _stop = null
     _testedIds.push(_ctrlId)
     for _viewId in _ctrl.parent.views
       continue if ~_testedIds.indexOf(_viewId)
       continue if _ctrl? and _ctrl.viewId == _viewId
       _ctrl = @_views[_viewId]
-      if _ctrl?[_methodName]?
+      if _ctrl? and _ctrl[_methodName]?
         _stopStatus = _ctrl[_methodName]()
         if _stopStatus == false or _stopStatus == true
           _stop = _stopStatus unless _stop
       return _stop if _stop != null
-    return true if _ctrl?.parent? and @defaultKey(_methodName, _ctrl.parent, _testedIds) == true
+    return true if _ctrl? and _ctrl.parent? and @defaultKey(_methodName,_ctrl.parent,_testedIds) == true
     null
   #
   # Handles the keyDown event
@@ -1194,11 +1175,12 @@ EventManagerApp = HApplication.extend
     # Some keys are special (esc and return) and they have their own
     # special events: defaultKey and escKey, which aren't limited
     # to instances of HControl, but any parent object will work.
-    if not _repeating and @_defaultKeyActions[_keyCode.toString()]
+    if not _stop and not _repeating and @_defaultKeyActions[_keyCode.toString()]
       _defaultKeyMethod = @_defaultKeyActions[_keyCode.toString()]
       _stop = true if @defaultKey(_defaultKeyMethod,null,[])
     @_lastKeyDown = _keyCode
     Event.stop(e) if _stop
+
   keyUp: (e)->
     @_modifiers(e)
     _keyCode = @translateKeyCodes( e.keyCode )
@@ -1228,6 +1210,7 @@ EventManagerApp = HApplication.extend
         _stop = true if _ctrl.keyUp( _keyCode )
         break if _stop
     Event.stop(e) if _stop
+
   keyPress: (e)->
     # @warn('EventManager#keyPress not implemented')
   isKeyDown: (_keyCode)->

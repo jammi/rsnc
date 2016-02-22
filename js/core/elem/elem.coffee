@@ -13,6 +13,8 @@ BROWSER_TYPE =
   ie8: false
   ie9: false
   ie10: false
+  ie11: false
+  edge: false
   opera: false
   safari: false
   chrome: false
@@ -124,6 +126,13 @@ ELEM = HClass.extend
     @_elements[_id]
 
   ###
+  Returns an element by its id attribute
+  ###
+  getByAttrId: ( _attrId ) ->
+    @get( @bindId( _attrId ) )
+
+
+  ###
   Sets the innerHTML contents of the element
   ###
   setHTML: (_id, _html)->
@@ -192,7 +201,7 @@ ELEM = HClass.extend
       if _visible == @_getComputedStyle( _parent, _overflow )
         [ _parentClientWidth, _parentClientHeight ] = [ _parent.clientWidth, _parent.clientHeight ]
         w = _parentClientWidth - _elem.offsetLeft if w > _parentClientWidth
-        h = _parentClientWidth - _elem.offsetTop  if h > _parentClientHeight
+        h = _parentClientHeight - _elem.offsetTop  if h > _parentClientHeight
       _elem = _elem.parentNode
       break unless _parent.parentNode
       _parent = _parent.parentNode
@@ -203,56 +212,102 @@ ELEM = HClass.extend
   ###
   getSize: (_id)->
     _elem = @_elements[_id]
-    [ _elem.offsetWidth, _elem.offsetHeight ]
+    [ w, h ] = [ 0, 0 ]
+    if @_isSVGElem( _elem )
+      _rect = _elem.getBoundingClientRect()
+      console.log( "_Rect", _rect )
+      [ w, h ] = [ _rect.width, _rect.height ]
+    else if _elem?
+      [ w, h ] = [ _elem.offsetWidth, _elem.offsetHeight ]
+    else if !@isProduction
+      console.warn( 'ELEM.getSize(', _id, '): Element not found' )
+    [ w, h ]
 
   ###
   Returns the position of the element as a [ x, y ] tuple
   ###
   getPosition: (_id)->
     _elem = @_elements[_id]
-    [ _elem.offsetLeft, _elem.offsetTop ]
+    [ x, y ] = [ 0, 0 ]
+    if @_isSVGElem( _elem )
+      _rect = _elem.getBoundingClientRect()
+      [ x, y ] = [ _rect.left, _rect.top ]
+    else if _elem?
+      [ x, y ] = [ _elem.offsetLeft, _elem.offsetTop ]
+    else if !@isProduction
+      console.warn( 'ELEM.getPosition(', _id, '): Element not found' )
+    [ x, y ]
 
   ###
   Returns the scroll position of the element as a [ x, y ] tuple
   ###
   getScrollPosition: (_id)->
     _elem = @_elements[_id]
-    [ _elem.scrollLeft, _elem.scrollTop ]
+    [ x, y ] = [ 0, 0 ]
+    if _elem?
+      [ x, y ] = [ _elem.scrollLeft, _elem.scrollTop ]
+    else if !@isProduction
+      console.warn( 'ELEM.getScrollPosition(', _id, '): Element not found' )
+    [ x, y ]
 
   ###
   Returns the scroll size of the element as a [ width, height ] tuple
   ###
   getScrollSize: (_id)->
     _elem = @_elements[_id]
-    [ _elem.scrollWidth, _elem.scrollHeight ]
+    [ w, h ] = [ 0, 0 ]
+    if _elem?
+      [ w, h ] = [ _elem.scrollWidth, _elem.scrollHeight ]
+    else if !@isProduction
+      console.warn( 'ELEM.getScrollSize(', _id, '): Element not found' )
+    [ w, h ]
 
   ###
   Calculates the visible left position of an element
+  If _noOwnScoll is true, method not include scrollLeft of element itself.
   ###
-  _getVisibleLeftPosition: (_id)->
+  _getVisibleLeftPosition: (_id,_noOwnScoll)->
     _elem = @_elements[_id]
     x = 0
-    while _elem != document.body
-      x += _elem.offsetLeft - _elem.scrollLeft
-      _elem = _elem.parentNode
+    if _elem?
+      while _elem != document.body
+        x += _elem.offsetLeft
+        if @_getComputedStyle( _elem, 'position' ) == 'fixed'
+          x += document.body.scrollLeft
+          break
+        if !_noOwnScoll or _elem != @_elements[_id]
+          x -= _elem.scrollLeft
+        _elem = _elem.parentNode
+    else if !@isProduction
+      console.warn( 'ELEM._getVisibleLeftPosition(', _id, '): Element not found' )
     x
 
   ###
   Calculates the visible top position of an element
+  If _noOwnScoll is true, method not include scrollTop of element itself.
   ###
-  _getVisibleTopPosition: (_id)->
+  _getVisibleTopPosition: (_id,_noOwnScoll)->
     _elem = @_elements[_id]
     y = 0
-    while _elem != document.body
-      y += _elem.offsetTop - _elem.scrollTop
-      _elem = _elem.parentNode
+    if _elem?
+      while _elem != document.body
+        y += _elem.offsetTop
+        if @_getComputedStyle( _elem, 'position' ) == 'fixed'
+          y += document.body.scrollTop
+          break
+        if !_noOwnScoll or _elem != @_elements[_id]
+          y -= _elem.scrollTop
+        _elem = _elem.parentNode
+    else if !@isProduction
+      console.warn( 'ELEM._getVisibleTopPosition(', _id, '): Element not found' )
     y
 
   ###
   Returns the visible position of the element as a [ left, top ] tuple
+  If _noOwnScoll is true, method not include scrollLeft and scrollTop of element itself.
   ###
-  getVisiblePosition: (_id)->
-    [ @_getVisibleLeftPosition(_id), @_getVisibleTopPosition(_id) ]
+  getVisiblePosition: (_id, _noOwnScoll )->
+    [ @_getVisibleLeftPosition(_id,_noOwnScoll), @_getVisibleTopPosition(_id,_noOwnScoll) ]
 
   ###
   Returns the opacity on the element as a number equaling or between 0 and 1
@@ -329,10 +384,18 @@ ELEM = HClass.extend
     null
 
   ###
-  Gets box coordinates [ x, y, width, height )
+  Gets box coordinates [ x, y, width, height ]
   ###
   getBoxCoords: (_id)->
     [ x, y ] = @getPosition( _id )
+    [ w, h ] = @getSize( _id )
+    [ x, y, w, h ]
+
+  ###
+  Returns the visible box coordinates of the element as a [ left, top, width, height ]
+  ###
+  getVisibleBoxCoords: (_id, _noOwnScoll)->
+    [ x, y ] = @getVisiblePosition( _id, _noOwnScoll )
     [ w, h ] = @getSize( _id )
     [ x, y, w, h ]
 
@@ -377,6 +440,9 @@ ELEM = HClass.extend
   ###
   getExtraHeight: (_id)->
     @_getExtraSize( _id, 'top' ) + @_getExtraSize( _id, 'bottom' )
+
+  isFullScreen: ->
+    ( document.fullScreenElement? || document.mozFullScreen || document.webkitIsFullScreen )
 
   ###
   Sets delay between refreshes based on the target frame rate
@@ -491,6 +557,13 @@ ELEM = HClass.extend
       _elem[_key] = _val
     null
 
+
+  ###
+  Return true if element is SVGElement
+  ###
+  _isSVGElem: ( _elem ) ->
+    ( _elem instanceof SVGElement )
+
   ###
   Gets an element attribute directly from the element
   ###
@@ -546,11 +619,32 @@ ELEM = HClass.extend
     true
 
   ###
+  Get classnames of element
+  ###
+  _getClassNames: ( _id ) ->
+    _elem = @_elements[_id]
+    if @_isSVGElem( _elem )
+      _elem.className.baseVal
+    else
+      _elem.className
+
+  ###
+  Set classnames for element
+  ###
+  _setClassNames: ( _id, _className ) ->
+    _elem = @_elements[_id]
+    if @_isSVGElem( _elem )
+      _elem.className.baseVal = _className
+    else
+      _elem.className = _className
+
+
+  ###
   Checks if the element has a named CSS className
   ###
   hasClassName: (_id, _className)->
     return null unless @_elements[_id]? # item is deleted
-    _classNames = @_elements[_id].className.split(' ')
+    _classNames = @_getClassNames( _id ).split(' ')
     return !!~_classNames.indexOf( _className )
 
   ###
@@ -560,13 +654,13 @@ ELEM = HClass.extend
     return null unless @_elements[_id]? # item is deleted
     unless @hasClassName( _id, _className )
       _elem = @_elements[_id]
-      if _elem.className.trim() == ''
-        _elem.className = _className
+      if @_getClassNames( _id ).trim() == ''
+        @_setClassNames( _id, _className )
       else
-        _classNames = _elem.className.trim().split(' ')
+        _classNames = @_getClassNames( _id ).trim().split(' ')
         _classNames.push(_className)
-        _elem.className = _classNames.join(' ')
-      @_attrCache[_id]['className'] = _elem.className
+        @_setClassNames( _id, _classNames.join(' ') )
+      @_attrCache[_id]['className'] = @_getClassNames( _id )
     null
 
   ###
@@ -576,10 +670,10 @@ ELEM = HClass.extend
     return null unless @_elements[_id]? # item is deleted
     if @hasClassName( _id, _className )
       _elem = @_elements[_id]
-      _classNames = _elem.className.split(' ')
+      _classNames = @_getClassNames( _id ).split(' ')
       _classNames.splice( _classNames.indexOf( _className ), 1 )
-      _elem.className = _classNames.join(' ')
-      @_attrCache[_id]['className'] = _elem.className
+      @_setClassNames( _id, _classNames.join(' ') )
+      @_attrCache[_id]['className'] = @_getClassNames( _id )
     null
 
   removeClassName: (_id, _className)->
@@ -709,6 +803,15 @@ ELEM = HClass.extend
     _id
 
   ###
+  Returns window scroll position as [ left, top ]
+  ###
+  windowScroll: ->
+    [
+      window.pageXOffset || document.documentElement.scrollLeft
+      window.pageYOffset || document.documentElement.scrollTop
+    ]
+
+  ###
   Returns inner size of the browser window as [ width, height ]
   ###
   windowSize: ->
@@ -747,7 +850,7 @@ ELEM = HClass.extend
         _value = @getOpacity(_id)
       else
         _value = @_getComputedStyle( @_elements[_id], _key )
-        _value = -1 if _key == 'z-index' and _value == 'auto'
+        # _value = -1 if _key == 'z-index' and _value == 'auto'
       _cached[_key] = _value
     else
       _value = _cached[_key]
@@ -907,6 +1010,8 @@ ELEM = HClass.extend
       _browserType.ie10 = !!~_ua.indexOf('MSIE 10')
       if _browserType.ie9
         @sha = SHA.new(16) # SHA1 needed for IE9 SVG base64 encoding
+    _browserType.ie11 = !!~_ua.indexOf('Trident/7.0')
+    _browserType.edge = !!~_ua.indexOf('Edge')
     _browserType.mac = !!~_ua.indexOf('Macintosh')
     _browserType.win = !!~_ua.indexOf('Windows')
     _browserType.firefox = !!~_ua.indexOf('Firefox')
@@ -926,7 +1031,6 @@ ELEM = HClass.extend
       _browserType.lang_fi = true
     else
       _browserType.lang_en = true
-
     @_domWaiter()
     null
 

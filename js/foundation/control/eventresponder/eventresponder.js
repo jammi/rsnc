@@ -480,6 +480,15 @@ HEventResponder = HClass.extend({
 
 
 /** = Description
+  * Return true if this component allow gain active status.
+  *
+  */
+  allowActiveStatus: function( _prevActive ) {
+    return true;
+  },
+
+
+/** = Description
   * Default gainedActiveStatus event responder method. Does nothing by default.
   * Called when the component gains active status; both focused and clicked.
   *

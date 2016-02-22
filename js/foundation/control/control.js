@@ -260,14 +260,14 @@ HControl = HView.extend({
   * deallocated upon destruction.
   *
   **/
-  die: function() {
+  die: function( _delay ) {
     var _this = this;
     if(_this.valueObj){
       _this.valueObj.unbind(_this);
       _this.valueObj = null;
     }
     EVENT.unreg(_this);
-    _this.base();
+    _this.base( _delay );
   },
 
 /** = Description

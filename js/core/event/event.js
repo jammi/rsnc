@@ -14,13 +14,21 @@ Event = {
 /** Returns the mouse cursor x -coordinate of the event.
   **/
   pointerX: function(e) {
-    return ( e.pageX || e.clientX ) + document.body.scrollLeft;
+    if( /touch/.test(e.type) ) {
+      return e.changedTouches[0].pageX;
+    } else {
+      return ( e.pageX || e.clientX );
+    }
   },
 
 /** Returns the mouse cursor y -coordinate of the event.
   **/
   pointerY: function(e) {
-    return ( e.pageY || e.clientY ) + document.body.scrollTop;
+    if( /touch/.test(e.type) ) {
+      return e.changedTouches[0].pageY;
+    } else {
+      return ( e.pageY || e.clientY );
+    }
   },
 
 /** Stops event propagation
@@ -58,6 +66,9 @@ Event = {
   /* Implementation of observe */
   _observeAndCache: function(_elem, _name, _function, _useCapture) {
     _name = Event.wrapEventName( _name );
+    if( _name === undefined ) {
+      return;
+    }
     if (!Event.observers) {
       Event.observers = [];
     }
@@ -105,11 +116,14 @@ Event = {
   **/
   stopObserving: function(_elem, _name, _function, _useCapture) {
     _name = Event.wrapEventName( _name );
+    if( _name === undefined ) {
+      return;
+    }
     if( typeof _elem === 'number' ){
       _elem = ELEM.get(_elem);
     }
     if (_elem === undefined) {
-      console.log('Warning Event.stopObserving of event name: "' + _name + '" called with an undefined elem!');
+      //console.log('Warning Event.stopObserving of event name: "' + _name + '" called with an undefined elem!');
       return;
     }
     _useCapture = _useCapture || false;
@@ -132,17 +146,25 @@ Event = {
     }
   },
 
+  hasTouch: function() {
+    return ( ( 'ontouchstart' in window ) ||  //html5 browsers
+    ( navigator.maxTouchPoints > 0 ) ||       //future IE
+    ( navigator.msMaxTouchPoints > 0 ) )      // current IE10
+  },
+
   wrapEventName: function (_name) {
-    var _hasTouch = 'ontouchstart' in window;
-    if( _hasTouch && BROWSER_TYPE.safari && ( BROWSER_TYPE.iphone || BROWSER_TYPE.ipad ) ) {
+    if( Event.hasTouch() ) {
       if( _name === 'mousedown' ) {
         _name = 'touchstart';
       }
       else if( _name === 'mousemove' ) {
         _name = 'touchmove';
       }
-      else if( _name === 'click' ) {
+      else if( _name === 'mouseup' ) {
         _name = 'touchend';
+      }
+      else if( _name === 'click' ) {
+        _name = undefined;
       }
     }
     return _name;

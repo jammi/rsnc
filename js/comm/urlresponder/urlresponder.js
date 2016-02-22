@@ -44,6 +44,7 @@ COMM.URLResponder = HApplication.extend({
   //   respond to
   // - callBack is the component registered
   delResponder: function(_matchStr,_callBack){
+    var _urlMatcher = new RegExp(_matchStr);
     // Petteri: Problem because call 'hide' two times when callBack is deleting
     // _callBack.hide();
     if(~this.prevCallBacks.indexOf(_callBack)){
@@ -52,7 +53,7 @@ COMM.URLResponder = HApplication.extend({
     }
     var i=0, _urlMatch, _urlCallBack;
     for(;i<this.urlMatchers.length;i++){
-      _urlMatch = this.urlMatchers[i].test(_matchStr);
+      _urlMatch = this.urlMatchers[i].toString() == _urlMatcher.toString()
       if(_urlMatch){
         this.urlMatchers.splice(i,1);
         this.urlCallBacks.splice(i,1);

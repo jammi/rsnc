@@ -78,6 +78,9 @@ COMM.JSLoader = HClass.extend({
       _script.onload = function(){
         COMM.Queue.resume();
       };
+      _script.onerror = function(){
+        COMM.Queue.resume();
+      }
     }
     _script.src = _url;
     _script.type = 'text/javascript';
