@@ -1,4 +1,72 @@
 
+const HClass = require('core/class');
+const HView = require('foundation/view');
+const HValueResponder = require('foundation/valueresponder');
+const HEventResponder = require('foundation/eventresponder');
+const HDummyValue = require('foundation/value/dummyvalue');
+const EVENT = require('foundation/eventmanager');
+const {ELEM} = require('core/elem');
+
+/** = Description
+  * Define default setting here. Will be used, when no or invalid constructor
+  * options are supplied.
+  **/
+class HControlDefaults extends HClass.mixin({
+  /* Whether or not to draw when constructed.
+  */
+  autoDraw: true,
+
+  /* The default label. A label is the "visual value" of a component that
+  * operates on a "hidden" value.
+  **/
+  label: '',
+
+  /* The default initial visibility of the component.
+  **/
+  visible: true,
+
+  /* The default initial event responders to register to a component.
+  *  By default no events are enabled.
+  **/
+  events: null,
+
+  /* The default initial value of the component.
+  **/
+  value: 0,
+
+  /* The default initial enabled state of the component.
+  **/
+  enabled: true,
+
+  /* The default initial active state of the component.
+  **/
+  active: false,
+
+  /* The default initial minimum value of the component.
+  **/
+  minValue: -2147483648,
+
+  /* The default initial maximum value of the component.
+  **/
+  maxValue: 2147483648,
+
+  /* The default focus value of the component.
+  **/
+  focusOnCreate: false,
+
+  /*  Use utc time as default
+  **/
+  useUTC: false
+
+}) {
+  constructor() {
+    super();
+    if (typeof this.events !== 'object') {
+      this.events = {};
+    }
+  }
+}
+
 /** = Description
   * The foundation class for all active visual components that
   * implement events and values.
@@ -7,8 +75,7 @@
   * for extension reference.
   *
   **/
-var//RSence.Foundation
-HControl = HView.extend({
+class HControl extends HView.mixin(HValueResponder, HEventResponder, {
 
   isCtrl: true,
 
@@ -55,7 +122,8 @@ HControl = HView.extend({
   * in the constructor with the options block given. The format of
   * it is an Object.
   **/
-  controlDefaults: HControlDefaults,
+  controlDefaults: HControlDefaults
+}) /* end of mixin, class begins */ {
 
 /** = Description
   * The constructor of HControl implements the same model as HView,
@@ -186,72 +254,67 @@ HControl = HView.extend({
   *
   *
   **/
-  constructor: function(_rect, _parent, _options) {
-    if(!_options) {
+  constructor(_rect, _parent, _options) {
+    if (!this.isntObject(_options)) {
       _options = {};
     }
-    var _this = this;
-
-    _options = (_this.controlDefaults.extend(_options)).nu(_this);
-
-    if(_this.isinherited) {
-      _this.base(_rect, _parent, _options);
+    _options = new this.controlDefaults.mixin(_options)(this);
+    if (this.isinherited) {
+      super(_rect, _parent, _options);
     }
     else {
-      _this.isinherited = true;
-      _this.base(_rect, _parent, _options);
-      _this.isinherited = false;
+      this.isinherited = true;
+      super(_rect, _parent, _options);
+      this.isinherited = false;
     }
 
-    var _isValueRange = (_options.minValue || _options.maxValue),
-        _events = _options.events;
+    const _isValueRange = (_options.minValue || _options.maxValue);
+    const _events = _options.events;
 
-    if(_isValueRange) {
-      _this.minValue = _options.minValue;
-      _this.maxValue = _options.maxValue;
+    if (_isValueRange) {
+      this.minValue = _options.minValue;
+      this.maxValue = _options.maxValue;
     }
 
-    _this.setEvents(_events);
-    _this.setEnabled(_options.enabled);
+    this.setEvents(_events);
+    this.setEnabled(_options.enabled);
 
     // The traditional HValue instance to pass in options to be bound:
-    if(_options.valueObj){
-      _options.valueObj.bind(_this);
+    if (_options.valueObj) {
+      _options.valueObj.bindResponder(this);
     }
 
     // The newer HValue instance to pass in options to be bound:
     // - Same as in guitree syntax, also allows it to be just a valueId
-    if(_options.bind){
-      if(typeof _options.bind === 'string'){
-        var
-        _valueId = _options.bind,
-        _valueObj = this.getValueById(_valueId);
-        if( _valueObj ){
-          _valueObj.bind( _this );
+    if (_options.bind) {
+      if (this.isString(_options.bind)) {
+        const _valueId = _options.bind;
+        const _valueObj = this.getValueById(_valueId);
+        if (_valueObj) {
+          _valueObj.bind(this);
         }
       }
-      else if ( typeof _options.bind === 'object' ) {
-        _options.bind.bind( _this );
+      else if (this.isObject(_options.bind)) {
+        _options.bind.bind(this);
       }
     }
 
     // If none of the above value bindings exist, use a lighter-weight
     // dummy valueObj instead
-    if(!_this.valueObj) {
-      _this.valueObj = HDummyValue.nu();
+    if (this.isntObject(this.valueObj)) {
+      this.valueObj = new HDummyValue();
     }
 
-    if((_this.value===null)&&(_options.value!==undefined)) {
-      _this.setValue(_options.value);
+    if (this.isNullOrUndefined(this.value) && this.isntNullOrUndefined(_options.value)) {
+      this.setValue(_options.value);
     }
-    if(_isValueRange) {
-      _this.setValueRange(this.value, _options.minValue, _options.maxValue);
+    if (_isValueRange) {
+      this.setValueRange(this.value, _options.minValue, _options.maxValue);
     }
-    if(!this.isinherited && this.options.autoDraw) {
-      var _time = new Date().getTime();
-      _this.draw();
+    if (!this.isinherited && this.options.autoDraw) {
+      this.draw();
     }
-  },
+  }
 
 /** = Description
   * The destructor of +HControl+ instances.
@@ -260,15 +323,14 @@ HControl = HView.extend({
   * deallocated upon destruction.
   *
   **/
-  die: function( _delay ) {
-    var _this = this;
-    if(_this.valueObj){
-      _this.valueObj.unbind(_this);
-      _this.valueObj = null;
+  die(_delay) {
+    if (this.valueObj) {
+      this.valueObj.releaseResponder(this);
+      this.valueObj = null;
     }
-    EVENT.unreg(_this);
-    _this.base( _delay );
-  },
+    EVENT.unreg(this);
+    super(_delay);
+  }
 
 /** = Description
   * Assigns the object a new value range. Used for sliders, steppers etc. Calls
@@ -286,16 +348,16 @@ HControl = HView.extend({
   * +self+
   *
   **/
-  setValueRange: function(_value, _minValue, _maxValue) {
+  setValueRange(_value, _minValue, _maxValue) {
     this.minValue = _minValue;
     this.maxValue = _maxValue;
-    if( typeof _value === 'number' ) {
+    if (this.isNumber(_value)) {
       _value = (_value < _minValue) ? _minValue : _value;
       _value = (_value > _maxValue) ? _maxValue : _value;
       this.setValue(_value);
     }
     return this;
-  },
+  }
 
 /** = Description
   * Called when the +self.value+ has been changed. By default
@@ -307,14 +369,14 @@ HControl = HView.extend({
   * +self+
   *
   **/
-  refreshValue: function(){
-    if(this.markupElemIds){
-      if(this.markupElemIds.value){
-        ELEM.setHTML(this.markupElemIds.value,this.value);
+  refreshValue() {
+    if (this.markupElemIds) {
+      if (this.markupElemIds.value) {
+        ELEM.setHTML(this.markupElemIds.value, this.value);
       }
     }
     return this;
-  },
+  }
 
 /** = Description
   * Called mostly internally whenever a property change requires usually visual
@@ -329,32 +391,13 @@ HControl = HView.extend({
   * +self+
   *
   **/
-  refresh: function(){
-    this.base();
-    if(this.drawn){
-      if(this.refreshOnValueChange){
+  refresh() {
+    super();
+    if (this.drawn) {
+      if (this.refreshOnValueChange) {
         this.refreshValue();
       }
     }
     return this;
   }
-},
-
-{
-
-  // The CSS class name to set when the component is disabled
-  CSS_DISABLED: "disabled",
-
-  // The CSS class name to set when the component is selected
-  CSS_SELECTED: "selected",
-
-  // The CSS class name to set when the component is enabled
-  CSS_ENABLED:  "enabled",
-
-  // The CSS class name to set when the component is active (clicked/focused)
-  CSS_ACTIVE:   "active"
-
-});
-
-HControl.implement( HValueResponder );
-HControl.implement( HEventResponder );
+}

@@ -1,45 +1,56 @@
 
-/*** = Description
-  ** COMM.Queue executes javascript blocks in a managed queue.
-  **
-  ** COMM.Queue is used by COMM.Transporter and JSLoader to continue
-  ** javascript command execution after a XMLHttpRequest finishes.
-  **
-  ** COMM.Queue runs as a single instance, dan't try to reconstruct it.
-***/
-//var//RSence.COMM
-COMM.Queue = HApplication.extend({
+const HApplication = require('foundation/application');
 
-/** The constructor takes no arguments and starts queue flushing automatically.
+/* A Group of localizable strings; errors and warnings.
+**/
+const STRINGS = {
+  ERR: 'COMM.Queue Error: ',
+  JS_EXEC_FAIL: 'Failed to execute the Javascript function: ',
+  REASON: ' Reason:'
+};
+
+/** = Description
+  * COMM.Queue executes javascript blocks in a managed queue.
+  *
+  * COMM.Queue is used by COMM.Transporter and JSLoader to continue
+  * javascript command execution after a XMLHttpRequest finishes.
+  *
+  * COMM.Queue runs as a single instance, dan't try to reconstruct it.
+**/
+class QueueApp extends HApplication {
+
+  /* The constructor takes no arguments and starts queue flushing automatically.
   **/
-  constructor: function(){
+  constructor() {
+
+    // Run with priority 10; not too demanding but not too sluggish either
+    super(10, 'COMM.Queue');
 
     // The queue itself, is packed with anonymous functions
     this.commandQueue = [];
 
+    this._scripts = {};
+
     // Flag to signal the pause and resume status.
     this.paused = false;
 
-    // Run with priority 10; not too demanding but not too sluggish either
-    this.base(10);
-
-    if( document.head ){
+    if (document.head) {
       this._headElem = document.head;
     }
     else {
       this._headElem = document.getElementsByTagName('head')[0];
     }
-  },
+  }
 
-/** Checks periodically, if the queue needs flushing.
+  /* Checks periodically, if the queue needs flushing.
   **/
-  onIdle: function(){
+  idle() {
     // Runs the flush operation, if the queue is not
     // empty and the state is not resumed:
     !this.paused && this.commandQueue.length !== 0 && this.flush();
-  },
+  }
 
-/** = Description
+  /* = Description
   * Pauses the queue.
   *
   * Use to stop execution, if some data or code needs to be loaded that the
@@ -48,11 +59,11 @@ COMM.Queue = HApplication.extend({
   * event defined to call +resume+ when the request is done.
   *
   **/
-  pause: function(){
+  pause() {
     this.paused = true;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Resumes queue flushing.
   *
   * Use to resume execuption, when some depending code for the rest
@@ -60,87 +71,65 @@ COMM.Queue = HApplication.extend({
   * Typically on an +XMLHttpRequest+ +onSuccess+ event.
   *
   **/
-  resume: function(){
+  resume() {
     this.paused = false;
     this.flush();
-  },
+  }
 
-/** A Group of localizable strings; errors and warnings.
+  /* Basic queue item exception reporter. Override with your own, if needed.
   **/
-  STRINGS: {
-    ERR: 'COMM.Queue Error: ',
-    JS_EXEC_FAIL: 'Failed to execute the Javascript function: ',
-    REASON: ' Reason:'
-  },
-
-/** Basic queue item exception reporter. Override with your own, if needed.
-  **/
-  clientException: function( _exception, _item ){
-    var
-    _strs = this.STRINGS,
-    _errorText = [
-      _strs.ERR_PREFIX,
-      _strs.JS_EXEC_FAIL,
-      _exception.name+'->'+_exception.message,
-      _strs.REASON,
+  clientException(_exception, _item) {
+    return (
+      STRINGS.ERR_PREFIX +
+      STRINGS.JS_EXEC_FAIL +
+      _exception.name + '->' + _exception.message +
+      STRINGS.REASON +
       _exception
-    ].join('');
-    return _errorText;
-  },
+    );
+  }
 
-/** = Description
+  /* = Description
   * Flushes the queue until stopped.
   *
   * Iterates through the +commandQueue+ and calls each function.
   * Removes items from the queue after execution.
   *
   **/
-  flush: function(){
-    var
-    i = 0, // current index in the for-loop.
-    _item, // the current item to execute
-    _function, // the function to run
-    _arguments, // the arguments of the function
-    _startTime = this.msNow(),
-    _len = this.commandQueue.length; // the length of the queue
-
-    // Iterates through the items.
-    for(;i<_len;i++){
-
-      // Checks that the queue hasn't been paused
-      if(this.paused){
-        break; // stops flushing, if paused.
-      }
-
-      // The first item in the queue is removed from the queue.
-      _item = this.commandQueue.shift();
-
-      // Execute the item, with arugments if the item
-      try{
-        if(typeof _item === 'function'){
-          _item.call();
-        }
-        else {
-          _function = _item[0];
-          _arguments = _item[1];
-          _function.apply(this,_arguments);
-        }
-      }
-
-      // Displays an error message in the Javascript console, if failure.
-      catch(e){
-        this.clientException( e, _item );
-      }
-
-      if(this.msNow()-_startTime>250){
-        var _this = this; _this.pause();
-        setTimeout(function(){_this.resume();},0);
+  flush() {
+    const len = this.commandQueue.length;
+    const endTime = this.msNow() + 250;
+    for (let i = 0; i < len; i++) {
+      if (this.paused) {
         break;
       }
-    }
-  },
+      else if (this.msNow() > endTime) {
+        this.pause();
+        setTimeout(() => {
+          this.resume();
+        }, 0);
+        break;
+      }
+      else {
+        const _item = this.commandQueue.shift();
 
-/** = Description
+        try {
+          const _itemType = this.typeChr(_item);
+          if (_itemType === '>') {
+            _item.call();
+          }
+          else if (_itemType === 'a') {
+            const [_function, _arguments] = _item;
+            _function.apply(this, _arguments);
+          }
+        }
+        catch (e) {
+          this.clientException(e, _item);
+        }
+      }
+    }
+  }
+
+  /* = Description
   * Adds an item to the beginning of the queue.
   *
   * Use to make the given +_function+ with its
@@ -151,16 +140,16 @@ COMM.Queue = HApplication.extend({
   *
   * +_arguments+:: _Optional_ arguments to pass on to the +_function+
   **/
-  unshift: function(_function,_arguments){
-    if(_arguments!==undefined){
-      this.commandQueue.unshift([_function,_arguments]);
+  unshift(_function, _arguments) {
+    if (typeof _arguments !== 'undefined') {
+      this.commandQueue.unshift([_function, _arguments]);
     }
     else {
       this.commandQueue.unshift(_function);
     }
-  },
+  }
 
-/** = Description
+  /* = Description
   * Adds an item to the end of the queue.
   *
   * Use to make the given +_function+ with its
@@ -171,39 +160,35 @@ COMM.Queue = HApplication.extend({
   *
   * +_arguments+:: _Optional_ arguments to pass on to the +_function+
   **/
-  push: function(_function,_arguments){
-    if(_arguments!==undefined){
-      this.commandQueue.push([_function,_arguments]);
+  push(_function, _arguments) {
+    if (typeof _arguments !== 'undefined') {
+      this.commandQueue.push([_function, _arguments]);
     }
     else {
       this.commandQueue.push(_function);
     }
-  },
+  }
 
-  _scripts: {},
-
-  addScript: function(_scriptId,_scriptSrc){
-    var
-    _script = document.createElement('script'),
-    _scriptSrcNode;
+  addScript(_scriptId, _scriptSrc) {
+    const _script = document.createElement('script');
     this._scripts[_scriptId] = _script;
-    if( typeof _script.textContent !== 'undefined' && _script.textContent !== null ){
+    if (typeof _script.textContent !== 'undefined' && _script.textContent !== null) {
       _script.textContent = _scriptSrc;
     }
-    else if ( typeof _script.text !== 'undefined' && _script.text !== null ){
+    else if (typeof _script.text !== 'undefined' && _script.text !== null) {
       _script.text = _scriptSrc;
     }
     else {
-      _scriptSrcNode = document.createTextNode(_scriptSrc);
-      _script.appendChild( _scriptSrcNode );
+      _script.appendChild(document.createTextNode(_scriptSrc));
     }
     this._headElem.appendChild(_script);
-  },
+  }
 
-  delScript: function(_scriptId){
-    var
-    _script = this._scripts[_scriptId];
+  delScript(_scriptId) {
+    const _script = this._scripts[_scriptId];
     this._headElem.removeChild(_script);
     delete this._scripts[_scriptId];
   }
-}).nu();
+}
+
+module.exports = new QueueApp();

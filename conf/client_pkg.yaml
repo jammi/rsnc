@@ -23,7 +23,7 @@
     - event             # Event
     - util_methods      # UtilMethods
 
-    - locale_settings   # HLocaleSettings
+    - locale   # HLocale
 
     # RSence.Foundation
     - system            # HSystem
@@ -37,28 +37,30 @@
     - transporter       # COMM.Transporter
     - sessionwatcher    # COMM.SessionWatcher
     - urlresponder      # COMM.URLResponder
-    - autosync          # ( automatic sync setup )
     - values            # COMM.Values
+
     - value             # HValue
-    - keyvalue          # HKeyValue
     - pushvalue         # HPushValue
     - pullvalue         # HPullValue
+
     - jsloader          # COMM.JSLoader
     - json_renderer     # COMM.JSONRenderer
+
     - point             # HPoint
     - rect              # HRect
+
     - thememanager      # HThemeManager
-    - viewdefaults      # HViewDefaults
+
     - view              # HView
     - valueview         # HValueView
     - eventresponder    # HEventResponder
     - dummyvalue        # HDummyValue
     - eventmanager      # EVENT
-    - controldefaults   # HControlDefaults
+
     - control           # HControl
     - valueaction       # HValueAction
-    - moment
-    - default_theme
+    - moment            # moment.js
+    - default_theme     # metapackage built by the theme bundler
 
 :compound_packages: {}
 

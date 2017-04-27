@@ -1,25 +1,32 @@
 
-/*** = Description
-  ** Manages data value synchronization.
-  **
-  ** Keeps track of all +HValue+ instances present.
-***/
-//var//RSence.COMM
-COMM.Values = UtilMethods.extend({
+const UtilMethods = require('util/util_methods');
+const HValue = require('foundation/value');
+const HPushValue = require('foundation/value/pushvalue');
+const HPullValue = require('foundation/value/pullvalue');
+const HDummyValue = require('foundation/value/dummyvalue');
+const Transporter = require('comm/transporter');
+const Session = require('comm/session');
+
+/** = Description
+ ** Manages data value synchronization.
+ **
+ ** Keeps track of all +HValue+ instances present.
+**/
+class ValueManager extends UtilMethods {
 
 /** No constructor, singleton class.
   **/
-  constructor: null,
+  constructor() {
+    super();
+    /** An +Object+ containing all values by key.
+      **/
+    this.values = {};
+    /** A list of value keys whose value has changed. To be synchronized asap.
+      **/
+    this.tosync = [];
+  }
 
-/** An +Object+ containing all values by key.
-  **/
-  values: {},
-
-/** A list of value keys whose value has changed. To be synchronized asap.
-  **/
-  tosync: [],
-
-/** = Description
+  /* = Description
   * Creates a new +HValue+ instance. Its main purpose is to act as the main
   * client-side value creation interface for the server representation of
   * +HValue+.
@@ -30,22 +37,22 @@ COMM.Values = UtilMethods.extend({
   * +_type::    The value type: 0=HValue, 1=HPushValue, 2=HPullValue
   *
   **/
-  create: function(_id,_data,_type){
-    if(!_type){
-      HValue.nu(_id,_data);
+  create(_id, _data, _type) {
+    if (!_type) {
+      HValue.new(_id, _data);
     }
-    else if(_type === 1){
-      HPushValue.nu(_id,_data);
+    else if (_type === 1) {
+      HPushValue.new(_id, _data);
     }
-    else if(_type === 2){
-      HPullValue.nu(_id,_data);
+    else if (_type === 2) {
+      HPullValue.new(_id, _data);
     }
-    else{
-      console.warn("Unknown value type:",_type);
+    else {
+      console.warn(`Unknown value type: ${_type}`);
     }
-  },
+  }
 
-/** = Description
+  /* = Description
   * Binds a +HValue+ instance created externally to +self.values+.
   * Called from +HValue+ upon construction.
   *
@@ -54,11 +61,11 @@ COMM.Values = UtilMethods.extend({
   * +_value+::  The +HValue+ instance itself.
   *
   **/
-  add: function(_id,_value){
+  add(_id, _value) {
     this.values[_id] = _value;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Sets the data of the +HValue+ instance by +_Id+.
   *
   * = Parameters
@@ -66,11 +73,11 @@ COMM.Values = UtilMethods.extend({
   * +_data+::   The new data, any Object type supported by JSON.
   *
   **/
-  set: function(_id,_data){
+  set(_id, _data) {
     this.values[_id].set(_data);
-  },
+  }
 
-/** = Description
+  /* = Description
   * Sets and decodes the +_data+. Main value setter interface
   * for the server representation of +HValue+.
   *
@@ -79,36 +86,28 @@ COMM.Values = UtilMethods.extend({
   * +_data+::   The new data from the server, to be decoded.
   *
   **/
-  s: function(_id,_data){
-    var _this = this;
-    _data = _this.decode(_data);
-    _this.values[_id].s(_data);
-  },
+  s(_id, _data) {
+    _data = this.decode(_data);
+    this.values[_id].s(_data);
+  }
 
-/** = Description
+  /* = Description
   * Deletes a +HValue+ instance by +_id+.
   *
   * = Parameters
   * +_id+::     The unique id of the +HValue+ instance (set by the server)
   *
   **/
-  del: function(_id){
-    var _this = this,
-        _values = _this.values,
-        _value = _values[_id],
-        _views = _value.views,
-        _viewsLen = _views.lengt,
-        i = 0,
-        _view;
-    for(;i<_viewsLen;i++){
-      _view = _views[i];
-      _view.valueObj = HDummyValue.nu(0,_value.value);
-    }
+  del(_id) {
+    const _value = this.values[_id];
+    _value.views.forEach(_view => {
+      _view.valueObj = HDummyValue.new(0, _value.value);
+    });
     _value.views = [];
-    delete _values[_id];
-  },
+    delete this.values[_id];
+  }
 
-/** = Description
+  /* = Description
   * Marks the +HValue+ instance as changed and tries to send it
   * immediately, unless COMM.Transporter has an ongoing transfer.
   * Usually called by the +HValue+ instance internally.
@@ -117,18 +116,16 @@ COMM.Values = UtilMethods.extend({
   * +_value+::     The +HValue+ instanche that changed.
   *
   **/
-  changed: function(_value){
-    var _this = this;
-    if(!~_this.tosync.indexOf(_value.id)){
-      _this.tosync.push(_value.id);
-      var _transporter = COMM.Transporter;
-      if(!_transporter.busy){
-        _transporter.sync();
+  changed(_value) {
+    if (!this.tosync.includes(_value.id)) {
+      this.tosync.push(_value.id);
+      if (!Transporter.busy) {
+        Transporter.sync();
       }
     }
-  },
+  }
 
-/** = Description
+  /* = Description
   * Use this method to detect the type of the object given.
   *
   * Returns the type of the object given as a character code. Returns false,
@@ -146,59 +143,53 @@ COMM.Values = UtilMethods.extend({
   * - '-': Undefined
   *
   **/
-  type: function(_obj){
-    return this.typeChr( _obj );
-  },
+  type(_obj) {
+    return this.typeChr(_obj);
+  }
 
-/** = Description
+  /* = Description
   * Returns an URI-encoded string representation of all the changed values to
   * synchronize to the server.
   *
   * = Returns
   * An encoded string representation of values to synchronize.
   **/
-  sync: function(){
-    var
-    _this = this,
-    _response = [ COMM.Session.ses_key,{},[] ],
-    _error = COMM.Transporter._clientEvalError;
+  sync() {
+    const _response = [Session.ses_key, {}, []];
+    const _error = Transporter._clientEvalError;
 
-    if( _error ){
-      _response[2].push({'err_msg':_error});
+    if (_error) {
+      _response[2].push({'err_msg': _error});
     }
 
     // new implementation, symmetric with the server response format
-    if( this.tosync.length > 0 ){
-      _response[1].set=[];
-      var
-      _syncValues = _response[1].set,
-      _values = _this.values,
-      _tosync = _this.tosync,
-      i = _tosync.length,
-      _id, _value;
-      while(i--){
-        _id = _tosync.shift();
-        _value = _values[_id].toSync();
-        _syncValues.push( [ _id, _value ] );
+    if (this.tosync.length > 0) {
+      _response[1].set = [];
+      const _syncValues = _response[1].set;
+      const _values = this.values;
+      const _tosync = this.tosync;
+      let i = _tosync.length;
+      while (i--) {
+        const _id = _tosync.shift();
+        const _value = _values[_id].toSync();
+        _syncValues.push([_id, _value]);
       }
     }
-    return _this.encode(_response);
-  },
+    return this.encodeObject(_response);
+  }
 
-  encode: function(_obj){
+  encode(_obj) {
     return this.encodeObject(_obj);
-  },
+  }
 
-  decode: function(_obj){
+  decode(_obj) {
     return this.decodeObject(_obj);
-  },
+  }
 
-  clone: function(_obj){
+  clone(_obj) {
     return this.cloneObject(_obj);
   }
 
-});
+}
 
-// Backwards compatibility assignment for code that still
-// uses HVM as a reference of the Value Manager:
-HVM = COMM.Values;
+module.exports = new ValueManager();

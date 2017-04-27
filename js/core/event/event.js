@@ -1,38 +1,41 @@
 
-/*** = Description
-  ** Abstracts the DOM Event differences between browsers.
-***/
-var//RSence.Core
-Event = {
+const {ELEM, BROWSER_TYPE} = require('core/elem');
 
-/** Returns the element of the event.
-  **/
+/* = Description
+** Abstracts the DOM Event differences between browsers.
+**/
+const Event = {
+
+  /* Returns the element of the event.
+  */
   element: function(e) {
     return e.target || e.srcElement;
   },
 
-/** Returns the mouse cursor x -coordinate of the event.
-  **/
+  /* Returns the mouse cursor x -coordinate of the event.
+  */
   pointerX: function(e) {
-    if( /touch/.test(e.type) ) {
+    if (/touch/.test(e.type)) {
       return e.changedTouches[0].pageX;
-    } else {
-      return ( e.pageX || e.clientX );
+    }
+    else {
+      return (e.pageX || e.clientX);
     }
   },
 
-/** Returns the mouse cursor y -coordinate of the event.
-  **/
+  /* Returns the mouse cursor y -coordinate of the event.
+  */
   pointerY: function(e) {
-    if( /touch/.test(e.type) ) {
+    if (/touch/.test(e.type)) {
       return e.changedTouches[0].pageY;
-    } else {
-      return ( e.pageY || e.clientY );
+    }
+    else {
+      return (e.pageY || e.clientY);
     }
   },
 
-/** Stops event propagation
-  **/
+  /* Stops event propagation
+  */
   stop: function(e) {
     if (e.preventDefault) {
       e.preventDefault();
@@ -44,10 +47,10 @@ Event = {
     }
   },
 
-/** Returns true if the left mouse butten was clicked.
-  **/
+  /* Returns true if the left mouse butten was clicked.
+  */
   isLeftClick: function(e) {
-    if( e.type == 'touchend' || BROWSER_TYPE.ipad || BROWSER_TYPE.iphone ){
+    if (e.type === 'touchend' || BROWSER_TYPE.ipad || BROWSER_TYPE.iphone) {
       return true;
     }
     // IE: left 1, middle 4, right 2
@@ -59,14 +62,14 @@ Event = {
     }
   },
 
-/** List of event observers
+  /* List of event observers
   **/
   observers: false,
 
   /* Implementation of observe */
   _observeAndCache: function(_elem, _name, _function, _useCapture) {
-    _name = Event.wrapEventName( _name );
-    if( _name === undefined ) {
+    _name = Event.wrapEventName(_name);
+    if (typeof _name === 'undefined') {
       return;
     }
     if (!Event.observers) {
@@ -78,93 +81,94 @@ Event = {
     }
     else if (_elem && _elem.attachEvent) {
       this.observers.push([_elem, _name, _function, _useCapture]);
-      _elem.attachEvent("on" + _name, _function);
+      _elem.attachEvent('on' + _name, _function);
     }
   },
 
-/** Flushes the event observer cache.
+  /* Flushes the event observer cache.
   **/
   unloadCache: function() {
     if (!Event.observers) {
       return;
     }
-    var i,
-        l = Event.observers.length;
-    for (i = 0; i < l; i++) {
+    const l = Event.observers.length;
+    for (const i = 0; i < l; i++) {
       try {
         Event.stopObserving.apply(this, Event.observers[0]);
       }
-      catch(e){}
+      catch (e) {
+        console.warn(e);
+      }
     }
     Event.observers = false;
   },
 
-/** Starts observing the named event of the element and
+  /* Starts observing the named event of the element and
   * specifies a callback function.
   **/
   observe: function(_elem, _name, _function, _useCapture) {
     _useCapture = _useCapture || false;
-    if( typeof _elem === 'number' ){
+    if (typeof _elem === 'number') {
       _elem = ELEM.get(_elem);
     }
     Event._observeAndCache(_elem, _name, _function, _useCapture);
     return _function;
   },
 
-/** Stops observing the named event of the element and
+  /* Stops observing the named event of the element and
   * removes the callback function.
   **/
   stopObserving: function(_elem, _name, _function, _useCapture) {
-    _name = Event.wrapEventName( _name );
-    if( _name === undefined ) {
+    _name = Event.wrapEventName(_name);
+    if (typeof _name === 'undefined') {
       return;
     }
-    if( typeof _elem === 'number' ){
+    if (typeof _elem === 'number') {
       _elem = ELEM.get(_elem);
     }
-    if (_elem === undefined) {
-      //console.log('Warning Event.stopObserving of event name: "' + _name + '" called with an undefined elem!');
+    if (typeof _elem === 'undefined') {
+      // console.log('Warning Event.stopObserving of event name: "' + _name + '" called with an undefined elem!');
       return;
     }
     _useCapture = _useCapture || false;
-    if (_elem['removeEventListener']) {
+    if (_elem.removeEventListener) {
       _elem.removeEventListener(_name, _function, _useCapture);
     }
-    else if (detachEvent) {
-      _elem.detachEvent("on" + _name, _function);
+    else if (_elem.detachEvent) {
+      _elem.detachEvent(`on${_name}`, _function);
     }
-    var i = 0;
+    let i = 0;
     while (i < Event.observers.length) {
-      var eo = Event.observers[i];
+      const eo = Event.observers[i];
       if (eo && eo[0] === _elem && eo[1] === _name && eo[2] === _function && eo[3] === _useCapture) {
         Event.observers[i] = null;
         Event.observers.splice(i, 1);
       }
       else {
-        i++;
+        i += 1;
       }
     }
   },
 
   hasTouch: function() {
-    return ( ( 'ontouchstart' in window ) ||  //html5 browsers
-    ( navigator.maxTouchPoints > 0 ) ||       //future IE
-    ( navigator.msMaxTouchPoints > 0 ) )      // current IE10
+    return (
+      ('ontouchstart' in window) ||    // html5 browsers
+      (navigator.maxTouchPoints > 0)); // MS EDGE?
   },
 
-  wrapEventName: function (_name) {
-    if( Event.hasTouch() ) {
-      if( _name === 'mousedown' ) {
+  wrapEventName: function(_name) {
+    if (Event.hasTouch()) {
+      if (_name === 'mousedown') {
         _name = 'touchstart';
       }
-      else if( _name === 'mousemove' ) {
+      else if (_name === 'mousemove') {
         _name = 'touchmove';
       }
-      else if( _name === 'mouseup' ) {
+      else if (_name === 'mouseup') {
         _name = 'touchend';
       }
-      else if( _name === 'click' ) {
-        _name = undefined;
+      else if (_name === 'click') {
+        // _name = undefined;
       }
     }
     return _name;
@@ -188,8 +192,7 @@ Event = {
 
 };
 
-// Activates the garbage collector of Internet Explorer
-// when the document is unloaded:
-if (BROWSER_TYPE.ie && !BROWSER_TYPE.ie9) {
-  Event.observe(window, "unload", Event.unloadCache, false);
-}
+// TODO: Deprecate this at some point:
+window.Event = Event;
+
+module.exports = Event;

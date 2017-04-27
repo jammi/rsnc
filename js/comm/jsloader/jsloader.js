@@ -1,46 +1,49 @@
 
-/*** = Description
-  ** A class for asynchronously fetching Javascript libraries from the server.
-  **
-  ** Loads and evalueates the code returned as a string from the server.
-  ** Use the jsLoader instance to get packaged Javascript libraries from the
-  ** standard package url.
-***/
+const {LOAD} = require('core/elem');
+const Queue = require('comm/queue');
 
-//var//RSence.Foundation
-COMM.JSLoader = HClass.extend({
-  
-/** = Description
+/* = Description
+ * A class for asynchronously fetching Javascript libraries from the server.
+ *
+ * Loads and evalueates the code returned as a string from the server.
+ * Use the jsLoader instance to get packaged Javascript libraries from the
+ * standard package url.
+*/
+
+class JSLoader {
+
+  /* = Description
   * Construct with the base url.
   *
   * The this is the base url used by the +load+ method.
   *
   **/
-  constructor: function(_uri){
-    var _this = this;
-    _this._loadedJS = [];
-    _this.uri  = _uri;
-    _this._okayed = false;
-  },
-  
-  // Error catcher for failed requests.
-  _fail: function(_this,_resp){
-    console.log("failed to load js: "+_resp.url);
-  },
-  
-  _formatUrl: function( _jsName ){
-    var
-    _this = this,
-    _isFullUrl = _jsName.slice(0,7) === 'http://' || _jsName.slice(0,8) === 'https://',
-    _url = _isFullUrl?_jsName:_this.uri+_jsName+'.js';
-    return _url;
-  },
-  loaded: function(_jsName){
-    var _url = this._formatUrl( _jsName );
-    this._loadedJS.push( _url );
-  },
+  constructor(_uri) {
+    this._loadedJS = [];
+    this.uri = _uri;
+    this._okayed = false;
+  }
 
-/** = Description
+  // Error catcher for failed requests.
+  _fail(_this, _resp) {
+    console.error(`failed to load js: ${_resp.url}`);
+  }
+
+  _formatUrl(_jsName) {
+    const _isFullUrl = (
+      _jsName.slice(0, 7) === 'http://' ||
+      _jsName.slice(0, 8) === 'https://'
+    );
+    const _url = _isFullUrl ? _jsName : this.uri + _jsName + '.js';
+    return _url;
+  }
+
+  loaded(_jsName) {
+    const _url = this._formatUrl(_jsName);
+    this._loadedJS.push(_url);
+  }
+
+  /* = Description
   * Loads a js package using the name.
   *
   * The base url given in the constructor is used as the prefix.
@@ -55,45 +58,23 @@ COMM.JSLoader = HClass.extend({
   *   jsLoader.load('lists');
   *
   **/
-  load: function(_jsName){
-    var
-    _this = this,
-    _url = _this._formatUrl( _jsName );
-    if(~_this._loadedJS.indexOf(_url)) {
-      return;
-    }
-    // console.log('jsLoader load:',_url);
-    COMM.Queue.pause();
-    _this._loadedJS.push(_url);
-    var _script = document.createElement('script');
-    if(BROWSER_TYPE.ie){
-      _script.onreadystatechange = function(){
-        if(this.readyState === 'loaded' || this.readyState === 'complete'){
-          COMM.Queue.resume();
-          _script.onload = _script.readystatechange = null;
-        }
+  load(_jsName) {
+    const _url = this._formatUrl(_jsName);
+    if (!this._loadedJS.includes(_url)) {
+      Queue.pause();
+      this._loadedJS.push(_url);
+      const _script = document.createElement('script');
+      _script.onload = () => {
+        Queue.resume();
       };
-    }
-    else {
-      _script.onload = function(){
-        COMM.Queue.resume();
+      _script.onerror = () => {
+        Queue.resume();
       };
-      _script.onerror = function(){
-        COMM.Queue.resume();
-      }
+      _script.src = _url;
+      _script.type = 'text/javascript';
+      document.getElementsByTagName('head')[0].appendChild(_script);
     }
-    _script.src = _url;
-    _script.type = 'text/javascript';
-    document.getElementsByTagName('head')[0].appendChild(_script);
   }
-});
+}
 
-// Makes the standard jsLoader instance based on the client base url 
-// of the server when the page is loaded.
-LOAD(
-  function(){
-    COMM.jsLoader = COMM.JSLoader.nu( COMM.ClientPrefix + '/js/' );
-    // backwards compatibility aliases:
-    jsLoader = COMM.jsLoader;
-  }
-);
+module.exports = JSLoader;

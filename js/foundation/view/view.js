@@ -1,36 +1,71 @@
 
-/*** = Description
-  ** HView is the foundation class for all views. HView is useful for
-  ** any type of view and control grouping. It is designed for easy extension
-  ** and it's the foundation for HControl and all other controls.
-  **
-  ** The major differences between HView and HControl is that HView handles
-  ** only visual representation and structurization. In addition to HView's
-  ** features, HControl handles labels, values, events, states and such.
-  ** However, HControl is more complex, so use HView instead whenever you don't
-  ** need the additional features of HControl. HView implements the HMarkupView
-  ** interface for template-related task.
-  **
-  ** = Usage
-  **  var myAppInstance = HApplication.nu();
-  **  var rect1 = [10, 10, 100, 100];
-  **  var myViewInstance = HView.nu( rect1, myAppInstance, { style: { backgroundColor: '#fc0' } } );
-  **  var rect2 = [10, 10, 70, 70];
-  **  var mySubView1 = HView.nu( rect2, myViewInstance, { style: { backgroundColor: '#cfc' } } );
-  **  var rect3 = [20, 20, 50, 50];
-  **  var mySubView2 = HView.nu( rect3, mySubView1, { style: { backgroundColor: '#000' } } );
-  **
-***/
-var//RSence.Foundation
-HView = UtilMethods.extend({
+const HClass = require('core/class');
+const {BROWSER_TYPE, ELEM} = require('core/elem');
+const EVENT = require('foundation/eventmanager');
+const UtilMethods = require('util/util_methods');
+const HRect = require('util/geom/rect');
+const HPoint = require('util/geom/point');
+const HLocale = require('foundation/locale');
+const HSystem = require('foundation/system');
+const HThemeManager = require('foundation/thememanager');
 
+/** = Description
+  * Define default HView setting here. Will be used, when no or invalid constructor
+  * options are supplied.
+  **/
+class HViewDefaults extends HClass.mixin({
+  /* Whether or not to draw when constructed.
+  */
+  autoDraw: true,
+  /** The default label. A label is the "visual value" of a component that
+  * operates on a "hidden" value.
+  **/
+  label: '',
+  /** The default initial visibility of the component.
+  **/
+  visible: true,
+  /** The default value of the component
+  **/
+  value: 0,
+  /**  Use utc time as default
+  **/
+  useUTC: false
+}) {
+  constructor() {
+    super();
+  }
+}
+
+/** = Description
+ ** HView is the foundation class for all views. HView is useful for
+ ** any type of view and control grouping. It is designed for easy extension
+ ** and it's the foundation for HControl and all other controls.
+ **
+ ** The major differences between HView and HControl is that HView handles
+ ** only visual representation and structurization. In addition to HView's
+ ** features, HControl handles labels, values, events, states and such.
+ ** However, HControl is more complex, so use HView instead whenever you don't
+ ** need the additional features of HControl. HView implements the HMarkupView
+ ** interface for template-related task.
+ **
+ ** = Usage
+ **  var myAppInstance = HApplication.nu();
+ **  var rect1 = [10, 10, 100, 100];
+ **  var myViewInstance = HView.nu( rect1, myAppInstance, { style: { backgroundColor: '#fc0' } } );
+ **  var rect2 = [10, 10, 70, 70];
+ **  var mySubView1 = HView.nu( rect2, myViewInstance, { style: { backgroundColor: '#cfc' } } );
+ **  var rect3 = [20, 20, 50, 50];
+ **  var mySubView2 = HView.nu( rect3, mySubView1, { style: { backgroundColor: '#000' } } );
+ **
+**/
+class HView extends UtilMethods.mixin({
   isView: true,  // attribute to check if the object is a view
   isCtrl: false, // attribute to check for if the object is a control
   isDead: false, // attribute to check for killed object references
 
 /** Component specific theme path.
   **/
-  themePath:   null,
+  themePath: null,
 
 /** Component CSS position type: absolute|relative|fixed
   **/
@@ -70,11 +105,11 @@ HView = UtilMethods.extend({
 
 /** True, if the coordinates are right-aligned.
   * False, if the coordinates are left-aligned.
-  * Uses flexRightOffset if true. Defined with 6-item arrays
+  * Uses _rightOffset if true. Defined with 6-item arrays
   * for the _rect parameter of setRect or the constructor.
   * Can be set directly using the setFlexRight method.
   **/
-  flexRight:  false,
+  flexRight: false,
 
 /** True, if the coordinates are left-aligned.
   * False, if the coordinates are right-aligned.
@@ -83,7 +118,7 @@ HView = UtilMethods.extend({
   * for the _rect parameter of setRect or the constructor.
   * Can be set directly using the setFlexLeft method.
   **/
-  flexLeft:   true,
+  flexLeft: true,
 
 /** True, if the coordinates are top-aligned.
   * False, if the coordinates are bottom-aligned.
@@ -92,11 +127,11 @@ HView = UtilMethods.extend({
   * for the _rect parameter of setRect or the constructor.
   * Can be set directly using the setFlexTop method.
   **/
-  flexTop:    true,
+  flexTop: true,
 
 /** True, if the coordinates are bottom-aligned.
   * False, if the coordinates are top-aligned.
-  * Uses flexBottomOffset if true. Defined with 6-item arrays
+  * Uses _bottomOffset if true. Defined with 6-item arrays
   * for the _rect parameter of setRect or the constructor.
   * Can be set directly using the setFlexRight method.
   **/
@@ -107,14 +142,14 @@ HView = UtilMethods.extend({
   * for the _rect parameter of setRect or the constructor.
   * Can be set directly using the setFlexRight method.
   **/
-  flexRightOffset:  0,
+  _rightOffset: 0,
 
 /** The amount of pixels to offset from the bottom edge when
   * flexBottom is true.Defined with 6-item arrays
   * for the _rect parameter of setRect or the constructor.
   * Can be set directly using the setFlexBottom method.
   **/
-  flexBottomOffset: 0,
+  _bottomOffset: 0,
 
 /** The drawn flag is false before the component is visually
   * drawn, it's true after it's drawn.
@@ -204,7 +239,21 @@ HView = UtilMethods.extend({
   **/
   viewDefaults: HViewDefaults,
 
-/** = Description
+  // Allows text to be selected when true
+  textSelectable: false,
+
+  markupElemNames: ['bg', 'label', 'state', 'control', 'value', 'subview'],
+
+  minWidth: 0,
+  minHeight: 0,
+  _stringSizeImportantAttrs: [
+    'fontSize',
+    'fontWeight',
+    'fontFamily',
+    'lineHeight'
+  ],
+}) /* end of mixin, class begins */ {
+  /* = Description
   * Constructs the logic part of a HView.
   * The view still needs to be drawn on screen. To do that, call draw after
   * subcomponents of the view are initialized.
@@ -305,76 +354,64 @@ HView = UtilMethods.extend({
   *  [ 23, 75, 200, 100, 23, 75 ]
   *
   **/
-  constructor: function(_rect, _parent, _options) {
-
+  constructor(_rect, _parent, _options) {
+    super();
     // destructable timeouts:
     this.timeouts = [];
-
     // adds the parentClass as a "super" object
     this.parent = _parent;
-
-    if( !_options ){
+    if (this.isNullOrUndefined(_options)) {
       _options = {};
     }
-
-    if( HSystem.apps[_options.appId] !== undefined ) {
+    if (this.isntNullOrUndefined(HSystem.apps[_options.appId])) {
       this.appId = _options.appId;
-    } else {
+    }
+    else {
       this.appId = this.parent.appId;
     }
     this.app = HSystem.apps[this.appId];
-
-
-    if(!this.isinherited){
-      _options = (this.viewDefaults.extend(_options)).nu(this);
+    if (!this.isinherited) {
+      _options = (this.viewDefaults.extend(_options)).new(this);
     }
-    if( typeof this.customOptions === 'function' ){ this.customOptions( _options ); }
+    if (this.isFunction(this.customOptions)) {
+      this.customOptions(_options);
+    }
     this.options = _options;
     this.label = _options.label;
-
     // Moved these to the top to ensure safe theming operation
-    if( _options.theme ){
+    if (_options.theme) {
       this.theme = _options.theme;
       this.preserveTheme = true;
     }
-    else if(!this.theme){
+    else if (!this.theme) {
       this.theme = HThemeManager.currentTheme;
       this.preserveTheme = false;
     }
     else {
       this.preserveTheme = true;
     }
-
-    if(_options.visible === false || _options.hidden === true) {
+    if (_options.visible === false || _options.hidden === true) {
       this.isHidden = true;
     }
-
-
     this.viewId = this.parent.addView(this);
-    // the parent addView method adds this.parents
-
+    // the parent addView method adds this.parents.
     // sub-view ids, index of HView-derived objects that are found in HSystem.views[viewId]
     this.views = [];
-
     // Sub-views in Z order.
     this.viewsZOrder = [];
-
     // Keep the view (and its sub-views) hidden until its drawn.
-    this._createElement();
-
+    this.createElement();
     // Set the geometry
     this.setRect(_rect);
-
     // Additional DOM element bindings are saved into this array so they can be
     // deleted from the element manager when the view gets destroyed.
     this._domElementBindings = [];
-
-    if(!this.isinherited && this.options.autoDraw) {
+    if (!this.isinherited && this.options.autoDraw) {
       this.draw();
     }
-  },
+  }
 
-/** = Description
+  /* = Description
   * When the +_flag+ is true, the view will be aligned to the right.
   * The +_px+ offset defines how many pixels from the parent's right
   * edge the right edge of this view will be. If both setFlexRight
@@ -391,15 +428,19 @@ HView = UtilMethods.extend({
   * = Returns
   * +self+
   **/
-  setFlexRight: function(_flag,_px){
-    if(_flag===undefined){_flag=true;}
+  setFlexRight(_flag, _px) {
+    if (this.isNullOrUndefined(_flag)) {
+      _flag = true;
+    }
     this.flexRight = _flag;
-    if(_px===undefined){_px=0;}
-    this.flexRightOffset = _px;
+    if (this.isNullOrUndefined(_px)) {
+      _px = 0;
+    }
+    this._rightOffset = _px;
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * When the +_flag+ is true, the view will be aligned to the left (default).
   * The +_px+ offset defines how many pixels from the parent's left
   * edge the left edge of this view will be. If both setFlexLeft
@@ -416,16 +457,18 @@ HView = UtilMethods.extend({
   * = Returns
   * +self+
   **/
-  setFlexLeft: function(_flag,_px){
-    if(_flag===undefined){_flag=true;}
+  setFlexLeft(_flag, _px) {
+    if (this.isNullOrUndefined(_flag)) {
+      _flag = true;
+    }
     this.flexLeft = _flag;
-    if((_px || _px === 0) && this.rect){
+    if ((_px || _px === 0) && this.rect) {
       this.rect.setLeft(_px);
     }
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * When the +_flag+ is true, the view will be aligned to the top (default).
   * The +_px+ offset defines how many pixels from the parent's top
   * edge the top edge of this view will be. If both setFlexTop
@@ -442,16 +485,18 @@ HView = UtilMethods.extend({
   * = Returns
   * +self+
   **/
-  setFlexTop: function(_flag,_px){
-    if(_flag===undefined){_flag=true;}
+  setFlexTop(_flag, _px) {
+    if (this.isNullOrUndefined(_flag)) {
+      _flag = true;
+    }
     this.flexTop = _flag;
-    if((_px || _px === 0) && this.rect){
+    if ((_px || _px === 0) && this.rect) {
       this.rect.setTop(_px);
     }
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * When the +_flag+ is true, the view will be aligned to the bottom.
   * The +_px+ offset defines how many pixels from the parent's bottom
   * edge the bottom edge of this view will be. If both setFlexBottom
@@ -468,169 +513,171 @@ HView = UtilMethods.extend({
   * = Returns
   * +self+
   **/
-  setFlexBottom: function(_flag,_px){
-    if(_flag===undefined){_flag=true;}
+  setFlexBottom(_flag, _px) {
+    if (this.isNullOrUndefined(_flag)) {
+      _flag = true;
+    }
     this.flexBottom = _flag;
-    if(_px===undefined){_px=0;}
-    this.flexBottomOffset = _px;
+    if (this.isNullOrUndefined(_px)) {
+      _px = 0;
+    }
+    this._bottomOffset = _px;
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Used by html theme templates to get the theme-specific full image path.
   *
   * = Returns
   * The full path of the theme-specific gfx path as a string.
   **/
-  getThemeGfxPath: function() {
-    var _themeName;
-    if( this.preserveTheme ){
-      _themeName = this.theme;
-    } else {
-      _themeName = HThemeManager.currentTheme;
-    }
-    // return HThemeManager._componentGfxPath( _themeName,  this.componentName, this.themePath );
+  getThemeGfxPath() {
+    const _themeName = this.preserveTheme ? this.theme : HThemeManager.currentTheme;
     return HThemeManager.themePaths[_themeName];
-  },
+  }
 
-/** = Description
+  /* = Description
   * Used by html theme templates to get the theme-specific full path
   * of the _fileName given.
   *
   * = Returns
   * The full path of the file.
   **/
-  getThemeGfxFile: function( _fileName ) {
-    if( this.preserveTheme ){
-      _themeName = this.theme;
-    } else {
-      _themeName = HThemeManager.currentTheme;
-    }
-    // return HThemeManager._componentGfxFile( _themeName,  this.componentName, this.themePath, _fileName );
-    return HThemeManager._buildThemePath( _fileName, _themeName );
-  },
+  getThemeGfxFile(_fileName) {
+    const _themeName = this.preserveTheme ? this.theme : HThemeManager.currentTheme;
+    return HThemeManager._buildThemePath(_fileName, _themeName);
+  }
 
-/** --
-  * = Description
+  /* = Description
   * The _makeElem method does the ELEM.make call to create
   * the <div> element of the component. It assigns the elemId.
   * It's a separate method to ease creating component that require
   * other element types.
   * ++
   **/
-  _makeElem: function(_parentElemId){
-    this.elemId = ELEM.make(_parentElemId,'div');
-    ELEM.setAttr( this.elemId, 'view_id', this.viewId, true );
-    ELEM.setAttr( this.elemId, 'elem_id', this.elemId, true );
-  },
+  _makeElem(_parentElemId) {
+    this.elemId = ELEM.make(_parentElemId, 'div');
+    ELEM.setAttr(this.elemId, 'view_id', this.viewId, true);
+    ELEM.setAttr(this.elemId, 'elem_id', this.elemId, true);
+  }
 
-/** --
-  * = Description
+  /* = Description
   * Delete elems by ids by calling ELEM.del for each id.
   * If elems is not array, do nothing.
   * Return always new empty array
-  * ++
   **/
-  _delElems: function( _elems ) {
-    if( this.typeChr( _elems ) === 'a' ) {
-      var i = 0;
-      for( i = 0; i < _elems.length; i++ ) {
-        ELEM.del( _elems[i] );
-      }
+  _delElems(_elems) {
+    if (this.isArray(_elems)) {
+      _elems.forEach(_elemId => {
+        ELEM.del(_elemId);
+      });
     }
     return [];
-  },
+  }
 
-/** --
-  * = Description
-  * The _getParentElemId method returns the ELEM ID of the parent.
-  * ++
-  **/
-  _getParentElemId: function(){
-    var _parent = this.parent;
-    return ((_parent.elemId === undefined)?0:((_parent._getSubviewId===undefined)?0:_parent._getSubviewId()));
-  },
+  /* = Description
+  * The getParentElemId method returns the ELEM ID of the parent.
+  */
+  getParentElemId() {
+    if (this.isNullOrUndefined(this.parent.getSubviewId)) {
+      return this.parent.elemId || 0;
+    }
+    else {
+      return this.parent.getSubviewId();
+    }
+  }
 
-  _getSubviewId: function(){
-    if(this.markupElemIds&&this.markupElemIds.subview!==undefined){
+  _getParentElemId() {
+    console.warn('HView#_getParentElemId is deprecated, use #getParentElemId instead');
+    this.getParentElemId();
+  }
+
+  getSubviewId() {
+    if (this.markupElemIds && this.isntNullOrUndefined(this.markupElemIds.subview)) {
       return this.markupElemIds.subview;
     }
-    else if(this.elemId !== undefined) {
+    else if (this.isntNullOrUndefined(this.elemId)) {
       return this.elemId;
     }
     return 0;
-  },
+  }
 
-/** = Description
+  _getSubviewId() {
+    console.warn('HView#_getSubviewId is deprecated, use #getSubviewId instead');
+    this.getSubviewId();
+  }
+
+  /* = Description
   * The selectable state defines when the view should be selectable or not.
   *
   **/
-  textSelectable: false,
-  updateTextSelectable: function(){
-    if( this.textSelectable ){
-      ELEM.delClassName( this.elemId, 'textunselectable' );
-      ELEM.addClassName( this.elemId, 'textselectable' );
+  updateTextSelectable() {
+    if (this.textSelectable) {
+      ELEM.delClassName(this.elemId, 'textunselectable');
+      ELEM.addClassName(this.elemId, 'textselectable');
     }
     else {
-      ELEM.delClassName( this.elemId, 'textselectable' );
-      ELEM.addClassName( this.elemId, 'textunselectable' );
+      ELEM.delClassName(this.elemId, 'textselectable');
+      ELEM.addClassName(this.elemId, 'textunselectable');
     }
-  },
-  setTextSelectable: function(_flag){
+  }
+
+  setTextSelectable(_flag) {
     this.textSelectable = !!_flag;
     this.updateTextSelectable();
-  },
+  }
 
-/** --
-  * = Description
-  * The _createElement method calls the methods required to initialize the
+  /* = Description
+  * The createElement method calls the methods required to initialize the
   * main DOM element of the view.
-  * ++
   **/
-  _createElement: function() {
-    if(!this.elemId) {
-
-      this._makeElem(this._getParentElemId());
-
-      if( this.cssOverflowY == false && this.cssOverflowX == false ) {
-        if( this.cssOverflow ) {
-          ELEM.setStyle(this.elemId,'overflow',this.cssOverflow,true);
+  createElement() {
+    if (this.isntNullOrUndefined(this.elemId)) {
+      this._makeElem(this.getParentElemId());
+      if (this.cssOverflowY === false && this.cssOverflowX === false) {
+        if (this.cssOverflow) {
+          ELEM.setStyle(this.elemId, 'overflow', this.cssOverflow, true);
         }
       }
-      if( this.cssOverflowY != false ) {
-        ELEM.setStyle(this.elemId,'overflow-y',this.cssOverflowY,true);
+      if (this.cssOverflowY !== false) {
+        ELEM.setStyle(this.elemId, 'overflow-y', this.cssOverflowY, true);
       }
-      if( this.cssOverflowX != false ) {
-        ELEM.setStyle(this.elemId,'overflow-x',this.cssOverflowX,true);
+      if (this.cssOverflowX !== false) {
+        ELEM.setStyle(this.elemId, 'overflow-x', this.cssOverflowX, true);
       }
-      ELEM.setStyle(this.elemId,'visibility','hidden',true);
-      ELEM.setStyle(this.elemId,'position',this.cssPosition);
+      ELEM.setStyle(this.elemId, 'visibility', 'hidden', true);
+      ELEM.setStyle(this.elemId, 'position', this.cssPosition);
 
       // Theme name => CSS class name
-      if(this.preserveTheme){
-        ELEM.addClassName( this.elemId, this.theme );
+      if (this.preserveTheme) {
+        ELEM.addClassName(this.elemId, this.theme);
       }
       else {
-        ELEM.addClassName( this.elemId, HThemeManager.currentTheme );
+        ELEM.addClassName(this.elemId, HThemeManager.currentTheme);
       }
       // componentName => CSS class name
-      if( this.componentName !== undefined ){
-        ELEM.addClassName( this.elemId, this.componentName );
+      if (this.isntNullOrUndefined(this.componentName)) {
+        ELEM.addClassName(this.elemId, this.componentName);
       }
       // BROWSER_TYPE.* = true => CSS class names
-      for( var _browserName in BROWSER_TYPE ){
-        if( BROWSER_TYPE[_browserName] === true ){
-          ELEM.addClassName( this.elemId, _browserName );
+      Object.entries(BROWSER_TYPE).forEach(([_browserName, _active]) => {
+        if (_active) {
+          ELEM.addClassName(this.elemId, _browserName);
         }
-      }
-      if( this.options.textSelectable !== undefined ){
+      });
+      if (this.isntNullOrUndefined(this.options.textSelectable)) {
         this.textSelectable = this.options.textSelectable;
       }
       this.updateTextSelectable();
     }
-  },
+  }
 
-/** = Description
+  _createElement() {
+    console.warn('HView#_createElement is deprecated, use #createElement instead');
+    this.createElement();
+  }
+
+  /* = Description
   * The +drawRect+ method refreshes the dimensions of the view.
   * It needs to be called to affect changes in the rect.
   * It enables the drawn flag.
@@ -639,207 +686,161 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  drawRect: function() {
-    if(!this.rect){
-      if(this.drawn === false){
+  drawRect() {
+    if (this.isntNullOrUndefined(this.rect)) {
+      if (this.drawn === false) {
         this._updateZIndex();
       }
       this.drawn = true;
-      return;
+      return this;
     }
-    if(!this.rect.isValid && !this.isProduction){
-      console.log('invalid rect:',this.rect);//,ELEM.get(this.elemId));
-    }
-    if(!this.parent && !this.isProduction){
-      console.log('no parent:',ELEM.get(this.elemId));
-    }
-    if (this.parent && this.rect.isValid) {
-      var
-      i = 0,
-      _this = this,
-      _elemId = _this.elemId,
-      _rect = _this.rect,
-      _auto = 'auto',
-      _left = _this.flexLeft?_rect.left:_auto,
-      _top  = _this.flexTop?_rect.top:_auto,
-      _right = _this.flexRight?_this.flexRightOffset:_auto,
-      _bottom = _this.flexBottom?_this.flexBottomOffset:_auto,
-      _width = (_this.flexLeft&&_this.flexRight)?_auto:_rect.width,
-      _height = (_this.flexTop&&_this.flexBottom)?_auto:_rect.height,
-      _styles = [
-        [ 'left',   _left   ],
-        [ 'top',    _top    ],
-        [ 'right',  _right  ],
-        [ 'bottom', _bottom ],
-        [ 'width',  _width  ],
-        [ 'height', _height ],
-        [ 'display', _this.displayMode ]
-      ],
-      _key, _value;
-      // Show the rectangle once it gets created, unless visibility was set to
-      // hidden in the constructor.
-      if(!_this.isHidden) {
-        _styles.push( [ 'visibility', 'inherit' ] );
+    else {
+      if (!this.rect.isValid || !this.parent) {
+        !this.rect.isValid && console.error('HView#drawRect; invalid rect:', this.rect);
+        !this.parent && console.error('Hview#drawRect; invalid parent:', ELEM.get(this.elemId));
       }
-      for(;i<_styles.length;i++){
-        _key = _styles[i][0];
-        _value = _styles[i][1];
-        if( i < 6 && _value !== _auto ){
-          _value += 'px';
+      else {
+        Object.entries({
+          left: this.flexLeft ? this.rect.left : 'auto',
+          top: this.flexTop ? this.rect.top : 'auto',
+          right: this.flexRight ? this._rightOffset : 'auto',
+          bottom: this.flexBottom ? this._bottomOffset : 'auto',
+          width: (this.flexLeft && this.flexRight) ? 'auto' : this.rect.width,
+          height: (this.flexTop && this.flexBottom) ? 'auto' : this.rect.height,
+          display: this.displayMode,
+        }).forEach(([_key, _value], i) => {
+          if (i < 6 && _value !== 'auto') {
+            _value += 'px';
+          }
+          ELEM.setStyle(this.elemId, _key, _value, true);
+        });
+        // Show the rectangle once it gets created, unless visibility was set to
+        // hidden in the constructor.
+        if (!this.isHidden) {
+          ELEM.setStyle(this.elemId, 'visibility', 'inherit', true);
         }
-        ELEM.setStyle(_elemId,_key,_value,true);
+        if (this.drawn === false) {
+          this._updateZIndex();
+        }
+        if (this.isntNullOrUndefined(this.themeStyle)) {
+          this.themeStyle.call(this);
+        }
+        this.drawn = true;
       }
-      if(this.drawn === false){
-        _this._updateZIndex();
-      }
-
-      if( _this.themeStyle !== undefined ){
-        _this.themeStyle.call(_this);
-      }
-      _this.drawn = true;
+      return this;
     }
-    return this;
-  },
+  }
 
-/** --
-  * This method updates the z-index property of the children of self.
+  /* This method updates the z-index property of the children of self.
   * It's essentially a wrapper for HSystem.updateZIndexOfChildren passed
   * with the viewId of self.
-  * ++
-  **/
-  _updateZIndex: function() {
+  */
+  _updateZIndex() {
     HSystem.updateZIndexOfChildren(this.viewId);
-  },
+  }
 
-/** --
-  * This method updates the z-index property of the siblings of self.
+  /* This method updates the z-index property of the siblings of self.
   * It's essentially a wrapper for HSystem.updateZIndexOfChildren passed
   * with the parent's viewId of self.
-  * ++
-  **/
-  _updateZIndexAllSiblings: function() {
+  */
+  _updateZIndexAllSiblings() {
     HSystem.updateZIndexOfChildren(this.parent.viewId);
-  },
+  }
 
-/** = Description
+  /* = Description
   * The higher level draw wrapper for drawRect, drawMarkup and drawSubviews.
   * Finally calls refresh.
   *
   * = Returns
   * +self+
   *
-  **/
-  _ieNoThrough: null,
-  draw: function() {
-    var _this = this;
-    var _isDrawn = this.drawn;
+  */
+  draw() {
     this.drawRect();
-    if(!_isDrawn){
+    if (!this.drawn) {
       this.firstDraw();
-      if(this.componentName!==undefined){
+      if (this.isntNullOrUndefined(this.componentName)) {
         this.drawMarkup();
       }
-
-      else if(BROWSER_TYPE.ie && this._ieNoThrough === null){
-        this._ieNoThrough = ELEM.make( this.elemId );
-        ELEM.setCSS( this._ieNoThrough, 'position:absolute;left:0;top:0;bottom:0;right:0;background-color:#ffffff;font-size:0;line-height:0' );
-        ELEM.setStyle( this._ieNoThrough, 'opacity', 0.01 );
+      if (this.isArray(this.options.classNames)) {
+        this.options.classNames.forEach(_className => {
+          this.setCSSClass(_className);
+        });
       }
-      if(this.typeChr(this.options.classNames) === 'a'){
-        for(var i=0;i<this.options.classNames.length;i++){
-          this.setCSSClass(this.options.classNames[i]);
-        }
-      }
-      if(this.options.style){
-        this.setStyles( this.options.style ); // optimize
-      }
-      if(this.options.html){
-        this.setHTML(this.options.html); // optimize
-      }
+      this.options.style && this.setStyles(this.options.style);
+      this.options.html && this.setHTML(this.options.html);
       // Extended draw for components to define / extend.
       // This is preferred over drawSubviews, when defining
       // parts of a complex component.
-      if(typeof this.extDraw === 'function'){
+      if (this.isFunction(this.extDraw)) {
         this.extDraw();
       }
       // Extended draw for the purpose of drawing sub-views.
-      if(typeof this.drawSubviews === 'function'){
-        this.drawSubviews();
-      }
+      this.drawSubviews();
       // if options contain a sub-views function, call it with the name-space of self
-      if(this.options.subviews && typeof this.options.subviews == 'function'){
-        this.options.subviews.call( this, this );
+      if (this.isFunction(this.options.subviews)) {
+        this.options.subviews.call(this, this);
       }
       // for external testing purposes, a custom className can be defined:
-      if(this.options.testClassName){
-        ELEM.addClassName(this.elemId,this.options.testClassName);
+      if (this.options.testClassName) {
+        ELEM.addClassName(this.elemId, this.options.testClassName);
       }
-      if( this.options.tabIndex !== undefined ){
-        this.setTabIndex( this.options.tabIndex );
+      if (this.isntNullOrUndefined(this.options.tabIndex)) {
+        this.setTabIndex(this.options.tabIndex);
       }
-      if(!this.isHidden){
+      if (!this.isHidden) {
         this.show();
       }
-      if( this.options.focusOnCreate == true && !BROWSER_TYPE.mobile ) {
-        this.timeouts.push( setTimeout( function() { _this.setFocus() }, 300 ) );
+      if (this.options.focusOnCreate === true && !BROWSER_TYPE.mobile) {
+        this.timeouts.push(setTimeout(() => {this.setFocus();}, 300));
       }
     }
     this.refresh();
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Called once, before the layout of the view is initially drawn.
   * Doesn't do anything by itself, but provides an extension point.
   *
   **/
-  firstDraw: function(){
-  },
+  firstDraw() {}
 
-/** = Description
+  /* = Description
   * Called once, when the layout of the view is initially drawn.
   * Doesn't do anything by itself, but provides an extension point for making
   * sub-views.
   *
   **/
-  drawSubviews: function(){
-  },
+  drawSubviews() {}
 
-/** = Description
+  /* = Description
   * Replaces the contents of the view's DOM element with html from the theme specific html file.
   *
   * = Returns
   * +self+
   **/
-  markupElemNames: ['bg', 'label', 'state', 'control', 'value', 'subview'],
-  drawMarkup: function() {
-    var _themeName, _markup;
-    if (this.preserveTheme) {
-      _themeName = this.theme;
-    }
-    else {
-      _themeName = HThemeManager.currentTheme;
-    }
-    _markup = HThemeManager.resourcesFor( this, _themeName );
+  drawMarkup() {
+    const _themeName = this.preserveTheme ? this.theme : HThemeManager.currentTheme;
+    const _markup = HThemeManager.resourcesFor(this, _themeName);
     this.markupElemIds = {};
-    if( _markup !== '' ){
+    if (_markup !== '') {
       ELEM.setHTML(this.elemId, _markup);
-      for(var i=0; i < this.markupElemNames.length; i++ ) {
-        var _partName = this.markupElemNames[ i ],
-            _elemName = _partName + this.elemId,
-            _htmlIdMatch = 'id="' + _elemName + '"';
-        if( ~_markup.indexOf( _htmlIdMatch ) ) {
-          this.markupElemIds[ _partName ] = this.bindDomElement( _elemName );
+      this.markupElemNames.forEach(_partName => {
+        const _elemName = _partName + this.elemId;
+        const _htmlIdMatch = `id="${_elemName}"`;
+        if (_markup.includes(_htmlIdMatch)) {
+          this.markupElemIds[_partName] = this.bindDomElement(_elemName);
         }
-      }
-      if( this.themeStyle !== undefined ){
+      });
+      if (this.isntNullOrUndefined(this.themeStyle)) {
         this.themeStyle.call(this);
       }
     }
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Sets or unsets the _className into a DOM element that goes by the ID
   * _elemId.
   *
@@ -854,44 +855,49 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  toggleCSSClass: function(_elemId, _className, _state) {
-    if(_elemId !== null && _elemId !== undefined) {
-      // if(_elemId == 920){debugger;}
-      if (this.typeChr(_elemId) === 's'){
+  toggleCSSClass(_elemId, _className, _state) {
+    if (this.isntNullOrUndefined(_elemId)) {
+      if (this.isString(_elemId)) {
         _elemId = this.markupElemIds[_elemId];
       }
-      if (_state === null || _state === undefined ){
-        _state = !ELEM.hasClassName(_elemId,_className);
-      }
-      if (_state) {
-        ELEM.addClassName(_elemId, _className);
+      if (this.isInteger(_elemId) && this.isString(_className)) {
+        if (this.isNullOrUndefined(_state)) {
+          _state = !ELEM.hasClassName(_elemId, _className);
+        }
+        if (_state) {
+          ELEM.addClassName(_elemId, _className);
+        }
+        else {
+          ELEM.delClassName(_elemId, _className);
+        }
       }
       else {
-        ELEM.delClassName(_elemId, _className);
+        console.error(`HView#toggleCSSClass error; elemId(${_elemId
+          }) is not an integer or className('${_className
+          }') is not a string!`);
       }
     }
+    else {
+      console.error(`HView#toggleCSSClass error; null or undefined elemId ${_elemId}`);
+    }
     return this;
-  },
+  }
 
-  setCSSClass: function( _className, _other ){
-    if(_other){
-      this.toggleCSSClass( _className, _other, true );
-    }
-    else{
-      this.toggleCSSClass( this.elemId, _className, true );
-    }
-  },
+  setCSSClass(_first, _second) {
+    const _hasElemId = this.isntNullOrUndefined(_second);
+    const _elemId = _hasElemId ? _first : this.elemId;
+    const _className = _hasElemId ? _second : _first;
+    return this.toggleCSSClass(this.elemId, _className, true);
+  }
 
-  unsetCSSClass: function( _className, _other ){
-    if(_other){
-      this.toggleCSSClass( _className, _other, false );
-    }
-    else{
-      this.toggleCSSClass( this.elemId, _className, false );
-    }
-  },
+  unsetCSSClass(_first, _second) {
+    const _hasElemId = this.isntNullOrUndefined(_second);
+    const _elemId = _hasElemId ? _first : this.elemId;
+    const _className = _hasElemId ? _second : _first;
+    return this.toggleCSSClass(this.elemId, _className, false);
+  }
 
-/** = Description
+  /* = Description
   * Replaces the contents of the view's DOM element with custom html.
   *
   * = Parameters
@@ -901,12 +907,12 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  setHTML: function( _html ) {
-    ELEM.setHTML( this.elemId, _html );
+  setHTML(_html) {
+    ELEM.setHTML(this.elemId, _html);
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Wrapper for setHTML, sets escaped html, if tags and such are present.
   *
   * = Parameters
@@ -915,11 +921,11 @@ HView = UtilMethods.extend({
   * = Returns
   * +self+
   **/
-  setText: function( _text ) {
-    return this.setHTML( this.escapeHTML( _text ) );
-  },
+  setText(_text) {
+    return this.setHTML(this.escapeHTML(_text));
+  }
 
-/** = Description
+  /* = Description
   *
   * This method should be extended in order to redraw only specific parts. The
   * base implementation calls optimizeWidth when optimizeWidthOnRefresh is set
@@ -929,66 +935,196 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  refresh: function() {
-    if(this.drawn) {
+  refresh() {
+    if (this.drawn) {
       // this.drawn is checked here so the rectangle doesn't get drawn by the
       // constructor when setRect() is initially called.
       this.drawRect();
     }
-    if(this.refreshOnLabelChange){
+    if (this.refreshOnLabelChange) {
       this.refreshLabel();
     }
-    if( this.themeStyle !== undefined && typeof this.themeStyle === 'function' ){
+    if (this.isFunction(this.themeStyle)) {
       this.themeStyle.call(this);
     }
-    if(this.optimizeWidthOnRefresh && this.options.pack && this.drawn) {
+    if (this.optimizeWidthOnRefresh && this.options.pack && this.drawn) {
       this.optimizeWidth();
     }
     return this;
-  },
+  }
 
-/** Gets the size of the parent. If the parent is the document body, uses the browser window size.
+  /* Gets the size of the parent. If the parent is the document body, uses the browser window size.
   **/
-  parentSize: function(){
-    if(!this.parent){
-      return [ 0, 0 ];
+  parentSize() {
+    if (!this.parent) {
+      console.warn('HView#parentSize; no parent!');
+      return [0, 0];
     }
-    if(this.parent.elemId === 0){
+    if (this.parent.elemId === 0) {
       return ELEM.windowSize();
-    } else {
-      return ELEM.getSize( this.parent.elemId );
     }
-  },
+    else {
+      return ELEM.getSize(this.parent.elemId);
+    }
+  }
 
-/** Returns the maximum rect using the #parentSize.
-  **/
-  maxRect: function(){
-    var _parentSize = this.parentSize();
-    return [ 0, 0, null, null, 0, 0 ];
-  },
+  /* Returns the maximum rect */
+  maxRect() {
+    return [0, 0, null, null, 0, 0];
+  }
 
-  minWidth: 0,
-  setMinWidth: function(_minWidth){
-    if( typeof _minWidth === 'number' ){
+  setMinWidth(_minWidth) {
+    if (this.isNumber(_minWidth)) {
       this.minWidth = _minWidth;
-      ELEM.setStyle( this.elemId, 'min-width', this.minWidth+'px', true);
+      ELEM.setStyle(this.elemId, 'min-width', this.minWidth + 'px', true);
     }
-    else if ( !this.isProduction) {
-      console.log('warning: setMinWidth( '+(typeof _minWidth)+' '+_minWidth+' ) should be a number; value ignored!');
+    else {
+      console.warn(`HView#setMinWidth warning; setMinWidth(${typeof _minWidth
+        } ${_minWidth}) should be a number; value ignored!`);
     }
-  },
-  minHeight: 0,
-  setMinHeight: function(_minHeight){
-    if( typeof _minHeight === 'number' ){
-      this.minHeight = _minHeight;
-      ELEM.setStyle( this.elemId, 'min-height', this.minHeight+'px', true);
-    }
-    else if ( !this.isProduction) {
-      console.log('warning: setMinHeight( '+(typeof _minHeight)+' '+_minHeight+' ) should be a number; value ignored!');
-    }
-  },
+  }
 
-/** = Description
+  setMinHeight(_minHeight) {
+    if (this.isNumber(_minHeight)) {
+      this.minHeight = _minHeight;
+      ELEM.setStyle(this.elemId, 'min-height', this.minHeight + 'px', true);
+    }
+    else {
+      console.warn(`HView#setMinHeight warning; setMinHeight(${typeof _minHeight
+        } ${_minHeight}) should be a number; value ignored!`);
+    }
+  }
+
+  _setArrayRect(_arr) {
+    const _arrLen = _arr.length;
+    const _throwPrefix = 'HView#_setArrayRect: If the HRect instance is replaced by an array, ';
+    if (_arrLen === 4 || _arrLen === 6) {
+      let [_leftOffset, _topOffset, _width, _height, _rightOffset, _bottomOffset] = _arr;
+      let _right = null;
+      let _bottom = null;
+      const _validLeftOffset = this.isInteger(_leftOffset);
+      const _validTopOffset = this.isInteger(_topOffset);
+      const _validRightOffset = this.isInteger(_rightOffset);
+      const _validBottomOffset = this.isInteger(_bottomOffset);
+      let _validWidth = this.isInteger(_width);
+      let _validHeight = this.isInteger(_height);
+      const [_parentWidth, _parentHeight] = (_arrLen === 6) ? this.parentSize() : [null, null];
+      if (_validLeftOffset && _validRightOffset && !_validWidth) {
+        _width = 0;
+        _validWidth = true;
+      }
+      if (_validTopOffset && _validBottomOffset && !_validHeight) {
+        _height = 0;
+        _validHeight = true;
+      }
+      // Validate the invalid complex rules isolated:
+      (() => {
+        const _invalidLeftAndRight = !_validLeftOffset && !_validRightOffset;
+        const _invalidTopAndBottom = !_validTopOffset && !_validBottomOffset;
+        const _invalidLeftOrRight = !(_validLeftOffset && _validRightOffset);
+        const _invalidTopOrBottom = !(_validTopOffset && _validBottomOffset);
+        const _invalidWidthAndLeftOrRight = !_validWidth && _invalidLeftOrRight;
+        const _invalidHeightAndTopOrBottom = !_validHeight && _invalidTopOrBottom;
+        if (_invalidLeftAndRight || _invalidTopAndBottom) {
+          throw new Error(_throwPrefix + '(left or top) and (top or bottom) must be specified.');
+        }
+        else if (_invalidWidthAndLeftOrRight || _invalidHeightAndTopOrBottom) {
+          throw new Error(_throwPrefix +
+            'the (height or width) must be specified unless both (left and top) ' +
+            'or (top and bottom) are specified.');
+        }
+      })();
+      if (_validLeftOffset && _validWidth && !_validRightOffset) {
+        _right = _leftOffset + _width;
+        this.setMinWidth(0);
+      }
+      else if (!_validLeftOffset && _validWidth && _validRightOffset) {
+        _right = _parentWidth - _validRightOffset;
+        _leftOffset = _right - _width;
+        this.setMinWidth(_width);
+      }
+      else if (_validLeftOffset && _validRightOffset) {
+        _right = _parentWidth - _rightOffset;
+        if (_validWidth) {
+          this.setMinWidth(_width);
+          if ((_parentWidth - _leftOffset) < _width) {
+            console.warn(
+              `HView#_setArrayRect warning; The minWidth(${_width
+              }) is less than available width(${_parentWidth - _leftOffset - _rightOffset
+              }); right(${_right}) yields to ${_leftOffset + _width}!`);
+            _right = _leftOffset + _width;
+          }
+        }
+        else if (_right < _leftOffset) {
+          console.warn(
+            `HView#_setArrayRect warning; There is not enough width (${_parentWidth
+            }) to fit _rightOffset (${_rightOffset}) and left (${_leftOffset
+            }); right(${_right}) yields to (${_leftOffset
+            }) and _rightOffset(${_rightOffset}) yields to ${_parentWidth - _leftOffset}!`);
+          _rightOffset = _parentWidth - _leftOffset;
+          _right = _leftOffset;
+        }
+      }
+      if (_validTopOffset && _validHeight && !_validBottomOffset) {
+        _bottom = _topOffset + _height;
+        this.setMinHeight(0);
+      }
+      else if (!_validTopOffset && _validHeight && _validBottomOffset) {
+        _bottom = _parentHeight - _validBottomOffset;
+        _topOffset = _bottom - _height;
+        this.setMinHeight(_height);
+      }
+      else if (_validTopOffset && _validBottomOffset) {
+        _bottom = _parentHeight - _bottomOffset;
+        if (_validHeight) {
+          this.setMinHeight(_height);
+          if (_parentHeight - _topOffset < _height) {
+            console.warn(
+              `HView#_setArrayRect warning; The minHeight(${_height
+              }) is less than available height(${_parentHeight - _topOffset - _bottom
+              }); bottom(${_bottom}) yields to ${_topOffset + _height}!`);
+            _bottom = _topOffset + _height;
+          }
+        }
+        else if (_bottom < _topOffset) {
+          console.warn(
+            `HView#_setArrayRect warning; There is not enough height (${_parentHeight
+            }) to fit _bottomOffset (${_bottom}) and bottom (${_bottomOffset
+            }); bottom yields to ${_topOffset
+            } and _bottomOffset yields to ${_parentHeight - _topOffset}!`);
+          _bottomOffset = _parentHeight - _topOffset;
+          _bottom = _topOffset;
+        }
+      }
+      if (_leftOffset > _right) {
+        _right = _leftOffset;
+      }
+      if (_topOffset > _bottom) {
+        _bottom = _topOffset;
+      }
+      this.setMinWidth(this.minWidth);
+      this.setMinHeight(this.minHeight);
+      this.setFlexLeft(_validLeftOffset, _leftOffset);
+      this.setFlexTop(_validTopOffset, _topOffset);
+      this.setFlexRight(_validRightOffset, _rightOffset);
+      this.setFlexBottom(_validBottomOffset, _bottomOffset);
+      this.rect = new HRect(_leftOffset, _topOffset, _right, _bottom);
+      if (!this.rect.isValid && !this.isProduction) {
+        console.log('---------------------------------------------');
+        console.log(`invalid rect; left: ${this.rect.left
+          }, top: ${this.rect.top}, width: ${this.rect.width}, height: ${this.rect.height
+          }, right: ${this.rect.right}, bottom: ${this.rect.bottom}`);
+        console.log(' parent size:', this.parentSize());
+        console.log('  rect array:', _arr);
+        console.log('---------------------------------------------');
+      }
+    }
+    else {
+      throw new Error(_throwPrefix + 'the length has to be either 4 or 6.');
+    }
+  }
+
+  /* = Description
   * Replaces the rect of the component with a new HRect instance and
   * then refreshes the display.
   *
@@ -1000,176 +1136,27 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  setRect: function(_rect) {
+  setRect(_rect) {
     if (this.rect) {
-      this.rect.release(this);
+      this.rect.releaseView(this);
     }
-    if(typeof _rect === 'string'){
+    if (this.isString(_rect) && this.isFunction(this[_rect])) {
       _rect = this[_rect]();
     }
-    if(_rect instanceof Array){
-      var _arrLen = _rect.length,
-          _throwPrefix = 'HView.setRect: If the HRect instance is replaced by an array, ';
-      if((_arrLen === 4) || (_arrLen === 6)){
-        var
-        _leftOffset   = _rect[0],
-        _topOffset    = _rect[1],
-        _width        = _rect[2],
-        _height       = _rect[3],
-        _rightOffset  = ((_arrLen === 6)?_rect[4]:null),
-        _bottomOffset = ((_arrLen === 6)?_rect[5]:null),
-        _validLeftOffset    = (typeof _leftOffset    === 'number'),
-        _validTopOffset     = (typeof _topOffset     === 'number'),
-        _validRightOffset   = (typeof _rightOffset   === 'number'),
-        _validBottomOffset  = (typeof _bottomOffset  === 'number'),
-        _validWidth   = (typeof _width   === 'number'),
-        _validHeight  = (typeof _height  === 'number'),
-        _right,
-        _bottom,
-        _parentSize,
-        _parentWidth,
-        _parentHeight;
-        if(_arrLen === 6){
-          _parentSize = this.parentSize();
-          _parentWidth = _parentSize[0];
-          _parentHeight = _parentSize[1];
-        }
-        if( _validLeftOffset && _validRightOffset && !_validWidth ) {
-          _width = 0
-          _validWidth = true;
-        }
-        if( _validTopOffset && _validBottomOffset && !_validHeight ) {
-          _height = 0
-          _validHeight = true;
-        }
-
-        if( !this.isProduction ){
-          if( (!_validLeftOffset && !_validRightOffset) ||
-              (!_validTopOffset && !_validBottomOffset) ){
-            console.log(_throwPrefix + '(left or top) and (top or bottom) must be specified.');
-          }
-          else if( (!_validWidth   && !(_validLeftOffset && _validRightOffset)) ||
-                   (!_validHeight  && !(_validTopOffset  && _validBottomOffset)) ){
-            console.log(_throwPrefix + 'the (height or width) must be specified unless both (left and top) or (top and bottom) are specified.');
-          }
-        }
-
-        if(_validLeftOffset && _validWidth && !_validRightOffset){
-          _right = _leftOffset + _width;
-          this.setMinWidth( 0 );
-        }
-        else if(!_validLeftOffset && _validWidth && _validRightOffset){
-          _right = _parentWidth-_validRightOffset;
-          _leftOffset = _right-_width;
-          this.setMinWidth( _width );
-        }
-        else if(_validLeftOffset && _validRightOffset){
-          _right = _parentWidth - _rightOffset;
-          if( _validWidth ){
-            this.setMinWidth( _width );
-            if( _parentWidth - _leftOffset < _width ){
-              if( !this.isProduction ){
-                console.log('warning: the minWidth('+
-                  _width+
-                  ') is less than available width('+
-                  (_parentWidth-_leftOffset-_rightOffset)+
-                  '); right ('+_right+') yields to: '+_leftOffset+_width+'!');
-              }
-              _right = _leftOffset+_width;
-            }
-          }
-          else if ( _right < _leftOffset ) {
-            if( !this.isProduction ){
-              console.log('warning: there is not enough width ('+
-                _parentWidth+') to fit flexRightOffset ('+
-                _rightOffset+
-                ') and left ('+
-                _leftOffset+
-                '). right yields to ('+
-                _leftOffset+') and flexRightOffset yields to ('+
-                (_parentWidth-_leftOffset)+')!');
-            }
-            _rightOffset = _parentWidth-_leftOffset;
-            _right = _leftOffset;
-          }
-        }
-
-        if(_validTopOffset && _validHeight && !_validBottomOffset){
-          _bottom = _topOffset + _height;
-          this.setMinHeight( 0 );
-        }
-        else if(!_validTopOffset && _validHeight && _validBottomOffset){
-          _bottom = _parentHeight-_validBottomOffset;
-          _topOffset = _bottom-_height;
-          this.setMinHeight( _height );
-        }
-        else if(_validTopOffset && _validBottomOffset){
-          _bottom = _parentHeight - _bottomOffset;
-          if( _validHeight ){
-            this.setMinHeight( _height );
-            if( _parentHeight - _topOffset < _height ){
-              if( !this.isProduction ){
-                console.log('warning: the minHeight('+
-                  _height+
-                  ') is less than available height('+
-                  (_parentHeight-_topOffset-_bottom)+
-                  '). bottom('+_bottom+') yields: '+(_topOffset + _height)+'!');
-              }
-              _bottom = _topOffset + _height;
-            }
-          }
-          else if ( _bottom < _topOffset ) {
-            if( !this.isProduction ){
-              console.log('warning: there is not enough height ('+
-                _parentHeight+') to fit flexBottomOffset ('+
-                _bottom+
-                ') and bottom ('+
-                _bottomOffset+
-                ') bottom yields to ('+
-                _topOffset+') and flexBottomOffset yields to ('+
-                (_parentHeight-_topOffset)+')!');
-            }
-            _bottomOffset = _parentHeight-_topOffset;
-            _bottom = _topOffset;
-          }
-        }
-        if( _leftOffset > _right ){
-          _right = _leftOffset;
-        }
-        if( _topOffset > _bottom ){
-          _bottom = _topOffset;
-        }
-        this.setMinWidth(this.minWidth);
-        this.setMinHeight(this.minHeight);
-        this.setFlexLeft(_validLeftOffset,_leftOffset);
-        this.setFlexTop(_validTopOffset,_topOffset);
-        this.setFlexRight(_validRightOffset,_rightOffset);
-        this.setFlexBottom(_validBottomOffset,_bottomOffset);
-        this.rect = HRect.nu(_leftOffset,_topOffset,_right,_bottom);
-        if(!this.rect.isValid && !this.isProduction){
-          console.log('---------------------------------------------');
-          console.log('invalid rect:', this.rect.left, ',', this.rect.top, ',', this.rect.width, ',', this.rect.height, ',', this.rect.right, ',', this.rect.bottom );
-          console.log(' parent size:', this.parentSize() );
-          console.log('  rect array:', _rect );
-          console.log('---------------------------------------------');
-        }
-
-      }
-      else if (!this.isProduction){
-        console.log(_throwPrefix + 'the length has to be either 4 or 6.');
-      }
+    if (this.isArray(_rect)) {
+      this._setArrayRect(_rect);
     }
-    else {
+    else if (_rect.hasAncestor(HRect)) {
       this.rect = _rect;
     }
-    if( this.rect ) {
-      this.rect.bind(this);
+    if (this.rect) {
+      this.rect.bindView(this);
     }
     // this.refresh();
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Sets any arbitrary style of the main DOM element of the component.
   * Utilizes Element Manager's drawing queue / cache to perform the action.
   *
@@ -1182,50 +1169,40 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  setStyle: function(_name, _value, _cacheOverride) {
+  setStyle(_name, _value, _cacheOverride) {
     if (this.elemId) {
       ELEM.setStyle(this.elemId, _name, _value, _cacheOverride);
     }
     return this;
-  },
+  }
 
-  setStyles: function(_styles){
-    var _stylesObjType = this.typeChr(_styles);
-    if(_stylesObjType==='a'){
+  setStyles(_styles) {
+    if (this.isArray(_styles)) {
       this.setStylesArray(_styles);
     }
-    else if(_stylesObjType==='h'){
+    else if (this.isObject(_styles)) {
       this.setStylesHash(_styles);
     }
-    else if (!this.isProduction){
-      console.log('HView#setStyles: Invalid data, expected array or hash; type: '+h+', data:',_styles);
+    else {
+      throw new TypeError(
+        `HView#setStyles: Invalid style type ${this.getChr(_styles)
+        }, expected array or object; got: ${_styles}`);
     }
     return this;
-  },
+  }
 
-  setStylesArray: function(_styles){
-    var
-    _styleItem, _styleKey, _styleValue, i = 0;
-    for(;i<_styles.length;i++){
-      _styleItem  = _styles[i];
-      _styleKey   = _styleItem[0];
-      _styleValue = _styleItem[1];
-      this.setStyle(_styleKey,_styleValue);
-    }
+  setStylesArray(_styles) {
+    _styles.forEach(([_styleKey, _styleValue]) => {
+      this.setStyle(_styleKey, _styleValue);
+    });
     return this;
-  },
+  }
 
-  setStylesHash: function(_styles){
-    var
-    _styleKey, _styleValue;
-    for(_styleKey in _styles){
-      _styleValue  = _styles[_styleKey];
-      this.setStyle(_styleKey,_styleValue);
-    }
-    return this;
-  },
+  setStylesHash(_styles) {
+    return this.setStylesArray(Object.entries(_styles));
+  }
 
-/** = Description
+  /* = Description
   * Returns a style of the main DOM element of the component.
   * Utilizes +ELEM+ cache to perform the action.
   *
@@ -1236,14 +1213,36 @@ HView = UtilMethods.extend({
   * The style property value (css syntax, eg. 'rgb(255,0,0)')
   *
   **/
-  style: function(_name) {
+  style(_name) {
     if (this.elemId) {
       return ELEM.getStyle(this.elemId, _name);
     }
-    return '';
-  },
+    else {
+      console.warn('HView#style warning; no elemId!');
+      return '';
+    }
+  }
 
-/** = Description
+  _getMarkupElemIdPart(_partName, _warnPrefix) {
+    if (!_warnPrefix) {
+      _warnPrefix = 'HView#_getMarkupElemIdPart';
+    }
+    if (!this.markupElemIds) {
+      console.warn(_warnPrefix +
+        ` warning; componentName: ${this.componentName} with viewId: ${this.viewId} does not have any markupElemIds!`);
+      return null;
+    }
+    else if (this.isNullOrUndefined(this.markupElemIds[_partName])) {
+      console.warn(_warnPrefix +
+        ` warning; partName: ${_partName} does not exist for viewId: ${this.viewId}`);
+      return null;
+    }
+    else {
+      return this.markupElemIds[_partName];
+    }
+  }
+
+  /* = Description
   * Sets a style for a specified markup element that has been bound to this
   * view.
   *
@@ -1256,25 +1255,18 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  setStyleOfPart: function(_partName, _name, _value, _force) {
-    if (!this.markupElemIds){
-      !this.isProduction && console.log('Warning, setStyleOfPart('+_partName+','+_name+','+_value+') in a '+this.componentName+': no markupElemIds');
+  setStyleOfPart(_partName, _name, _value, _force) {
+    const _elemId = this._getMarkupElemIdPart(_partName, 'HView#setStyleOfPart');
+    if (this.isntNull(_elemId) && this.isObjectOrArray(_name)) {
+      ELEM.setStyles(this.markupElemIds[_partName], _name);
     }
-    else if (this.markupElemIds[_partName]===undefined) {
-      !this.isProduction && console.log('Warning, setStyleOfPart: partName "'+_partName+'" does not exist for viewId '+this.viewId+'.');
-    }
-    else {
-      if( this.typeChr(_name) === 'h'){
-        ELEM.setStyles(this.markupElemIds[_partName], _name );
-      }
-      else{
-        ELEM.setStyle(this.markupElemIds[_partName], _name, _value, _force);
-      }
+    else if (_elemId) {
+      ELEM.setStyle(this.markupElemIds[_partName], _name, _value, _force);
     }
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Returns a style of a specified markup element that has been bound to this
   * view.
   *
@@ -1286,18 +1278,17 @@ HView = UtilMethods.extend({
   * The style of a specified markup element.
   *
   **/
-  styleOfPart: function(_partName, _name, _force) {
-    if (!this.markupElemIds){
-      !this.isProduction && console.log('Warning, styleOfPart('+_partName+','+_name+') in a '+this.componentName+': no markupElemIds');
+  styleOfPart(_partName, _name, _force) {
+    const _elemId = this._getMarkupElemIdPart(_partName, 'HView#styleOfPart');
+    if (this.isntNull(_elemId)) {
+      return ELEM.getStyle(_elemId, _name, _force);
     }
-    else if (this.markupElemIds[_partName]===undefined) {
-      !this.isProduction && console.log('Warning, styleOfPart: partName "'+_partName+'" does not exist for viewId '+this.viewId+'.');
+    else {
       return '';
     }
-    return ELEM.getStyle(this.markupElemIds[_partName], _name, _force);
-  },
+  }
 
-/** = Description
+  /* = Description
   * Sets a style of a specified markup element that has been bound to this
   * view.
   *
@@ -1309,20 +1300,15 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  setMarkupOfPart: function( _partName, _value ) {
-    if (!this.markupElemIds){
-      !this.isProduction && console.log('Warning, setMarkupOfPart('+_partName+') in a '+this.componentName+': no markupElemIds');
-    }
-    else if (this.markupElemIds[_partName]===undefined) {
-      !this.isProduction && console.log('Warning, setMarkupOfPart: partName "'+_partName+'" does not exist for viewId '+this.viewId+'.');
-    }
-    else {
-      ELEM.setHTML( this.markupElemIds[_partName], _value );
+  setMarkupOfPart(_partName, _value) {
+    const _elemId = this._getMarkupElemIdPart(_partName, 'HView#setMarkupOfPart');
+    if (this.isntNull(_elemId)) {
+      ELEM.setHTML(_elemId, _value);
     }
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Returns a style of a specified markup element that has been bound to this
   * view.
   *
@@ -1333,18 +1319,17 @@ HView = UtilMethods.extend({
   * The markup of a specified markup element.
   *
   **/
-  markupOfPart: function(_partName) {
-    if (!this.markupElemIds){
-      !this.isProduction && console.log('Warning, markupOfPart('+_partName+') in a '+this.componentName+': no markupElemIds');
+  markupOfPart(_partName) {
+    const _elemId = this._getMarkupElemIdPart(_partName, 'HView#markupOfPart');
+    if (this.isntNull(_elemId)) {
+      return ELEM.getHTML(_elemId);
     }
-    else if (this.markupElemIds[_partName]===undefined) {
-      !this.isProduction && console.log('Warning, markupOfPart: partName "'+_partName+'" does not exist for viewId '+this.viewId+'.');
+    else {
       return '';
     }
-    return ELEM.getHTML(this.markupElemIds[_partName]);
-  },
+  }
 
-/** = Description
+  /* = Description
   * Sets a element attribute of the view's cell.
   *
   * = Parameters
@@ -1356,12 +1341,12 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  setAttr: function( _key, _value, _force ){
-    ELEM.setAttr( this.elemId, _key, _value, _force );
+  setAttr(_key, _value, _force) {
+    ELEM.setAttr(this.elemId, _key, _value, _force);
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Gets a element attribute of the view's cell.
   *
   * = Parameters
@@ -1372,11 +1357,11 @@ HView = UtilMethods.extend({
   * The attribute value.
   *
   **/
-  attr: function( _key, _force ){
-    return ELEM.getAttr( this.elemId, _key, _force );
-  },
+  attr(_key, _force) {
+    return ELEM.getAttr(this.elemId, _key, _force);
+  }
 
-/** = Description
+  /* = Description
   * Sets a element attribute of a specified markup element that has been bound to this
   * view.
   *
@@ -1390,17 +1375,15 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  setAttrOfPart: function( _partName, _key, _value, _force ) {
-    if (this.markupElemIds[_partName]===undefined) {
-      !this.isProduction && console.log('Warning, setAttrOfPart: partName "'+_partName+'" does not exist for viewId '+this.viewId+'.');
-    }
-    else {
-      ELEM.setAttr( this.markupElemIds[_partName], _key, _value, _force );
+  setAttrOfPart(_partName, _key, _value, _force) {
+    const _elemId = this._getMarkupElemIdPart(_partName, 'HView#setAttrOfPart');
+    if (this.isntNull(_elemId)) {
+      ELEM.setAttr(_elemId, _key, _value, _force);
     }
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Returns a element attribute of a specified markup element that has been bound to this
   * view.
   *
@@ -1413,15 +1396,17 @@ HView = UtilMethods.extend({
   * The attribute of a specified markup element.
   *
   **/
-  attrOfPart: function(_partName, _key, _force) {
-    if (this.markupElemIds[_partName]===undefined) {
-      !this.isProduction && console.log('Warning, attrOfPart: partName "'+_partName+'" does not exist for viewId '+this.viewId+'.');
+  attrOfPart(_partName, _key, _force) {
+    const _elemId = this._getMarkupElemIdPart(_partName, 'HView#attrOfPart');
+    if (this.isntNull(_elemId)) {
+      return ELEM.getAttr(_elemId, _key, _force);
+    }
+    else {
       return '';
     }
-    return ELEM.getAttr(this.markupElemIds[_partName], _key, _force);
-  },
+  }
 
-/** = Description
+  /* = Description
   * Returns a element itself of a specified markup element that has been bound to this
   * view.
   *
@@ -1432,66 +1417,72 @@ HView = UtilMethods.extend({
   * The element of a specified markup element.
   *
   **/
-  elemOfPart: function(_partName) {
-    if (this.markupElemIds[_partName]===undefined) {
-      !this.isProduction && console.log('Warning, elemOfPart: partName "'+_partName+'" does not exist for viewId '+this.viewId+'.');
+  elemOfPart(_partName) {
+    const _elemId = this._getMarkupElemIdPart(_partName, 'HView#elemOfPart');
+    if (this.isntNull(_elemId)) {
+      return ELEM.get(_elemId);
+    }
+    else {
       return '';
     }
-    return ELEM.get( this.markupElemIds[_partName] );
-  },
+  }
 
-/** = Description
+  /* = Description
   * Hides the component's main DOM element (and its children).
   *
   * = Returns
   * +self+
   *
   **/
-  hide: function() {
-    ELEM.setStyle(this.elemId,'visibility', 'hidden', true);
-    // Required for the old, buggy Mozilla engines ( Firefox versions below 3.0 )
-    // At least text fields would show through from hidden parent elements.
-    // Disabled, because keeping the display as none causes hidden views to have no dimensions at all.
-    // ELEM.setStyle(this.elemId,'display', 'none');
+  hide() {
+    ELEM.setStyle(this.elemId, 'visibility', 'hidden', true);
     this.isHidden = true;
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Restores the visibility of the component's main DOM element (and its children).
   *
   * = Return
   * +self+
   *
   **/
-  show: function() {
-    ELEM.setStyle(this.elemId,'display', this.displayMode, true);
-    ELEM.setStyle(this.elemId,'visibility', 'inherit', true);
+  show() {
+    ELEM.setStyle(this.elemId, 'display', this.displayMode, true);
+    ELEM.setStyle(this.elemId, 'visibility', 'inherit', true);
     this.isHidden = false;
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Toggles between hide and show.
   *
   * = Returns
   * +self+
   *
   **/
-  toggle: function( _visible ) {
-    if( _visible == true || _visible == 1 ) {
+  toggleVisibility(_visible) {
+    if (_visible === true || _visible === 1) {
       this.show();
-    } else if( _visible == false || _visible == 0 ) {
+    }
+    else if (_visible === false || _visible === 0) {
       this.hide();
-    } else if(this.isHidden) {
+    }
+    else if (this.isHidden) {
       this.show();
-    } else {
+    }
+    else {
       this.hide();
     }
     return this;
-  },
+  }
 
-/** = Description
+  toggle(_visible) {
+    console.warn('HView#toggle is deprecated; use #toggleVisibility instead');
+    return this.toggleVisibility(_visible);
+  }
+
+  /* = Description
   * Call this if you need to remove a component from its parent's views array without
   * destroying the DOM element itself, making it in effect a view without parent.
   * Useful, for example, for moving a view from one parent component to another.
@@ -1500,139 +1491,104 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  remove: function() {
-    if( this.parent ) {
-
-      var _viewZIdx = this.parent.viewsZOrder.indexOf(this.viewId),
-          _viewPIdx = this.parent.views.indexOf(this.viewId);
-
-      this.parent.views.splice(_viewPIdx,1);
+  remove() {
+    if (this.parent) {
+      const _viewZIndex = this.parent.viewsZOrder.indexOf(this.viewId);
+      const _viewParentIndex = this.parent.views.indexOf(this.viewId);
+      this.parent.views.splice(_viewParentIndex, 1);
       HSystem.delView(this.viewId);
-      this.parent.viewsZOrder.splice( _viewZIdx, 1 );
-      var _sysUpdateZIndexOfChildrenBufferIndex = HSystem._updateZIndexOfChildrenBuffer.indexOf( this.viewId );
-      if(~_sysUpdateZIndexOfChildrenBufferIndex){
-        HSystem._updateZIndexOfChildrenBuffer.splice( _sysUpdateZIndexOfChildrenBufferIndex, 1 );
+      this.parent.viewsZOrder.splice(_viewZIndex, 1);
+      const _sysUpdateZIndexOfChildrenBufferIndex = HSystem._updateZIndexOfChildrenBuffer.indexOf(this.viewId);
+      if (_sysUpdateZIndexOfChildrenBufferIndex !== -1) {
+        HSystem._updateZIndexOfChildrenBuffer.splice(_sysUpdateZIndexOfChildrenBufferIndex, 1);
       }
-
       this._updateZIndexAllSiblings();
-      this.parent  = null;
+      delete this.parent;
       this.parents = [];
     }
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Deletes the component and all its children.
   * Should normally be called from the parent.
   *
   **/
-  die: function( _delay ) {
-    if( this.typeChr( _delay ) === 'n' ) {
-      var _this = this;
-      this.timeouts.push( setTimeout( function() { _this.dieMethods(); }, _delay ) );
-    } else {
+  die(_delay) {
+    if (this.isNumber(_delay)) {
+      this.timeouts.push(setTimeout(() => {
+        this.dieMethods();
+      }, _delay));
+    }
+    else {
       this.dieMethods();
     }
     return true;
-  },
+  }
 
-  dieMethods: function() {
-    if( this.isDead === true ) {
-      return true;
-    }
-    this.isDead = true;
-    if( this.typeChr( _delay ) === 'n' ) {
-      var _this = this;
-      this.timeouts.push( setTimeout( function() { _this.dieMethods(); }, _delay ) );
-    } else {
-      this.dieMethods();
-    }
-    return true;
-  },
-
-  dieMethods: function() {
-    if( this.isDead === true ) {
-      return true;
-    }
-    this.isDead = true;
-    // hide self, makes destruction seem faster
-    this.hide();
-    this.drawn = false;
-    if( this.timeouts ){
-      while( this.timeouts.length ){ clearTimeout(this.timeouts.pop()); }
-      delete this.timeouts;
-    }
-    // Delete the children first.
-    var _childViewId, i, _elemId;
-    if(!this.views){
-      console.log('HView#die: no sub-views for component name: ',this.componentName,', self:',this);
-      return;
-    }
-    while (this.views && this.views.length !== 0) {
-      _childViewId = this.views[0];
-      this.destroyView(_childViewId);
-    }
-    // Remove this object's bindings, except the DOM element.
-    this.remove();
-    // Remove the DOM element bindings.
-    if( this._domElementBindings ){
-      for ( i = 0; i < this._domElementBindings.length; i++) {
-        _elemId = this._domElementBindings.pop();
-        if( !ELEM.get(_elemId) ){
-          debugger;
+  dieMethods() {
+    if (!this.isDead) {
+      this.isDead = true;
+      // hide self, makes destruction seem faster
+      this.hide();
+      this.drawn = false;
+      if (this.timeouts) {
+        while (this.timeouts.length) {
+          clearTimeout(this.timeouts.pop());
         }
-        ELEM.del(_elemId);
+        delete this.timeouts;
+      }
+      // Delete the children first.
+      while (this.views && this.views.length) {
+        const _childViewId = this.views[0];
+        this.destroyView(_childViewId);
+      }
+      // Remove this object's bindings, except the DOM element.
+      this.remove();
+      // Remove the DOM element bindings.
+      while (this._domElementBindings.length) {
+        this.cloneObject(this._domElementBindings).forEach(_elemId => {
+          this._domElementBindings.pop();
+          if (!ELEM.get(_elemId)) {
+            debugger;
+          }
+          ELEM.del(_elemId);
+        });
       }
       delete this._domElementBindings;
+      // Remove the DOM object itself
+      ELEM.del(this.elemId);
+      delete this.rect;
+      Object.entries(this).forEach(([_item, _value]) => {
+        if (_item !== 'isDead') {
+          delete this[_item];
+        }
+      });
     }
+  }
 
-    if( this._ieNoThrough !== null ){
-      ELEM.del( this._ieNoThrough );
-    }
-    // Remove the DOM object itself
-    ELEM.del(this.elemId);
-
-    this.rect = null;
-    var _this = this;
-    for( i in _this ){
-      if( i !== 'isDead' ) {
-        _this[i] = null;
-        delete _this[i];
-      }
-    }
-  },
-
-/** = Description
+  /* = Description
   * A convenience method to call #die after 10ms using a setTimeout.
   * Use this method, if destroying self or destroying from a sub-view.
   *
   **/
-  dieSoon: function(){
-    var _this = this;
-    setTimeout(function(){_this.die();},10);
-  },
+  dieSoon() {
+    this.die(10);
+  }
 
-/** Recursive idle poller. Should be extended if functionality is desired.
+  /* Used by addView to build a parents array of parent classes.
   **/
-  // onIdle: function() {
-  //   for(var i = 0; i < this.views.length; i++) {
-  //     HSystem.views[this.views[i]].onIdle();
-  //   }
-  //},
-
-/** Used by addView to build a parents array of parent classes.
-  **/
-  buildParents: function(_viewId){
-    var _view = HSystem.views[_viewId];
+  buildParents(_viewId) {
+    const _view = HSystem.views[_viewId];
     _view.parent = this;
     _view.parents = [];
-    for(var _parentNum = 0; _parentNum < this.parents.length; _parentNum++) {
-      _view.parents.push(this.parents[_parentNum]);
-    }
+    this.parents.forEach(_parent => {
+      _view.parents.push(_parent);
+    });
     _view.parents.push(this);
-  },
+  }
 
-/** = Description
+  /* = Description
   * Adds a sub-view / component to the view. Called from inside the
   * HView#constructor and should be automatic for all components that accept
   * the 'parent' parameter, usually the second argument, after the HRect. May
@@ -1646,17 +1602,15 @@ HView = UtilMethods.extend({
   * The view id.
   *
   **/
-  addView: function(_view) {
-    var _viewId = HSystem.addView(_view);
+  addView(_view) {
+    const _viewId = HSystem.addView(_view);
     this.views.push(_viewId);
-
     this.buildParents(_viewId);
     this.viewsZOrder.push(_viewId);
-
     return _viewId;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Call this if you need to remove a child view from this view without
   * destroying its element, making it in effect a view without parent.
   * Useful, for example, for moving a view from one parent component to another.
@@ -1668,12 +1622,12 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  removeView: function(_viewId) {
-    this.app.removeView( _viewId ); // no reason to duplicate this functionality here
+  removeView(_viewId) {
+    this.app.removeView(_viewId);
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Call this if you need to remove a child view from this view, destroying its
   * child elements recursively and removing all DOM elements too.
   *
@@ -1683,12 +1637,12 @@ HView = UtilMethods.extend({
   * = Returns
   * +self+
   **/
-  destroyView: function(_viewId) {
+  destroyView(_viewId) {
     HSystem.views[_viewId].die();
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Returns bounds rectangle that defines the size and coordinate system
   * of the component. This should be identical to the rectangle used in
   * constructing the object, unless it has been changed after construction.
@@ -1697,17 +1651,13 @@ HView = UtilMethods.extend({
   * A new <HRect> instance with identical values to this component's rect.
   *
   **/
-  bounds: function() {
-    // Could be cached.
-    var _bounds = new HRect(this.rect);
-
-    _bounds.offsetTo(0,0);
-
+  bounds() {
+    const _bounds = new HRect(this.rect);
+    _bounds.offsetTo(0, 0);
     return _bounds;
-  },
+  }
 
-
-/** = Description
+  /* = Description
   * This method resizes the view, without moving its left and top sides.
   * It adds horizontal coordinate units to the width and vertical units to
   * the height of the view.
@@ -1727,16 +1677,15 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  resizeBy: function(_horizontal, _vertical) {
-    var _rect = this.rect;
-    _rect.right += _horizontal;
-    _rect.bottom += _vertical;
-    _rect.updateSecondaryValues();
+  resizeBy(_horizontal, _vertical) {
+    this.rect.right += _horizontal;
+    this.rect.bottom += _vertical;
+    this.rect.updateSecondaryValues();
     this.drawRect();
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * This method makes the view width units wide
   * and height units high. This method adjust the right and bottom
   * components of the frame rectangle accordingly.
@@ -1756,20 +1705,19 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  resizeTo: function(_width, _height) {
-    var _rect = this.rect;
-    if( this.typeChr( _width ) === 'n' ) {
-      _rect.right = _rect.left + _width;
+  resizeTo(_width, _height) {
+    if (this.isNumber(_width)) {
+      this.rect.right = this.rect.left + _width;
     }
-    if( this.typeChr( _height ) === 'n' ){
-      _rect.bottom = _rect.top + _height;
+    if (this.isNumber(_height)) {
+      this.rect.bottom = this.rect.top + _height;
     }
-    _rect.updateSecondaryValues();
+    this.rect.updateSecondaryValues();
     this.drawRect();
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * This method moves the view to a new coordinate. It adjusts the
   * left and top components of the frame rectangle accordingly.
   * Since a View's frame rectangle must be aligned on screen pixels, only
@@ -1790,25 +1738,24 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  offsetTo: function() {
+  offsetTo() {
     this.rect.offsetTo.apply(this.rect, arguments);
     this.drawRect();
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Alias method for offsetTo.
   *
   * = Returns
   * +self+
   *
   **/
-  moveTo: function() {
-    this.offsetTo.apply(this, arguments);
-    return this;
-  },
+  moveTo() {
+    return this.offsetTo.apply(this, arguments);
+  }
 
-/** = Description
+  /* = Description
   * This method re-positions the view without changing its size.
   * It adds horizontal coordinate units to the x coordinate and vertical
   * units to the y coordinate of the view.
@@ -1828,42 +1775,42 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  offsetBy: function(_horizontal, _vertical) {
+  offsetBy(_horizontal, _vertical) {
     this.rect.offsetBy(_horizontal, _vertical);
     this.drawRect();
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Alias method for offsetBy.
   *
   * = Returns
   * +self+
   *
   **/
-  moveBy: function() {
+  moveBy() {
     this.offsetBy.apply(this, arguments);
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Brings the view to the front by changing its Z-Index.
   *
   * = Returns
   * +self+
   *
   **/
-  bringToFront: function() {
+  bringToFront() {
     if (this.parent) {
-      var _index = this.zIndex();
+      const _index = this.zIndex();
       this.parent.viewsZOrder.splice(_index, 1);
       this.parent.viewsZOrder.push(this.viewId);
       this._updateZIndexAllSiblings();
     }
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Brings itself to the front of the given view by changing its Z-Index.
   * Only works on sibling views.
   *
@@ -1874,16 +1821,17 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  bringToFrontOf: function(_view){
-    if(this.parent.viewId === _view.parent.viewId){
-      this.parent.viewsZOrder.splice( this.zIndex(), 1 ); // removes selfs index from the array
-      this.parent.viewsZOrder.splice( _view.zIndex()+1, 0, this.viewId); // sets itself in front of to _view
+  bringToFrontOf(_view) {
+    // Ensure the views are siblings:
+    if (this.parent.viewId === _view.parent.viewId) {
+      this.parent.viewsZOrder.splice(this.zIndex(), 1);
+      this.parent.viewsZOrder.splice(_view.zIndex() + 1, 0, this.viewId);
       this._updateZIndexAllSiblings();
     }
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Sends itself to the back of the given view by changing its Z-Index.
   * Only works on sibling views.
   *
@@ -1894,83 +1842,87 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  sendToBackOf: function(_view){
-    if(this.parent.viewId === _view.parent.viewId){
-      this.parent.viewsZOrder.splice( this.zIndex(), 1 ); // removes selfs index from the array
-      this.parent.viewsZOrder.splice( _view.zIndex(), 0, this.viewId); // sets itself in back of to _view
+  sendToBackOf(_view) {
+    // Ensure the views are siblings
+    if (this.parent.viewId === _view.parent.viewId) {
+      this.parent.viewsZOrder.splice(this.zIndex(), 1);
+      this.parent.viewsZOrder.splice(_view.zIndex(), 0, this.viewId);
       this._updateZIndexAllSiblings();
     }
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Sends itself one step backward by changing its Z-Index.
   *
   * = Returns
   * +self+
   *
   **/
-  sendBackward: function(){
-    var _index = this.zIndex();
-    if(_index!==0){
-      this.parent.viewsZOrder.splice( _index, 1 ); // removes selfs index from the array
-      this.parent.viewsZOrder.splice( _index-1, 0, this.viewId); // moves selfs position to one step less than where it was
+  sendBackward() {
+    const _index = this.zIndex();
+    // 0 is already at the back
+    if (_index !== 0) {
+      this.parent.viewsZOrder.splice(_index, 1);
+      this.parent.viewsZOrder.splice(_index - 1, 0, this.viewId);
       this._updateZIndexAllSiblings();
     }
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Brings itself one step forward by changing its Z-Index.
   *
   * = Returns
   * +self+
   *
   **/
-  bringForward: function(){
-    var _index = this.zIndex();
-    if(_index!==this.parent.viewsZOrder.length-1){
-      this.parent.viewsZOrder.splice( _index, 1 ); // removes selfs index from the array
-      this.parent.viewsZOrder.splice( _index+1, 0, this.viewId); // moves selfs position to one step more than it was
+  bringForward() {
+    const _index = this.zIndex();
+    // don't do anything if already in front:
+    if (_index !== this.parent.viewsZOrder.length - 1) {
+      this.parent.viewsZOrder.splice(_index, 1);
+      this.parent.viewsZOrder.splice(_index + 1, 0, this.viewId);
       this._updateZIndexAllSiblings();
     }
     return this;
-  },
+  }
 
-
-/** = Description
+  /* = Description
   * Sends the view to the back by changing its Z-Index.
   *
   * = Returns
   * +self+
   *
   **/
-  sendToBack: function() {
+  sendToBack() {
     if (this.parent) {
-      var _index = this.zIndex();
-      this.parent.viewsZOrder.splice(_index, 1); // removes this index from the arr
-      this.parent.viewsZOrder.splice(0, 0, this.viewId); // un-shifts viewId
-      this._updateZIndexAllSiblings();
+      const _index = this.zIndex();
+      if (_index !== 0) {
+        this.parent.viewsZOrder.splice(_index, 1); // removes this index from the arr
+        this.parent.viewsZOrder.splice(0, 0, this.viewId); // un-shifts viewId
+        this._updateZIndexAllSiblings();
+      }
     }
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Use this method to get the Z-Index of itself.
   *
   * = Returns
   * The current Z-Index value.
   *
   **/
-  zIndex: function() {
+  zIndex() {
     if (!this.parent) {
       return -1;
     }
     // Returns the z-order of this item as seen by the parent.
     return this.parent.viewsZOrder.indexOf(this.viewId);
-  },
+  }
 
-/** = Description
+  /* = Description
   * Measures the characters encoded in length bytes of the string - or,
   * if no length is specified, the entire string up to the null character,
   * '0', which terminates it. The return value totals the width of all the
@@ -1989,11 +1941,12 @@ HView = UtilMethods.extend({
   * The width in pixels required to draw a string in the font.
   *
   **/
-  _stringSizeImportantAttrs: ['fontSize','fontWeight','fontFamily','lineHeight'],
-  stringSize: function(_string, _length, _elemId, _wrap, _customStyle) {
-    if(!_customStyle){_customStyle = {};}
-    if(this.typeChr(_customStyle) === 's'){
-      console.warn("#stringSize: use style objects instead of css text!");
+  stringSize(_string, _length, _elemId, _wrap, _customStyle) {
+    if (!_customStyle) {
+      _customStyle = {};
+    }
+    if (this.isString(_customStyle)) {
+      console.warn('HView#stringSize: use style objects instead of css text!');
       _customStyle = {};
     }
     if (_length || _length === 0) {
@@ -2003,90 +1956,89 @@ HView = UtilMethods.extend({
       _elemId = this.elemId || 0;
     }
     _customStyle.visibility = 'hidden';
-    if (!_wrap){
+    if (!_wrap) {
       _customStyle.whiteSpace = 'nowrap';
     }
-    var i=0,_attr;
-    for(;i<this._stringSizeImportantAttrs.length;i++){
-      _attr = this._stringSizeImportantAttrs[i];
-      if (!_customStyle[_attr]){
-        _customStyle[_attr] = ELEM.getStyle(_elemId,_attr);
+    this._stringSizeImportantAttrs.forEach(_attr => {
+      if (!_customStyle[_attr]) {
+        _customStyle[_attr] = ELEM.getStyle(_elemId, _attr);
       }
-    }
-    var
-    _stringParent = ELEM.make(_elemId,'div'),
-    _stringElem = ELEM.make(_stringParent,'span');
+    });
+    const _stringParent = ELEM.make(_elemId, 'div');
+    const _stringElem = ELEM.make(_stringParent, 'span');
     ELEM.setStyles(_stringElem, _customStyle);
     ELEM.setHTML(_stringElem, _string);
-    ELEM.flushElem([_stringParent,_stringElem]);
-    var _visibleSize=ELEM.getSize(_stringElem);
+    ELEM.flushElem([_stringParent, _stringElem]);
+    const [_width, _height] = ELEM.getSize(_stringElem);
     ELEM.del(_stringElem); ELEM.del(_stringParent);
-    return [_visibleSize[0]+_visibleSize[0]%2,_visibleSize[1]+_visibleSize[1]%2];
-  },
+    return [_width + _width % 2, _height + _height % 2];
+  }
 
-/** Returns the string width
+  /* Returns the string width
   **/
-  stringWidth: function(_string, _length, _elemId, _customStyle){
+  stringWidth(_string, _length, _elemId, _customStyle) {
     return this.stringSize(_string, _length, _elemId, false, _customStyle)[0];
-  },
+  }
 
-  /** Returns the string height.
-    **/
-  stringHeight: function(_string, _length, _elemId, _customStyle){
+  /* Returns the string height.
+  **/
+  stringHeight(_string, _length, _elemId, _customStyle) {
     return this.stringSize(_string, _length, _elemId, true, _customStyle)[1];
-  },
+  }
 
-/** Returns the X coordinate that has the scrolled position calculated.
+  /* Returns the X coordinate that has the scrolled position calculated.
   **/
-  pageX: function() {
-    return ELEM._getVisibleLeftPosition( this.elemId );
-  },
+  pageX() {
+    return ELEM._getVisibleLeftPosition(this.elemId);
+  }
 
-/** Returns the Y coordinate that has the scrolled position calculated.
+  /* Returns the Y coordinate that has the scrolled position calculated.
   **/
-  pageY: function() {
-    return ELEM._getVisibleTopPosition( this.elemId );
-  },
+  pageY() {
+    return ELEM._getVisibleTopPosition(this.elemId);
+  }
 
-  inElem: function( _elemId, x, y ) {
-    if( this.typeChr( x ) === 'n' && this.typeChr( x ) === 'n' ) {
-      var p = ELEM.getVisiblePosition( _elemId, true ),
-          s = ELEM.getSize( _elemId );
-      return !( x < p[0] || x > p[0] + s[0] || y < p[1] || y > p[1] + s[1] );
-    } else {
+  inElem(_elemId, x, y) {
+    if (this.isNumber(x) && this.isNumber(y)) {
+      const p = ELEM.getVisiblePosition(_elemId, true);
+      const s = ELEM.getSize(_elemId);
+      return !(x < p[0] || x > p[0] + s[0] || y < p[1] || y > p[1] + s[1]);
+    }
+    else {
+      console.error(`HView#inElem error; not a number x: ${x} or y: ${y}`);
       return false;
     }
-  },
+  }
 
-  contains: function( x, y ) {
-    return this.inElem( this.elemId, x, y );
-  },
+  contains(x, y) {
+    return this.inElem(this.elemId, x, y);
+  }
 
-  intersect: function( x, y, w, h ) {
-    var p = ELEM.getVisiblePosition( this.elemId, true ),
-        s = ELEM.getSize( this.elemId );
-    return !( p[0] > x + w || p[0] + s[0] < x ||
-              p[1] > y + h || p[1] + s[1] < y );
-  },
+  intersect(x, y, w, h) {
+    const p = ELEM.getVisiblePosition(this.elemId, true);
+    const s = ELEM.getSize(this.elemId);
+    return !(p[0] > x + w || p[0] + s[0] < x ||
+             p[1] > y + h || p[1] + s[1] < y);
+  }
 
-/** Set tabindex attribute for element
+  /* Set tabindex attribute for element
   **/
-  setTabIndex: function(_tabIndex) {
-    this.setAttr( 'tabIndex', _tabIndex );
-    if( _tabIndex == 1 && !BROWSER_TYPE.mobile ) {
+  setTabIndex(_tabIndex) {
+    this.setAttr('tabIndex', _tabIndex);
+    if (_tabIndex === 1 && !BROWSER_TYPE.mobile) {
       this.setFocus();
     }
-  },
+  }
 
-  setFocus: function() {
-    var _elem = ELEM.get( this.elemId );
-    if(_elem !== undefined){
+  setFocus() {
+    const _elem = ELEM.get(this.elemId);
+    if (this.isntNullOrUndefined(_elem)) {
       _elem.focus();
-      EVENT.changeActiveControl( this );
+      EVENT.changeActiveControl(this);
     }
-  },
+  }
 
-/** = Description
+  /* = Description
   * Sets the label on a control component: the text that's displayed in
   * HControl extensions. Visual functionality is implemented in component
   * theme templates and refreshLabel method extensions.
@@ -2100,21 +2052,19 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  setLabel: function(_label) {
-    if(this.escapeLabelHTML){
-      _label = this.escapeHTML( _label );
+  setLabel(_label) {
+    if (this.escapeLabelHTML) {
+      _label = this.escapeHTML(_label);
     }
-    var _this = this,
-        _differs = (_label !== _this.label);
-    if(_differs){
-      _this.label = _label;
-      _this.options.label = _label;
-      _this.refresh();
+    if (_label !== this.label) {
+      this.label = _label;
+      this.options.label = _label;
+      this.refresh();
     }
     return this;
-  },
+  }
 
-/** = Description
+  /* = Description
   * Called when the +self.label+ has been changed. By default
   * tries to update the label element defined in the theme of
   * the component. Of course, the HControl itself doesn't
@@ -2124,33 +2074,29 @@ HView = UtilMethods.extend({
   * +self+
   *
   **/
-  refreshLabel: function(){
-    if(this.markupElemIds){
-      if(this.markupElemIds.label){
-        ELEM.setHTML(this.markupElemIds.label,this.label);
-      }
+  refreshLabel() {
+    const _elemId = this._getMarkupElemIdPart('label', 'HView#refreshLabel');
+    if (_elemId) {
+      ELEM.setHTML(_elemId, this.label);
     }
     return this;
-  },
+  }
 
-/** Returns the HPoint that has the scrolled position calculated.
+  /* Returns the HPoint that has the scrolled position calculated.
   **/
-  pageLocation: function() {
+  pageLocation() {
     return new HPoint(this.pageX(), this.pageY());
-  },
+  }
 
-/** = Description
+  /* = Description
   * An abstract method that derived classes may implement, if they are able to
   * resize themselves so that their content fits nicely inside.
   * Similar to pack, might be renamed when components are written to
   * be savvy of this feature.
   **/
-  optimizeWidth: function() {
+  optimizeWidth() {}
 
-  },
-
-
-/** = Description
+  /* = Description
   * Binds a DOM element to the +ELEM+ cache. This is a wrapper for
   * the ELEM#elem_bind that keeps track of the bound elements and
   * frees them from the element manager when the view is destroyed.
@@ -2163,16 +2109,15 @@ HView = UtilMethods.extend({
   * The element index id of the bound element.
   *
   **/
-  bindDomElement: function(_domElementId) {
-    var _cacheId = ELEM.bindId(_domElementId);
+  bindDomElement(_domElementId) {
+    const _cacheId = ELEM.bindId(_domElementId);
     if (_cacheId) {
       this._domElementBindings.push(_cacheId);
     }
     return _cacheId;
-  },
+  }
 
-
-/** = Description
+  /* = Description
   * Removes a DOM element from the +ELEM+ cache. This is a wrapper
   * for the ELEM#elem_del. This is used for safely removing DOM
   * nodes from the cache.
@@ -2182,22 +2127,23 @@ HView = UtilMethods.extend({
   *                that is to be removed from the cache.
   *
   **/
-  unbindDomElement: function(_elemId) {
-    var _indexOfElementId = this._domElementBindings.indexOf(_elemId);
-    if (~_indexOfElementId) {
+  unbindDomElement(_elemId) {
+    const _indexOfElementId = this._domElementBindings.indexOf(_elemId);
+    if (_indexOfElementId !== -1) {
       ELEM.del(_elemId);
       this._domElementBindings.splice(_indexOfElementId, 1);
     }
-  },
+  }
 
-  destroyMarkupElem: function(_name){
-    if( this.markupElemIds[_name] === null || this.markupElemIds[_name] === undefined ){ return; }
-    this.unbindDomElement(this.markupElemIds[_name]);
-    delete this.markupElemIds[_name];
-  },
+  destroyMarkupElem(_name) {
+    const _elemId = this._getMarkupElemIdPart(_name, 'HView#destroyMarkupElem');
+    if (_elemId) {
+      this.unbindDomElement(this.markupElemIds[_name]);
+      delete this.markupElemIds[_name];
+    }
+  }
 
-
-/** = Description
+  /* = Description
   * Finds a string from the locale of the component.
   * The attrPath is a string or array to find an object.
   * For instance, if a component has a structure like this defined:
@@ -2221,83 +2167,84 @@ HView = UtilMethods.extend({
   * +_default+::      The default object to return if nothing matched.
   *
   **/
-  getLocaleString: function( _componentClassName, _attrPath, _default ){
-    if( _default === undefined ){
+  getLocaleString(_componentClassName, _attrPath, _default) {
+    if (this.isNullOrUndefined(_default)) {
       _default = '';
     }
-    var
-    _searchTarget = HLocale.components[_componentClassName],
-    i = 0,
-    _key;
-    if( _searchTarget === undefined && (typeof _componentClassName === 'string') ){
+    let _searchTarget = HLocale.components[_componentClassName];
+    if (this.isNullOrUndefined(_searchTarget) && this.isString(_componentClassName)) {
       _searchTarget = HLocale.components;
       _attrPath = _componentClassName;
       _default = _attrPath;
     }
-    if( typeof _attrPath === 'string' ){
-      if( _attrPath.indexOf( '.' ) > 0 ){
+    if (this.isString(_attrPath)) {
+      if (_attrPath.indexOf('.') > 0) {
         _attrPath = _attrPath.split('.');
       }
       else {
-        _attrPath = [ _attrPath ];
+        _attrPath = [_attrPath];
       }
     }
-    if( _searchTarget[ _attrPath[0] ] === undefined ){
+    if (this.isNullOrUndefined(_searchTarget[_attrPath[0]])) {
       _searchTarget = HLocale;
     }
-    if( _searchTarget[ _attrPath[0] ] === undefined ){
+    if (this.isNullOrUndefined(_searchTarget[_attrPath[0]])) {
       return _default;
     }
-    for( ; i < _attrPath.length; i++ ){
-      _key = _attrPath[i];
-      if( typeof _searchTarget[_key] === 'object' ){
-        _searchTarget = _searchTarget[_key];
+    for (const _key = 0; _key < _attrPath.length; _key++) {
+      const _targetValue = _searchTarget[_key];
+      if (this.isObjectOrArray(_targetValue)) {
+        _searchTarget = _targetValue;
       }
-      else if( typeof _searchTarget[_key] === 'string' ){
-        return _searchTarget[_key];
-      }
-      else {
-        return _default;
+      else if (this.isString(_targetValue)) {
+        return _targetValue;
       }
     }
     return _default;
-  },
-
-  isParentOf: function( _obj ){
-    if( !_obj ){
-      return false;
-    }
-    if( typeof _obj['hasAncestor'] === 'function' ){
-      if( ~_obj.parents.indexOf( this ) ){
-        return true;
-      }
-    }
-    return false;
-  },
-
-  isChildOf: function( _obj ){
-    if( !_obj ){
-      return false;
-    }
-    if( typeof _obj['isParentOf'] === 'function' ){
-      return _obj.isParentOf( this );
-    }
-    return false;
-  },
-
-  isSiblingOf: function( _obj ){
-    if( !_obj ){
-      return false;
-    }
-    if( typeof _obj['parents'] === 'object' && _obj.parents instanceof Array ){
-      if( _obj.parents.length !== this.parents.length ){
-        return false;
-      }
-      var i = this.parents.length-1;
-      return _obj.parents[i] === this.parents[i];
-    }
-    return false;
   }
 
+  isParentOf(_obj) {
+    if (!_obj) {
+      return false;
+    }
+    else if (this.isFunction(_obj.hasAncestor) && this.isArray(_obj.parent) && _obj.parents.includes(this)) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
 
-});
+  isChildOf(_obj) {
+    if (!_obj) {
+      return false;
+    }
+    else if (this.isFunction(_obj.isParentOf)) {
+      return _obj.isParentOf(this);
+    }
+    else {
+      return false;
+    }
+  }
+
+  isSiblingOf(_obj) {
+    if (!_obj) {
+      return false;
+    }
+    else if (this.isArray(_obj.parents)) {
+      if (_obj.parents.length !== this.parents.length) {
+        return false;
+      }
+      else {
+        return _obj.parents.every((_item, i) => {
+          return _item === this.parents[i];
+        });
+      }
+    }
+    else {
+      return false;
+    }
+  }
+}
+
+module.exports = HView;
