@@ -1,8 +1,9 @@
 
 const HClass = require('core/class');
-const COMM = require('comm');
-const HLocale = require('foundation/locale');
-const moment = require('moment');
+const {LOAD} = require('core/elem');
+let COMM; LOAD(() => {COMM = require('comm');});
+let HLocale; LOAD(() => {HLocale = require('foundation/locale');});
+let moment; LOAD(() => {moment = require('moment');});
 
 const _builtinTypeChr = [
   'b', // boolean
@@ -43,7 +44,7 @@ const typeChr = (_obj) => {
   }
   else {
     const _typeChr = (typeof _obj)[0];
-    if (_typeChr in _builtinTypeChr) {
+    if (_builtinTypeChr.includes(_typeChr)) {
       // 'b', 'n' or 's':
       return _typeChr;
     }

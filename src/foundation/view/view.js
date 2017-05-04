@@ -1,7 +1,7 @@
 
 const HClass = require('core/class');
-const {BROWSER_TYPE, ELEM} = require('core/elem');
-const EVENT = require('foundation/eventmanager');
+const {BROWSER_TYPE, ELEM, LOAD} = require('core/elem');
+let EVENT; LOAD(() => {EVENT = require('foundation/eventmanager');});
 const UtilMethods = require('util/util_methods');
 const HRect = require('util/geom/rect');
 const HPoint = require('util/geom/point');

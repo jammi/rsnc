@@ -1696,7 +1696,7 @@ class EventManagerApp extends HApplication.mixin({
 
   die() {
     this.stop();
-    super();
+    super.die();
   }
 }
 

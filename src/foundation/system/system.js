@@ -18,22 +18,22 @@ const HSystem = new (class extends UtilMethods {
     options = options || {};
     this.windowFocusMode = options.windowFocusMode in [0, 1] ? options.windowFocusMode : 1;
     // An array of HApplication instances; index is the appId:
-    this.apps = [];
+    this.__apps = [];
     // An array (in the same order as apps); holds priority values:
-    this.appPriorities = [];
+    this.__appPriorities = [];
     // An array (in the same order as apps); holds busy status:
     this.busyApps = [];
     // This array holds free app id:s
     this.freeAppIds = [];
     // The default HSystem ticker interval. Unit is milliseconds.
-    this.defaultInterval = options.defaultInterval || 200;
+    this.__defaultInterval = options.defaultInterval || 200;
     // The ticker interval, when window has no focus.
-    this._blurredInterval = options._blurredInterval || 300;
+    this.__blurredInterval = options._blurredInterval || 300;
     // The default HApplication priority. Unit is "On the n:th tick: poll".
     this.defaultPriority = options.defaultPriority || 20;
     // The z-index of root-level +HView+ instances. All the array operations
     // are done by the inner logic of +HApplication+ and +HView+ instances.
-    this.viewsZOrder = [];
+    this.__viewsZOrder = [];
     // This is the internal "clock" counter. Gets updated on every tick.
     this.ticks = 0;
     // Time in milliseconds for the timeout of a poll to finish before
@@ -42,7 +42,7 @@ const HSystem = new (class extends UtilMethods {
     // Pause status of idle ticker:
     this.paused = false;
     // All +HView+ instances that are defined
-    this.views = [];
+    this.__views = [];
     // List of free +views+ indexes
     this._freeViewIds = [];
     // The view id of the active window. 0 means none.
@@ -50,7 +50,7 @@ const HSystem = new (class extends UtilMethods {
     // optimization of zindex buffer, see +HView+
     this._updateZIndexOfChildrenBuffer = [];
     // Starts the ticking, when the document is loaded:
-    LOAD(this.ticker);
+    LOAD(() => {this.ticker();});
   }
 
 /** When the focus behaviour is 1, clicking on any subview brings
@@ -60,12 +60,12 @@ const HSystem = new (class extends UtilMethods {
   *
   **/
   get windowFocusMode() {
-    return this.windowFocusMode;
+    return this.__windowFocusMode;
   }
 
   set windowFocusMode(mode) {
     if (mode in [0, 1]) {
-      this.windowFocusMode = mode;
+      this.__windowFocusMode = mode;
     }
     else {
       console.warn('HSystem.windowFocusMode; invalid mode:', mode);
@@ -73,38 +73,38 @@ const HSystem = new (class extends UtilMethods {
   }
 
   get apps() {
-    return this.apps;
+    return this.__apps;
   }
 
   get appPriorities() {
-    return this.appPriorities;
+    return this.__appPriorities;
   }
 
   get defaultInterval() {
-    return this.defaultInterval;
+    return this.__defaultInterval;
   }
 
   set defaultInterval(interval) {
-    if (typeof inteval === 'number' && interval > 10 && interval < 20000) {
-      this.defaultInterval = interval;
+    if (this.isNumber(interval) && interval > 10 && interval < 20000) {
+      this.__defaultInterval = interval;
     }
     else {
-      console.warn('HSystem.defaultInterval; invalid value:', interval);
+      console.warn('HSystem.defaultInterval; invalid value:', interval, interval > 10, interval < 20000, this.isNumber(interval));
     }
   }
 
   get _blurredInterval() {
-    return this._blurredInterval;
+    return this.__blurredInterval;
   }
 
   get viewsZOrder() {
-    return this.viewsZOrder;
+    return this.__viewsZOrder;
   }
 
   // Calls applications, uses the prority as a prioritizer.
   scheduler() {
     const {busyApps, appPriorities, ticks} = this;
-    this.apps.map((app, appId) => {
+    this.__apps.map((app, appId) => {
       return {
         appId, app,
         busy: busyApps[appId],
@@ -126,7 +126,7 @@ const HSystem = new (class extends UtilMethods {
 
   // This might be dead code, but investigate whether it's on purpose or not:
   _updateFlexibleRects() {
-    this.views.forEach(_view => {
+    this.__views.forEach(_view => {
       if (_view && (_view.flexRight || _view.flexBottom)) {
         _view.rect._updateFlexibleDimensions();
       }
@@ -154,7 +154,7 @@ const HSystem = new (class extends UtilMethods {
       const _this = this;
       this._tickTimeout = setTimeout(() => {
         _this.ticker();
-      }, this.defaultInterval);
+      }, this.__defaultInterval);
     }
   }
 
@@ -176,11 +176,11 @@ const HSystem = new (class extends UtilMethods {
     let _appId;
     if (this.freeAppIds.length > 0) {
       _appId = this.freeAppIds.shift();
-      this.apps[_appId] = _app;
+      this.__apps[_appId] = _app;
     }
     else {
-      this.apps.push(_app);
-      _appId = this.apps.length - 1;
+      this.__apps.push(_app);
+      _appId = this.__apps.length - 1;
     }
     _app.parent = this;
     _app.parents = [this];
@@ -201,7 +201,7 @@ const HSystem = new (class extends UtilMethods {
     if (typeof _priority === 'undefined') {
       _priority = this.defaultPriority;
     }
-    this.appPriorities[_appId] = _priority;
+    this.__appPriorities[_appId] = _priority;
     this.busyApps[_appId] = false;
   }
 
@@ -225,7 +225,7 @@ const HSystem = new (class extends UtilMethods {
   *
   **/
   reniceApp(_appId, _priority) {
-    this.appPriorities[_appId] = _priority;
+    this.__appPriorities[_appId] = _priority;
   }
 
  /* = Description
@@ -263,17 +263,17 @@ const HSystem = new (class extends UtilMethods {
   _forceKillApp(_appId) {
     this.busyApps[_appId] = true;
     try {
-      this.apps[_appId].destroyAllViews();
+      this.__apps[_appId].destroyAllViews();
     }
     catch (e) {
       console.error('HSystem._forceKillApp; unable to destrayAllViews:', e);
     }
-    this.apps[_appId] = null;
+    this.__apps[_appId] = null;
     this.freeAppIds.push(_appId);
   }
 
   get views() {
-    return this.views;
+    return this.__views;
   }
 
  /* = Description
@@ -290,11 +290,11 @@ const HSystem = new (class extends UtilMethods {
     let _newId;
     if (this._freeViewIds.length > 0) {
       _newId = this._freeViewIds.pop();
-      this.views[_newId] = _view;
+      this.__views[_newId] = _view;
     }
     else {
-      this.views.push(_view);
-      _newId = this.views.length - 1;
+      this.__views.push(_view);
+      _newId = this.__views.length - 1;
     }
     return _newId;
   }
@@ -307,7 +307,7 @@ const HSystem = new (class extends UtilMethods {
   *
   **/
   delView(_viewId) {
-    this.views[_viewId] = null;
+    this.__views[_viewId] = null;
     this._freeViewIds.push(_viewId);
   }
 
@@ -325,8 +325,8 @@ const HSystem = new (class extends UtilMethods {
     }
     else {
       const _viewId = _view.viewId;
-      if (this.views[this.activeWindowId] && typeof this.views[this.activeWindowId].windowBlur === 'function') {
-        this.views[this.activeWindowId].windowBlur();
+      if (this.__views[this.activeWindowId] && typeof this.__views[this.activeWindowId].windowBlur === 'function') {
+        this.__views[this.activeWindowId].windowBlur();
       }
       this.activeWindowId = _viewId;
       _view.bringToFront();
@@ -341,7 +341,7 @@ const HSystem = new (class extends UtilMethods {
     }
     else {
       const _isDefined = typeof _viewId !== 'undefined' && _viewId !== null;
-      const _view = _isDefined && this.views[_viewId];
+      const _view = _isDefined && this.__views[_viewId];
       const _isRootView = _view.app === _view.parent;
       if (_isDefined && _isRootView && !this._updateZIndexOfChildrenBuffer.includes(null)) {
         this._updateZIndexOfChildrenBuffer.push(null);
@@ -358,9 +358,9 @@ const HSystem = new (class extends UtilMethods {
     // Iterate over a clone:
     _buffer.map(_viewId => {
       _buffer.shift(); // purge first item from the original buffer
-      const _view = _this.views[_viewId];
+      const _view = _this.__views[_viewId];
       const _isRootView = _viewId === null;
-      const _viewOrder = _isRootView ? _this.viewsZOrder : _view.viewsZOrder;
+      const _viewOrder = _isRootView ? _this.__viewsZOrder : _view.viewsZOrder;
       if (_viewOrder instanceof Array) {
         return _viewOrder;
       }
@@ -372,7 +372,7 @@ const HSystem = new (class extends UtilMethods {
     }).map(_viewOrder => {
       let _zIndex = -1;
       return _viewOrder.map(_viewId => {
-        const _view = _this.views[_viewId];
+        const _view = _this.__views[_viewId];
         const _elemId = _view.elemId;
         if (_elemId) {
           _zIndex += 1;

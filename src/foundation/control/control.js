@@ -329,7 +329,7 @@ class HControl extends HView.mixin(HValueResponder, HEventResponder, {
       this.valueObj = null;
     }
     EVENT.unreg(this);
-    super(_delay);
+    super.die(_delay);
   }
 
 /** = Description
@@ -392,7 +392,7 @@ class HControl extends HView.mixin(HValueResponder, HEventResponder, {
   *
   **/
   refresh() {
-    super();
+    super.refresh();
     if (this.drawn) {
       if (this.refreshOnValueChange) {
         this.refreshValue();

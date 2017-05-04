@@ -1088,6 +1088,8 @@ class _ELEM {
 const ELEM = new _ELEM();
 ELEM.reset();
 ELEM._warmup();
-const LOAD = ELEM._domLoader;
+const LOAD = thing => {
+  ELEM._domLoader(thing);
+};
 
 module.exports = {ELEM, LOAD, BROWSER_TYPE};

@@ -1,6 +1,7 @@
 
 const HValue = require('foundation/value');
-const Values = require('comm/values');
+const {LOAD} = require('core/elem');
+let Values; LOAD(() => {Values = require('comm/values');});
 
 /* Client -> Server push value buffer.
 * Works like HValue, but only streams out changes
@@ -33,7 +34,7 @@ class HPushValue extends HValue {
   die() {
     this.buffer = null;
     delete this.buffer;
-    super();
+    super.die();
   }
 }
 

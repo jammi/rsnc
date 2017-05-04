@@ -1,7 +1,7 @@
 
 const ELEM = require('core/elem');
 
-const HRect = require('foundation/geom/rect');
+const HRect = require('util/geom/rect');
 const HSystem = require('foundation/system');
 const HApplication = require('foundation/application');
 const HView = require('foundation/view');
@@ -53,7 +53,7 @@ class ServerInterruptView extends HView {
       this._lastError = _currentDate;
       this._retry();
     }
-    super();
+    super.idle();
   }
 
   die() {

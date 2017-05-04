@@ -1,7 +1,7 @@
 const HClass = require('core/class');
 const UtilMethods = require('util/util_methods');
-const HValueResponder = require('util/valueresponder');
-const HSystem = require('util/system');
+const HValueResponder = require('foundation/valueresponder');
+const HSystem = require('foundation/system');
 
 class HValueAction extends UtilMethods.mixin(HValueResponder) {
   constructor(_rect, _parent, _options) {

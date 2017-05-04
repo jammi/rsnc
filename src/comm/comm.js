@@ -1,5 +1,5 @@
 
-cont {LOAD} = require('core/elem');
+const {LOAD} = require('core/elem');
 
 /** = Description
  ** XMLHttpRequest abstractor, and handler and utilities.
@@ -186,9 +186,8 @@ COMM.JSONRenderer = require('foundation/json_renderer');
 // Makes the standard jsLoader instance based on the client base url
 // of the server when the page is loaded.
 LOAD(() => {
-  COMM.jsLoader = COMM.JSLoader.new(COMM.ClientPrefix + '/js/');
+  COMM.jsLoader = new COMM.JSLoader(COMM.ClientPrefix + '/js/');
 });
-
 
 // Starts the synchronization upon page load.
 COMM.AutoSyncStarter = {

@@ -52,7 +52,7 @@ class HClass {
     Array
       .prototype
       .slice
-      .call(arguments, 1)
+      .call(arguments, 0)
       .forEach(_item => {
         Object
           .entries(_item)
@@ -67,7 +67,7 @@ class HClass {
     return mixin(this, ...Array
       .prototype
       .slice
-      .call(arguments, 1)
+      .call(arguments, 0)
     );
   }
 
@@ -76,7 +76,7 @@ class HClass {
     Array
       .prototype
       .slice
-      .call(arguments, 1)
+      .call(arguments, 0)
       .forEach(_item => {
         Object
           .entries(_item)
@@ -85,6 +85,14 @@ class HClass {
           });
       });
     return _klass;
+  }
+
+  static mixin() {
+    return mixin(this, ...Array
+      .prototype
+      .slice
+      .call(arguments, 0)
+    );
   }
 }
 

@@ -1,5 +1,6 @@
 const HClass = require('core/class');
-const Values = require('comm/values');
+const {LOAD} = require('core/elem');
+let Values; LOAD(() => {Values = require('comm/values');});
 const HDummyValue = require('foundation/value/dummyvalue');
 const Queue = require('comm/queue');
 

@@ -1,6 +1,7 @@
 
 const HSystem = require('foundation/system');
-const HView = require('foundation/view');
+const {LOAD} = require('core/elem');
+let HView; LOAD(() => {HView = require('foundation/view');});
 const HValueResponder = require('foundation/valueresponder');
 
 /** = Description

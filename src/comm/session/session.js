@@ -19,7 +19,7 @@ class Session {
   /* The constructor takes no arguments.
   **/
   constructor() {
-    this.sha = SHA.nu(8);
+    this.sha = new SHA(8);
     this.sha_key = this.sha.hexSHA1(((new Date().getTime()) * Math.random() * 1000).toString());
     this.ses_key = '0:1:' + this.sha_key;
     this.req_num = 0;

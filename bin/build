@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+require('../support/path_setup');
+
+const readConfig = require('lib/build/read_config');
+const findBundles = require('lib/build/find_bundles');
+const flattenBundles = require('lib/build/flatten_bundles');
+const makePackages = require('lib/build/make_packages');
+const writePackages = require('lib/build/write_packages');
+
+readConfig('conf/client_pkg.yaml')
+  .then(findBundles)
+  .then(flattenBundles)
+  .then(makePackages)
+  .then(writePackages)
+  // .then(({bundles, config}) => {
+  //   console.log('config:', config);
+  //   console.log('bundles:', bundles);
+  //   return bundles;
+  // })
+  .catch(console.error)
+  .then(() => console.log('end'));
