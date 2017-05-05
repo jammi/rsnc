@@ -527,7 +527,7 @@ class _ELEM {
     const _loopMaxL = this._elemTodo.length;
     if (_loopMaxL > 0) {
       const _currTodo = this._elemTodo.splice(0, _loopMaxL);
-      for (const i = 0; i < _loopMaxL; i++) {
+      for (let i = 0; i < _loopMaxL; i++) {
         this._flushLoopFlushed++;
         const _id = _currTodo.shift();
         if (!_id && _id !== 0) {
@@ -553,7 +553,7 @@ class _ELEM {
       const _elem = this._elements[_id];
       const _loopMaxL = _attrTodo.length;
       const _currTodo = _attrTodo.splice(0, _loopMaxL);
-      for (const i = 0; i < _loopMaxL; i++) {
+      for (let i = 0; i < _loopMaxL; i++) {
         const _key = _currTodo.shift();
         const _val = _attrCache[_key];
         _elem[_key] = _val;
@@ -646,10 +646,10 @@ class _ELEM {
   _getClassNames(_id) {
     const _elem = this._elements[_id];
     if (this._isSVGElem(_elem)) {
-      _elem.className.baseVal;
+      return _elem.className.baseVal;
     }
     else {
-      _elem.className;
+      return _elem.className;
     }
   }
 
@@ -905,7 +905,7 @@ class _ELEM {
       const _loopMaxP = _styleTodo.length;
       if (_loopMaxP !== 0) {
         const _currTodo = _styleTodo.splice(0, _loopMaxP);
-        for (const i = 0; i < _loopMaxP; i++) {
+        for (let i = 0; i < _loopMaxP; i++) {
           const _key = _currTodo.shift();
           if (_key === 'opacity') {
             this.setOpacity(_id, _cached[_key]);

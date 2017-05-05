@@ -94,3 +94,4 @@ class HValueAction extends UtilMethods.mixin(HValueResponder) {
   }
 }
 
+module.exports = HValueAction;

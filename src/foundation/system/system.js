@@ -16,7 +16,7 @@ const HSystem = new (class extends UtilMethods {
   constructor(options) {
     super();
     options = options || {};
-    this.windowFocusMode = options.windowFocusMode in [0, 1] ? options.windowFocusMode : 1;
+    this.windowFocusMode = [0, 1].includes(options.windowFocusMode) ? options.windowFocusMode : 1;
     // An array of HApplication instances; index is the appId:
     this.__apps = [];
     // An array (in the same order as apps); holds priority values:
@@ -64,7 +64,7 @@ const HSystem = new (class extends UtilMethods {
   }
 
   set windowFocusMode(mode) {
-    if (mode in [0, 1]) {
+    if ([0, 1].includes(mode)) {
       this.__windowFocusMode = mode;
     }
     else {

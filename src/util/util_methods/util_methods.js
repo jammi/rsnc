@@ -60,10 +60,10 @@ const typeChr = (_obj) => {
       }
       else {
         // TODO; map out occurrences here
-        console.warn(
-          'typeChr encountered an unknown object type, which was substituted by an "o":',
-          _obj
-        );
+        // console.warn(
+        //   'typeChr encountered an unknown object type, which was substituted by an "o":',
+        //   _obj
+        // );
         return 'o';
       }
     }
@@ -120,7 +120,7 @@ const escapeHTML = (_html, _escapes) => {
     _escapes = _defaultEscapeHTMLArr;
   }
   const _tc = typeChr(_html);
-  if (_tc in ['-', '~', 'o', '>', 'h']) {
+  if (['-', '~', 'o', '>', 'h'].includes(_tc)) {
     return '';
   }
   else if (_tc === 's') {
@@ -150,7 +150,7 @@ const updateObject = (_src, _dst) => {
   const _typeDst = typeChr(_dst);
   const _merge = (_item, i) => {
     const _itemType = typeChr(_item);
-    if (_itemType === typeChr(_dst[i]) || typeChr(_dst[i]) in ['~', '-']) {
+    if (_itemType === typeChr(_dst[i]) || ['~', '-'].includes(typeChr(_dst[i]))) {
       if (_itemType === 'a' || _itemType === 'h') {
         if (_itemType === typeChr(_dst[i])) {
           updateObject(_item, _dst[i]);
@@ -327,6 +327,22 @@ class UtilMethods extends HClass {
     return !this.isString(_item);
   }
 
+  isStringOrNumber(_item) {
+    return this.isString(_item) || this.isNumber(_item);
+  }
+
+  isntStringOrNumber(_item) {
+    return !this.isStringOrNumber(_item);
+  }
+
+  isNumberOrString(_item) {
+    return this.isStringOrNumber(_item);
+  }
+
+  isntNumberOrString(_item) {
+    return this.isntStringOrNumber(_item);
+  }
+
   isArray(_item) {
     return typeChr(_item) === 'a';
   }
@@ -336,7 +352,7 @@ class UtilMethods extends HClass {
   }
 
   isObject(_item) {
-    return typeChr(_item) in ['h', 'o'];
+    return ['h', 'o'].includes(typeChr(_item));
   }
 
   isntObject(_item) {
@@ -344,7 +360,7 @@ class UtilMethods extends HClass {
   }
 
   isObjectOrArray(_item) {
-    return typeChr(_item) in ['a', 'h', 'o'];
+    return ['a', 'h', 'o'].includes(typeChr(_item));
   }
 
   isntObjectOrArray(_item) {

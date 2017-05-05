@@ -79,9 +79,8 @@ const Event = {
       this.observers.push([_elem, _name, _function, _useCapture]);
       _elem.addEventListener(_name, _function, _useCapture);
     }
-    else if (_elem && _elem.attachEvent) {
-      this.observers.push([_elem, _name, _function, _useCapture]);
-      _elem.attachEvent('on' + _name, _function);
+    else if (_elem) {
+      console.warn('element', _elem, 'doesn\'t have removeEventListener!');
     }
   },
 
@@ -92,7 +91,7 @@ const Event = {
       return;
     }
     const l = Event.observers.length;
-    for (const i = 0; i < l; i++) {
+    for (let i = 0; i < l; i++) {
       try {
         Event.stopObserving.apply(this, Event.observers[0]);
       }
@@ -134,8 +133,8 @@ const Event = {
     if (_elem.removeEventListener) {
       _elem.removeEventListener(_name, _function, _useCapture);
     }
-    else if (_elem.detachEvent) {
-      _elem.detachEvent(`on${_name}`, _function);
+    else {
+      console.warn('element', _elem, 'doesn\'t have removeEventListener!');
     }
     let i = 0;
     while (i < Event.observers.length) {
@@ -152,8 +151,9 @@ const Event = {
 
   hasTouch: function() {
     return (
-      ('ontouchstart' in window) ||    // html5 browsers
-      (navigator.maxTouchPoints > 0)); // MS EDGE?
+      window.ontouchstart ||    // html5 browsers
+      navigator.maxTouchPoints > 0  // MS EDGE?
+    );
   },
 
   wrapEventName: function(_name) {
@@ -191,8 +191,5 @@ const Event = {
   KEY_PAGEDOWN: 34
 
 };
-
-// TODO: Deprecate this at some point:
-window.Event = Event;
 
 module.exports = Event;

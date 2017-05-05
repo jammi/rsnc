@@ -160,14 +160,17 @@ class EventManagerApp extends HApplication.mixin({
       }
       set crsrY(y) {
         _status.mouseDownDiff.y += Math.abs(_status.crsrY - y);
-        _status.crsrX = y;
+        _status.crsrY = y;
       }
       setCrsr(x, y) {
         this.crsrX = x;
         this.crsrY = y;
       }
+      get keysDown() {
+        return _status.keysDown.slice(0);
+      }
       hasKeyDown(k) {
-        return !_status.keysDown.includes(k);
+        return _status.keysDown.includes(k);
       }
       addKeyDown(k) {
         if (!this.hasKeyDown(k)) {
@@ -354,7 +357,7 @@ class EventManagerApp extends HApplication.mixin({
 
   // Observe event, cache anon function; eventName => elem => anonFn
   observe(_elem, _eventName, _targetMethodName, _targetObj, _capture) {
-    if (this.isNullOrUndefined(_targetObj)) {
+    if (this.isntObject(_targetObj)) {
       _targetObj = this;
     }
     if (this.isNullOrUndefined(_capture)) {
@@ -410,18 +413,12 @@ class EventManagerApp extends HApplication.mixin({
     return false;
   }
 
-  // Returns the global target element based on browser type
-  _getGlobalTargetElem() {
-    return window;
-  }
-
   // Starts EventManager
   start() {
     this._views = HSystem.views; // shortcut to system views
-    const _targetElem = this._getGlobalTargetElem();
-    if (!BROWSER_TYPE.safari && !this._eventMethods.includes('keyPress')) {
-      this._eventMethods.push('keyPress');
-    }
+    // if (!BROWSER_TYPE.safari && !this._eventMethods.includes('keyPress')) {
+    //   this._eventMethods.push('keyPress');
+    // }
     this._eventMethods.map(_methodName => {
       if (_methodName === 'doubleClick') {
         return [_methodName, 'dblclick'];
@@ -430,7 +427,7 @@ class EventManagerApp extends HApplication.mixin({
         return [_methodName, _methodName.toLowerCase()];
       }
     }).forEach(([_methodName, _eventName]) => {
-      this.observe(_targetElem, _eventName, _methodName);
+      this.observe(window, _eventName, _methodName);
     });
     if (this.isntNullOrUndefined(window.addEventListener)) {
       this.observe(window, 'DOMMouseScroll', 'mouseWheel');
@@ -443,10 +440,9 @@ class EventManagerApp extends HApplication.mixin({
   // Stops EventManager
   stop() {
     delete this._views;
-    const _targetElem = this._getGlobalTargetElem();
-    if (!BROWSER_TYPE.safari && !this._eventMethods.includes('keyPress')) {
-      this._eventMethods.push('keyPress');
-    }
+    // if (!BROWSER_TYPE.safari && !this._eventMethods.includes('keyPress')) {
+    //   this._eventMethods.push('keyPress');
+    // }
     this._eventMethods.map(_methodName => {
       if (_methodName === 'doubleClick') {
         return [_methodName, 'dblclick'];
@@ -455,7 +451,7 @@ class EventManagerApp extends HApplication.mixin({
         return [_methodName, _methodName.toLowerCase()];
       }
     }).forEach(([_methodName, _eventName]) => {
-      this.stopObserving(_targetElem, _eventName, _methodName);
+      this.stopObserving(window, _eventName, _methodName);
     });
     if (this.isntNullOrUndefined(window.addEventListener)) {
       this.stopObserving(window, 'DOMMouseScroll', 'mouseWheel');
@@ -475,11 +471,11 @@ class EventManagerApp extends HApplication.mixin({
       return false;
     }
     else if (this.isFunction(_ctrl.hasAncestor) && _ctrl.hasAncestor(HView) && _ctrl.isCtrl) {
-      console.warn(`EventManager#${_warnMethodName} => Not a HControl: `, _ctrl);
-      return false;
+      return true;
     }
     else {
-      return true;
+      console.warn(`EventManager#${_warnMethodName} => Not a HControl: `, _ctrl);
+      return false;
     }
   }
 
@@ -489,7 +485,7 @@ class EventManagerApp extends HApplication.mixin({
       _warnMethodName = '_ensureValidEventOptions';
     }
     if (this.isntObject(_eventOptions)) {
-      console.warn(`EventManager#${_warnMethodName} => Invalid eventOptions: `, _eventOptions);;
+      console.warn(`EventManager#${_warnMethodName} => Invalid eventOptions: `, _eventOptions);
       return false;
     }
     else {
@@ -505,49 +501,47 @@ class EventManagerApp extends HApplication.mixin({
     const _viewId = _ctrl.viewId;
     const _eventsOn = [];
     Object.entries(this._defaultEventOptions).forEach(([_key, _defaultValue]) => {
-      if (_key !== 'base' && _key !== 'constructor') {
-        if (this.isntNullOrUndefined(this._listeners.byEvent[_key]) &&
-            this.isntNullOrUndefined(_eventOptions[_key])) {
-          const _value = _eventOptions[_key];
-          if (_value) {
-            _eventsOn.push(_key);
-            if (_key === 'keyDown') {
-              if (_value === 'repeat') {
-                if (!this._listeners.byEvent.keyRepeat.includes(_viewId)) {
-                  this._listeners.byEvent.keyRepeat.unshift(_viewId);
-                }
-              }
-              else {
-                const _idx = this._listeners.byEvent.keyRepeat.indexOf(_viewId);
-                if (_idx !== -1) {
-                  this._listeners.byEvent.keyRepeat.splice(_idx, 1);
-                }
+      if (this.isntNullOrUndefined(this._listeners.byEvent[_key]) &&
+          this.isntNullOrUndefined(_eventOptions[_key])) {
+        const _value = _eventOptions[_key];
+        if (_value) {
+          _eventsOn.push(_key);
+          if (_key === 'keyDown') {
+            if (_value === 'repeat') {
+              if (!this._listeners.byEvent.keyRepeat.includes(_viewId)) {
+                this._listeners.byEvent.keyRepeat.unshift(_viewId);
               }
             }
-            if (!this._listeners.byEvent[_key].includes(_viewId)) {
-              this._listeners.byEvent[_key].unshift(_viewId);
-            }
-            if (_key === 'rectHover' && _value === 'intersects' &&
-                 !this._listeners._rectHoverIntersectMode.includes(_viewId)) {
-              this._listeners._rectHoverIntersectMode.unshift(_viewId);
-            }
-          }
-          else {// not _value
-            const _keys = [_key];
-            if (_key === 'keyDown') {
-              _keys.push('keyRepeat');
-            }
-            _keys.forEach(_ikey => {
-              const _idx = this._listeners.byEvent[_ikey].indexOf(_viewId);
+            else {
+              const _idx = this._listeners.byEvent.keyRepeat.indexOf(_viewId);
               if (_idx !== -1) {
-                this._listeners.byEvent[_key].splice(_idx, 1);
+                this._listeners.byEvent.keyRepeat.splice(_idx, 1);
               }
-            });
+            }
+          }
+          if (!this._listeners.byEvent[_key].includes(_viewId)) {
+            this._listeners.byEvent[_key].unshift(_viewId);
+          }
+          if (_key === 'rectHover' && _value === 'intersects' &&
+               !this._listeners._rectHoverIntersectMode.includes(_viewId)) {
+            this._listeners._rectHoverIntersectMode.unshift(_viewId);
           }
         }
-        else {
-          console.warn(`EventManager#${_warnMethodName} => Invalid event type: ${_key}`);
+        else {// not _value
+          const _keys = [_key];
+          if (_key === 'keyDown') {
+            _keys.push('keyRepeat');
+          }
+          _keys.forEach(_ikey => {
+            const _idx = this._listeners.byEvent[_ikey].indexOf(_viewId);
+            if (_idx !== -1) {
+              this._listeners.byEvent[_key].splice(_idx, 1);
+            }
+          });
         }
+      }
+      else {
+        console.warn(`EventManager#${_warnMethodName} => Invalid event type: ${_key}`);
       }
     });
     this._listeners.byId[_viewId] = _eventsOn;
@@ -878,7 +872,7 @@ class EventManagerApp extends HApplication.mixin({
       return _mouseMoveItems.map(_viewId => {
         return this._views[_viewId];
       }).filter(_ctrl => {
-        if (this.isntNullOrUndefined(_ctrl) && _ctrl.mouseMove(x, y)) {
+        if (this.isObject(_ctrl) && this.isFunction(_ctrl.mouseMove) && _ctrl.mouseMove(x, y)) {
           return true;
         }
         else {
@@ -951,6 +945,16 @@ class EventManagerApp extends HApplication.mixin({
     );
   }
 
+  _isValidViewFilter(_this) {
+    return _view => {
+      return (
+        _this.isntNullOrUndefined(_view) &&
+        _this.isFunction(_view.hasAncestor) &&
+        _view.hasAncestor(HView)
+      );
+    };
+  }
+
   // Finds the topmost item from array of viewId's
   _findTopmostOf(_arrOfIds, _area, _matchMethodName, _selfId) {
     const _matchMethod = {
@@ -963,7 +967,7 @@ class EventManagerApp extends HApplication.mixin({
     }[_matchMethodName];
     if (this.isntFunction(_matchMethod)) {
       console.error(
-        `HThemeManager#_findTopmostOf error; unknown _matchMethodName: ${_matchMethodName}`);
+        `HEventManager#_findTopmostOf error; unknown _matchMethodName: ${_matchMethodName}`);
       return [];
     }
     else {
@@ -980,14 +984,12 @@ class EventManagerApp extends HApplication.mixin({
         }).map(_view => {
           return [_view.viewId, _view];
         });
-        let _viewId;
-        let _view;
         // TODO: combine this with the map/filter above via reduce:
-        for ([_viewId, _view] of _subviews) {
+        for (const [_viewId, _view] of _subviews) {
           // recursive search for matching geometry
           if (_matchMethod(_view)) {
-            const _foundId = _search(_view.viewZOrder.slice().reverse());
-            if (_viewId in _arrOfIds) {
+            const _foundId = _search(_view.viewsZOrder.slice().reverse());
+            if (_arrOfIds.includes(_viewId)) {
               if (_foundId !== false) {
                 return _foundId;
               }
@@ -1016,18 +1018,31 @@ class EventManagerApp extends HApplication.mixin({
 
   // Finds the topmost drop/hover target within the area specified by rectHover
   _findTopmostDroppable(_area, _matchMethod, _selfId) {
-    return this._findTopmostOf(this._listeners.byEvent.droppable, _area, _matchMethod, _selfId);
+    if (this._listeners.byEvent.droppable.length === 0) {
+      return [];
+    }
+    else {
+      return this._findTopmostOf(this._listeners.byEvent.droppable, _area, _matchMethod, _selfId);
+    }
   }
 
   // Finds the topmost enabled target within the area specified by area
   _findTopmostEnabled(_area, _matchMethod, _selfId) {
-    return this._findTopmostOf(this._listeners.enabled, _area, _matchMethod, _selfId);
+    if (this._listeners.enabled.length === 0) {
+      return [];
+    }
+    else {
+      return this._findTopmostOf(this._listeners.enabled, _area, _matchMethod, _selfId);
+    }
   }
 
   // Finds all drop/hover targets within the area specified by rectHover
   _findAllDroppable(_area, _matchMethod, _selfId) {
     const _views = this._views;
     const _droppable = this._listeners.byEvent.droppable;
+    if (_droppable.length === 0) {
+      return [];
+    }
     const _foundIds = [];
     const _search = _parentIds => {
       _parentIds
@@ -1067,26 +1082,28 @@ class EventManagerApp extends HApplication.mixin({
         console.warn(
           'EventManager#_validateActiveListeners warning; encountered a dead control: ',
           this._views[_viewId]);
-        return true; // TODO: should probably be false; possible bug?
+        return false;
       }
       else {
         return true;
       }
     });
-    if (this.listeners.active.length > 1) {
+    if (this._listeners.active.length > 1) {
       console.warn('EventManager#_validateActiveListeners warning; too many active items: ', this._listeners.active);
       // TODO: should probably make this an error and throw something; see delActiveControl as well about the situation
     }
   }
 
-  _viewIdToCtrl(_viewId) {
-    return this._views[_viewId];
+  _viewIdToCtrl(_views) {
+    return _viewId => {
+      return _views[_viewId];
+    };
   }
 
   _delegateEndHoverAndDrop(_ctrl) {
-    this.listeners.hovered
-      .map(this._viewIdToCtrl)
-      .filter(this._isValidView)
+    this._listeners.hovered
+      .map(this._viewIdToCtrl(this._views))
+      .filter(this._isValidViewFilter(this))
       .forEach(_dropView => {
         this.isFunction(_dropView.endHover) &&
           _dropView.endHover(_ctrl);
@@ -1104,8 +1121,8 @@ class EventManagerApp extends HApplication.mixin({
     }
     return _arr
       .filter(_filter)
-      .map(this._viewIdToCtrl)
-      .filter(this._isValidView);
+      .map(this._viewIdToCtrl(this._views))
+      .filter(this._isValidViewFilter(this));
   }
 
   // Removes the active control
@@ -1172,13 +1189,12 @@ class EventManagerApp extends HApplication.mixin({
   // Sets the active control
   changeActiveControl(_ctrl) {
     const _prevActiveControl = this._views[this._listeners.active[0]];
-    if (this._isValidView(_ctrl) && _ctrl !== _prevActiveControl) {
+    if (this._isValidView(_ctrl) && _ctrl === _prevActiveControl) {
       return null;
     }
-    else if (_ctrl === null || (
-        this.isFunction(_ctrl.allowActiveStatus) &&
-        _ctrl.allowActiveStatus(_prevActiveControl)
-      )
+    else if (_ctrl === null ||
+      this.isFunction(_ctrl.allowActiveStatus) &&
+      _ctrl.allowActiveStatus(_prevActiveControl)
     ) {
       this.delActiveControl(_ctrl);
       this.addActiveControl(_ctrl, _prevActiveControl);
@@ -1216,14 +1232,20 @@ class EventManagerApp extends HApplication.mixin({
   mouseDown(e) {
     this._modifiers(e);
     const _leftClick = Event.isLeftClick(e);
-    if (_leftClick) {
-      this.status.button1 = true;
-    }
-    else {
-      // TODO: check for button 3 where available:
-      this.status.button2 = true;
-    }
+    this.status.button1 = _leftClick;
+    this.status.button2 = !_leftClick;
+    this.handleMouseDown(e);
+  }
+
+  handleMouseDown(e) {
     const {focused, active, dragged} = this._listeners;
+    // newly activated views:
+    this._filterViewIdToValidView(focused, _viewId => {
+      return !active.includes(_viewId);
+    }).forEach(_ctrl => {
+      this.changeActiveControl(_ctrl);
+    });
+    const _leftClick = this.status.button1;
     const _mouseDownable = this._listeners.byEvent.mouseDown;
     const _draggable = this._listeners.byEvent.draggable;
     const _wantsToStopTheEvent = [];
@@ -1280,11 +1302,13 @@ class EventManagerApp extends HApplication.mixin({
   mouseUp(e) {
     this._modifiers(e);
     const _leftClick = Event.isLeftClick(e);
-    if (!_leftClick) {
-      this.status.button2 = false;
-      return false;
-    }
-    this.status.button1 = false;
+    this.status.button1 = _leftClick;
+    this.status.button2 = !_leftClick;
+    this.handleMouseUp(e);
+  }
+
+  handleMouseUp(e) {
+    const _leftClick = this.status.button1;
     const {focused, active, dragged, hovered} = this._listeners;
     const _mouseUppable = this._listeners.byEvent.mouseUp;
     const _draggable = this._listeners.byEvent.draggable;
@@ -1352,19 +1376,17 @@ class EventManagerApp extends HApplication.mixin({
   click(e) {
     this._modifiers(e);
     const _leftClick = Event.isLeftClick(e);
-    if (_leftClick) {
-      this.status.button1 = false;
-    }
-    else {
-      // there is a separate event for context menu, and only
-      // Firefox fires click separately.
-      // the handler is contextMenu
-      return true;
-    }
+    this.status.button1 = _leftClick;
+    this.status.button2 = !_leftClick;
     const [xd, yd] = this.status.mouseDownDiff;
     if (xd > 20 || yd > 20) {
       return true;
     }
+    this.handleClick(e);
+  }
+
+  handleClick(e) {
+    const _leftClick = this.status.button1;
     // Focus check here
     const {focused, active} = this._listeners;
     const _clickable = this._listeners.byEvent.click;
@@ -1373,12 +1395,6 @@ class EventManagerApp extends HApplication.mixin({
     const [x, y] = this.status.crsr;
     this._handleMouseMove(x, y);
     let _clickWasStopped = false;
-    // newly activated views:
-    this._filterViewIdToValidView(focused, _viewId => {
-      return !active.includes(_viewId);
-    }).forEach(_ctrl => {
-      this.changeActiveControl(_ctrl);
-    });
     // delegation of delayed click for ones listening to doubleclick as well
     // the purpose of this is to not get an extra click before doubleclick
     const _doubleClickWait = this._filterViewIdToValidView(focused, _viewId => {
@@ -1426,8 +1442,13 @@ class EventManagerApp extends HApplication.mixin({
     }
     this._modifiers(e);
     const _leftClick = Event.isLeftClick(e);
-    this.status.button1 = false;
-    this.status.button2 = false;
+    this.status.button1 = _leftClick;
+    this.status.button2 = !_leftClick;
+    this.handleDoubleClick(e);
+  }
+
+  handleDoubleClick(e) {
+    const _leftClick = this.status.button1;
     const [x, y] = this.status.crsr;
     this._handleMouseMove(x, y);
     const {focused} = this._listeners;
@@ -1483,9 +1504,10 @@ class EventManagerApp extends HApplication.mixin({
   // Handles the contextMenu event
   contextMenu(e) {
     this._modifiers(e);
-    // TODO: solve reliable handling of these:
-    // this.status.button1 = false;
-    // this.status.button2 = true;
+    this.status.button1 = false;
+    this.status.button2 = true;
+    this.handleMouseUp(e);
+    this.handleClick(e);
     const focused = this._listeners.focused;
     const _wantsToStopTheEvent = [];
     const _contextMenuable = this._listeners.byEvent.contextMenu;
@@ -1498,6 +1520,7 @@ class EventManagerApp extends HApplication.mixin({
         _wantsToStopTheEvent.push(_ctrl.viewId);
       }
     });
+    this.status.button2 = false;
     if (_wantsToStopTheEvent.length !== 0) {
       Event.stop(e);
     }
@@ -1572,9 +1595,9 @@ class EventManagerApp extends HApplication.mixin({
     let _stop = null;
     _testedIds.push(_ctrlId);
     const _filteredViewIds = _ctrl.parent.views.filter(_viewId => {
-      return !_testedIds.include(_viewId);
+      return !_testedIds.includes(_viewId);
     });
-    for (const _viewId of _ctrl.parent.views) {
+    for (let _viewId of _ctrl.parent.views) {
       if (this._isValidView(_ctrl) && _ctrl.viewId !== _viewId) {
         _ctrl = this._views[_viewId];
         if (this._isValidView(_ctrl) && this.isFunction(_ctrl[_methodName])) {
@@ -1663,7 +1686,7 @@ class EventManagerApp extends HApplication.mixin({
     // list of enabled views
     const _textEnterers = this._listeners.byEvent.textEnter;
     this._filterViewIdToValidView(_textEnterers, _viewId => {
-      return enabled.include(_viewId);
+      return enabled.includes(_viewId);
     }).filter(_ctrl => {
       return this.isFunction(_ctrl.textEnter);
     }).forEach(_ctrl => {
@@ -1675,7 +1698,7 @@ class EventManagerApp extends HApplication.mixin({
     if (this.status.hasKeyDown(_keyCode)) {
       this.status.delKeyDown(_keyCode);
       this._filterViewIdToValidView(active, _viewId => {
-        return _keyUppers.include(_viewId);
+        return _keyUppers.includes(_viewId);
       }).filter(_ctrl => {
         return this.isFunction(_ctrl.keyUp);
       }).some(_ctrl => {

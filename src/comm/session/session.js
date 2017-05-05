@@ -1,5 +1,5 @@
 
-const SHA = require('util/sha1');
+const sha256 = require('util/sha256');
 
 /** = Description
   * COMM.Session is the session key manager.
@@ -8,7 +8,7 @@ const SHA = require('util/sha1');
   * the session management of COMM.Transporter's keys.
   *
   * The server expects this exact algorithm and refuses to serve unless
-  * the SHA1 hash sum of the keys matches.
+  * the SHA256 hash sum of the keys matches.
   *
   * Uses a +SHA+ instance for generation.
   *
@@ -19,28 +19,31 @@ class Session {
   /* The constructor takes no arguments.
   **/
   constructor() {
-    this.sha = new SHA(8);
-    this.sha_key = this.sha.hexSHA1(((new Date().getTime()) * Math.random() * 1000).toString());
-    this.ses_key = '0:1:' + this.sha_key;
-    this.req_num = 0;
+    this.shaKey = sha256.hex(((new Date().getTime()) * Math.random() * 1000).toString());
+    this.sesKey = '0:2:' + this.shaKey;
+    this.reqNum = 0;
   }
 
   /* = Description
-  * Generates a new SHA1 sum using a combination of
+  * Generates a new SHA256 sum using a combination of
   * the previous sum and the +_newKey+ given.
   *
-  * Sets +self.ses_key+ and +self.sha_key+
+  * Sets +self.sesKey+ and +self.shaKey+
   *
   * = Parameters:
   * +_newKey+:: A key set by the server.
   *
   **/
   newKey(_sesKey) {
-    const shaKey = this.sha.hexSHA1(_sesKey + this.sha_key);
-    this.old_key = _sesKey;
-    this.req_num++;
-    this.ses_key = this.req_num + ':1:' + shaKey;
-    this.sha_key = shaKey;
+    const shaKey = sha256.hex(_sesKey + this.shaKey);
+    this.oldKey = _sesKey;
+    this.reqNum++;
+    this.sesKey = this.reqNum + ':2:' + shaKey;
+    this.shaKey = shaKey;
+  }
+
+  get Session() {
+    return Session;
   }
 }
 

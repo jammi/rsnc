@@ -27,8 +27,7 @@ class ServerInterruptView extends HView {
   }
 
   _setFailedResp(_resp) {
-    const _respType = this.typeChr(_resp);
-    if (_respType !== '-' && _respType !== 's') {
+    if (this.isntString(_resp)) {
       this._failedResp = _resp;
     }
     this._errorIndex++;
@@ -164,20 +163,20 @@ class Transporter extends HApplication {
       console.error('Invalid values block: ', _values);
     }
     else {
-      if (this.typeChr(_values.new) === 'a') {
+      if (this.isArray(_values.new)) {
         _values.new.forEach(([_valueId, _valueData, _valueType]) => {
-          if (this.typeChr(_valueType) === '-') {
+          if (this.isUndefined(_valueType)) {
             _valueType = 0;
           }
           Values.create(_valueId, _valueData, _valueType);
         });
       }
-      if (this.typeChr(_values.set) === 'a') {
+      if (this.isArray(_values.set)) {
         _values.set.forEach(([_valueId, _valueData]) => {
           Values.s(_valueId, _valueData);
         });
       }
-      if (this.typeChr(_values.del) === 'a') {
+      if (this.isArray(_values.del)) {
         _values.del.forEach(_valueId => {
           Values.del(_valueId);
         });
@@ -216,7 +215,7 @@ class Transporter extends HApplication {
       if (_sesKey === '') {
         console.error('Invalid session key, error message should follow...');
       }
-      else if (_sesKey === Session.old_key) {
+      else if (_sesKey === Session.oldKey) {
         // TODO: (which?) iPad sometimes sends same request 3 times. Skip repsonder if it has same ses key than previous one.
         console.warn('Session key is the same as the previous one; skipping response...');
       }
@@ -251,14 +250,13 @@ class Transporter extends HApplication {
   }
 
   setInterruptAnim(_customMessage, _customColor) {
-    const _msgType = this.typeChr(_customMessage);
     if (!this._serverInterruptView) {
       this._serverInterruptView = ServerInterruptView.new([0, 0, 200, 20, 0, null], this);
-      if (_msgType !== 's') {
+      if (this.isntString(_customMessage)) {
         this._serverInterruptView._setFailedResp(_customMessage);
       }
     }
-    if (_msgType === 's') {
+    if (this.isString(_customMessage)) {
       this._serverInterruptView._setCustomMessage(_customMessage);
     }
     if (!this.stop) {

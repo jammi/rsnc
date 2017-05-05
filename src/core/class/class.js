@@ -1,11 +1,23 @@
 
 const mixin = function(Parent/* , ...mixins */) {
   class Mixed extends Parent {}
+  // console.log(
+  //   'Parent:', Parent,
+  //   ', type:', typeof Parent,
+  //   ', proto:', Parent.prototype,
+  //   ', constructor:', Parent.constructor
+  // );
   Array
     .prototype
     .slice
     .call(arguments, 1)
     .forEach(_item => {
+      // console.log(
+      //   'item:', _item,
+      //   ', type:', typeof _item,
+      //   ', proto:', _item.prototype,
+      //   ', constructor:', _item.constructor
+      // );
       Object
         .entries(_item)
         .forEach(([_key, _value]) => {
@@ -19,8 +31,6 @@ const mixin = function(Parent/* , ...mixins */) {
 // some of these are for backwards-compatibility and
 // deprecation warnings for legacy code.
 class HClass {
-
-  constructor() {}
 
   base() {
     throw new Error('HClass#base() error; Use super() rather than this.base()');
@@ -38,6 +48,22 @@ class HClass {
     return _obj.isPrototypeOf(this.constructor);
   }
 
+  extend() {
+    const _klass = this;
+    Array
+      .prototype
+      .slice
+      .call(arguments, 0)
+      .forEach(_item => {
+        Object
+          .entries(_item)
+          .forEach(([_key, _value]) => {
+            _klass.prototype[_key] = _value;
+          });
+      });
+    return _klass;
+  }
+
   static new() {
     return new this(...arguments);
   }
@@ -47,7 +73,7 @@ class HClass {
     return new this(...arguments);
   }
 
-  extend() {
+  static implement() {
     const _klass = this;
     Array
       .prototype
@@ -69,22 +95,6 @@ class HClass {
       .slice
       .call(arguments, 0)
     );
-  }
-
-  static implement() {
-    const _klass = this;
-    Array
-      .prototype
-      .slice
-      .call(arguments, 0)
-      .forEach(_item => {
-        Object
-          .entries(_item)
-          .forEach(([_key, _value]) => {
-            _klass.prototype[_key] = _value;
-          });
-      });
-    return _klass;
   }
 
   static mixin() {

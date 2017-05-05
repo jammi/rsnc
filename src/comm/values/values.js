@@ -155,7 +155,7 @@ class ValueManager extends UtilMethods {
   * An encoded string representation of values to synchronize.
   **/
   sync() {
-    const _response = [Session.ses_key, {}, []];
+    const _response = [Session.sesKey, {}, []];
     const _error = Transporter._clientEvalError;
 
     if (_error) {

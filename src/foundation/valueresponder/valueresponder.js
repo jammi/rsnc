@@ -5,7 +5,6 @@ const UtilMethods = require('util/util_methods');
  ** Defines a minimal +HValue+ responder interface.
  ** It's implemented by default by +HControl+.
 ***/
-
 class HValueResponder extends UtilMethods {
   /* = Description
   * Binds an HValue compatible instance to the component's valueObj. Also
@@ -20,8 +19,10 @@ class HValueResponder extends UtilMethods {
   *
   **/
   setValueObj(_valueObj) {
-    this.__valueObj = _valueObj;
-    this.setValue(_valueObj.value);
+    if (this.isObject(_valueObj)) {
+      this.__valueObj = _valueObj;
+      this.setValue(_valueObj.value);
+    }
   }
 
   set valueObj(_valueObj) {
@@ -61,19 +62,18 @@ class HValueResponder extends UtilMethods {
   *
   **/
   setValue(_value) {
-    const _typeChr = this.typeChr(_value);
-    if (_typeChr !== '-' && this.typeChr(this.valueObj) === 'o' && this.valueDiffers(_value)) {
+    if (this.isntUndefined(_value) && this.isObject(this.valueObj) && this.valueDiffers(_value)) {
       this.__value = _value;
-      if (_typeChr in ['a', 'h', 'o']) {
+      if (this.isObjectOrArray(_value)) {
         this.valueObj.set(this.cloneObject(_value));
       }
       else {
         this.valueObj.set(_value);
       }
-      if (this.typeChr(this.refresh) === '>') {
+      if (this.isFunction(this.refresh)) {
         this.refresh();
       }
-      else if (this.typeChr(this.refreshValue) === '>') {
+      else if (this.isFunction(this.refreshValue)) {
         this.refreshValue();
       }
     }

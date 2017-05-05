@@ -13,6 +13,9 @@ packages:
 
   # The core package, loaded by default using a script tag in index_html
   core:
+    - util/sha256 # js-sha256.min.js
+    - datetime/moment
+    - datetime/moment-timezone # moment-timezone-with-data
     - core/class
     - util/sha1
     - core/elem
@@ -41,12 +44,9 @@ packages:
     - foundation/json_renderer
     - comm # multibundle and comm utils
     - foundation/valueview
-    - foundation/eventresponder
     - foundation/control
     - foundation/valueaction
     - core/rsence_ns
-    - datetime/moment
-    - datetime/moment-timezone # moment-timezone-with-data
     - default_theme # metapackage built by the theme bundler
     - foundation # multibundle
 

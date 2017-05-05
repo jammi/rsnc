@@ -67,7 +67,7 @@ class JSONRenderer extends UtilMethods {
   }
 
   getViewById(_id) {
-    if (this.typeChr(this.byId[_id]) !== '-') {
+    if (this.isntUndefined(this.byId[_id])) {
       return this.byId[_id];
     }
     else {
@@ -77,14 +77,14 @@ class JSONRenderer extends UtilMethods {
   }
 
   addViewId(_id, _view) {
-    if (this.typeChr(this.byId[_id]) !== '-') {
+    if (this.isntUndefined(this.byId[_id])) {
       console.warn(`JSONRenderer; already has id: ${_id} (replacing)`);
     }
     this.byId[_id] = _view;
   }
 
   getViewsByName(_name) {
-    if (this.typeChr(this.byName[_name]) !== '-') {
+    if (this.isntUndefined(this.byName[_name])) {
       return this.byName[_name];
     }
     console.log(`JSONRenderer; no views named: ${_name}`);
@@ -92,7 +92,7 @@ class JSONRenderer extends UtilMethods {
   }
 
   addViewName(_name, _view) {
-    if (this.typeChr(this.byName[_name]) === '-') {
+    if (this.isUndefined(this.byName[_name])) {
       this.byName[_name] = [];
     }
     this.byName[_name].push(_view);
@@ -113,9 +113,8 @@ class JSONRenderer extends UtilMethods {
   }
 
   defineInScope(_definition) {
-    const _defType = this.typeChr(_definition);
-    if (_defType !== 'h') {
-      console.error(`JSONRenderer; definition must be an Object, got: "${_defType}": `, _definition);
+    if (this.isntObject(_definition)) {
+      console.error(`JSONRenderer; definition must be an Object, got: "${this.typeChr(_definition)}": `, _definition);
     }
     else {
       const _extension = {};
@@ -126,7 +125,7 @@ class JSONRenderer extends UtilMethods {
       const _extend = _extendName ? this.findInScope(_extendName) : false;
       const _implement = _implementName ? this.findInScope(_implementName) : false;
       const _scope = this.scopes[this.scopeDepth];
-      if (this.typeChr(_className) === '-') {
+      if (this.isUndefined(_className)) {
         console.error(`JSONRenderer; class name "${_className}" missing in definition scope.`);
       }
       else {
@@ -135,7 +134,7 @@ class JSONRenderer extends UtilMethods {
         }
         Object.entries(_definition).forEach(([_key, _value]) => {
           if (!_reserved.includes(_key)) {
-            if (this.typeChr(_value) === 's') {
+            if (this.isString(_value)) {
               _value = this.extEval(_value);
             }
             _extension[_key] = _value;
@@ -152,7 +151,7 @@ class JSONRenderer extends UtilMethods {
   undefineInScope() {}
 
   findInScope(_className) {
-    if (this.typeChr(_className) === '-') {
+    if (this.isUndefined(_className)) {
       return false;
     }
     else {
@@ -177,7 +176,7 @@ class JSONRenderer extends UtilMethods {
       let _scope;
       for (; i > -1; i--) {
         _scope = this.scopes[i];
-        if (this.typeChr(_scope[_className]) !== '-') {
+        if (this.isntUndefined(_scope[_className])) {
           return _scope[_className];
         }
       }
@@ -194,7 +193,7 @@ class JSONRenderer extends UtilMethods {
   }
 
   initStraight(_class, _args) {
-    if (this.typeChr(_args) === 'a') {
+    if (this.isArray(_args)) {
       return new _class(..._args);
     }
     else {
@@ -203,10 +202,10 @@ class JSONRenderer extends UtilMethods {
   }
 
   _handleCall(_instance, _call) {
-    if (this.typeChr(_call) === 'h') {
+    if (this.isObject(_call)) {
       Object.entries(_call).forEach(([_methodName, _args]) => {
         const _method = _instance[_methodName];
-        if (this.typeChr(_method) === '>') {
+        if (this.isFunction(_method)) {
           _method.apply(_instance, _args);
         }
         else {
@@ -237,7 +236,7 @@ class JSONRenderer extends UtilMethods {
   _parseRenderNode(_dataNode) {
     const _retVal = (() => {
       // The class name is found and given, just use it:
-      if (_dataNode.class && this.typeChr(_dataNode.class) === 's') {
+      if (_dataNode.class && this.isString(_dataNode.class)) {
         const _className = _dataNode.class;
         return {
           _className,
@@ -250,7 +249,7 @@ class JSONRenderer extends UtilMethods {
       // Find the actual dataNode:
       else {
         const _reserved = this._reservedNodeKeys;
-        for (const _nodeKey in _dataNode) {
+        for (let _nodeKey in _dataNode) {
           // Use the first match:
           if (!_reserved.includes(_nodeKey)) {
             const _className = _nodeKey;
@@ -261,7 +260,7 @@ class JSONRenderer extends UtilMethods {
                 _class,
                 _origNode: _dataNode,
                 _dataNode: _dataNode[_nodeKey],
-                _straightParams: this.typeChr(_dataNode[_nodeKey]) === 'a'
+                _straightParams: this.isArray(_dataNode[_nodeKey])
               };
             }
           }
@@ -272,10 +271,10 @@ class JSONRenderer extends UtilMethods {
       }
     })();
     if (_retVal._dataNode) {
-      if (this.typeChr(_retVal._dataNode.id) === 's') {
+      if (this.isString(_retVal._dataNode.id)) {
         _retVal._id = _retVal._dataNode.id;
       }
-      if (this.typeChr(_retVal._dataNode.name) === 's') {
+      if (this.isString(_retVal._dataNode.name)) {
         _retVal._name = _retVal._dataNode.name;
       }
     }
@@ -283,7 +282,7 @@ class JSONRenderer extends UtilMethods {
   }
 
   _guessClassConstructorType(_class) {
-    if (this.typeChr(_class.hasAncestor) !== '-') {
+    if (this.isntUndefined(_class.hasAncestor)) {
       if (_class.hasAncestor(HApplication)) {
         return 'HApplication';
       }
@@ -304,10 +303,10 @@ class JSONRenderer extends UtilMethods {
     if (_straightParams) {
       return this.initStraight(_class, _dataNode);
     }
-    else if (this.typeChr(_dataNode.args) !== '-') {
+    else if (this.isntUndefined(_dataNode.args)) {
       return this.initStraight(_class, _dataNode.args);
     }
-    else if (_origNode && this.typeChr(_origNode.args) !== '-') {
+    else if (_origNode && this.isntUndefined(_origNode.args)) {
       return this.initStraight(_class, _origNode.args);
     }
     else {
@@ -317,16 +316,15 @@ class JSONRenderer extends UtilMethods {
 
   _findRectInDataNodes(_dataNodes) {
     for (const _node of _dataNodes) {
-      const _rectType = this.typeChr(_node.rect);
-      const _hasRect = ['a', 's', 'h'].includes(_rectType);
+      const _hasRect = this.isString(_node.rect) || this.isObjectOrArray(_node.rect);
       if (_hasRect) {
-        const _rect = _node.rect;
         // TODO: additional validation
-        if (_rectType === 'h') {
-          return [_rect.left, _rect.top, _rect.width, _rect.height, _rect.right, _rect.bottom];
+        if (this.isObject(_node.rect)) {
+          const {left, top, width, height, right, bottom} = _node.rect;
+          return [left, top, width, height, right, bottom];
         }
         else {
-          return _rect;
+          return _node.rect;
         }
       }
     }
@@ -335,8 +333,7 @@ class JSONRenderer extends UtilMethods {
 
   _findSubviewsInDataNodes(_dataNodes) {
     for (const _node of _dataNodes) {
-      const _subviewType = this.typeChr(_node.subviews);
-      if (_subviewType !== '-') {
+      if (this.isntUndefined(_node.subviews)) {
         // TODO: additional validation
         return _node.subviews;
       }
@@ -348,8 +345,7 @@ class JSONRenderer extends UtilMethods {
     let _hasOptions = false;
     const _options = (() => {
       for (const _node of _dataNodes) {
-        const _optionsType = this.typeChr(_node.options);
-        if (_optionsType !== '-') {
+        if (this.isntUndefined(_node.options)) {
           // TODO: additional validation
           _hasOptions = true;
           return _node.options;
@@ -362,8 +358,7 @@ class JSONRenderer extends UtilMethods {
         ._autoOptionItems
         .map(_optName => {
           const _optValue = _node[_optName];
-          const _optValueType = this.typeChr(_optValue);
-          if (_optValueType !== '-') {
+          if (this.isntUndefined(_optValue)) {
             _hasOptions = true;
             _options[_optName] = _optValue;
             return _optName;
@@ -386,20 +381,19 @@ class JSONRenderer extends UtilMethods {
 
   _findExtensionsInDataNodes(_dataNodes) {
     for (const _node of _dataNodes) {
-      const _extendType = this.typeChr(_node.extend);
-      if (_extendType === 'h') {
+      if (this.isObject(_node.extend)) {
         const _extBlock = {};
         Object.entries(_node.extend).forEach(([_name, _block]) => {
-          if (this.typeChr(_block) === 's') {
+          if (this.isString(_block)) {
             _block = this.extEval(_block);
           }
           _extBlock[_name] = _block;
         });
         return _extBlock;
       }
-      else if (_extendType !== '-') {
+      else if (this.isntUndefined(_node.extend)) {
         console.error(
-          `JSONRenderer error; invalid extension block type: '${_extendType
+          `JSONRenderer error; invalid extension block type: '${this.typeChr(_node.extend)
           }; should be Object, extension: `, _node.extend);
         return null;
       }
@@ -409,13 +403,12 @@ class JSONRenderer extends UtilMethods {
 
   _findValueBindingInDataNodes(_dataNodes) {
     for (const _node of _dataNodes) {
-      const _bindType = this.typeChr(_node.bind);
-      if (_bindType !== '-') {
+      if (this.isntUndefined(_node.bind)) {
         let _bind = _node.bind;
-        if (_bindType === 's' || _bindType === 'n') {
+        if (this.isStringOrNumber(_bind)) {
           _bind = this.getValueById(_bind);
         }
-        if (this.typeChr(_bind.hasAncestor) === '>' && _bind.hasAncestor(HValue)) {
+        if (this.isFunction(_bind.hasAncestor) && _bind.hasAncestor(HValue)) {
           return _bind;
         }
         else {
@@ -430,8 +423,7 @@ class JSONRenderer extends UtilMethods {
 
   _findFunctionCallInDataNodes(_dataNodes) {
     for (const _node of _dataNodes) {
-      const _callType = this.typeChr(_node.call);
-      if (_callType !== '-') {
+      if (this.isntUndefined(_node.call)) {
         // TODO: additional validation
         return _node.call;
       }
@@ -441,13 +433,12 @@ class JSONRenderer extends UtilMethods {
 
   _findDefinitionsInDataNodes(_dataNodes) {
     for (const _node of _dataNodes) {
-      const _defineType = this.typeChr(_node.define);
-      if (_defineType === 'a') {
+      if (this.isArray(_node.define)) {
         return _node.define;
       }
-      else if (!['~', '-'].includes(_defineType)) {
+      else if (this.isntUndefinedOrNull(_node.define)) {
         console.warn(
-          `JSONRenderer warning; invalid define type: '${_defineType
+          `JSONRenderer warning; invalid define type: '${this.typeChr(_node.define)
           }'; should be Array, define: `, _node.define);
       }
     }
@@ -501,7 +492,7 @@ class JSONRenderer extends UtilMethods {
           if (_options && _valueBinding) {
             _options.valueObj = _valueBinding;
           }
-          else if (_options && !_valueBinding && this.typeChr(_options.valueObjId) in ['s', 'n']) {
+          else if (_options && !_valueBinding && this.isStringOrNumber(_options.valueObjId)) {
             const _valueIdBinding = this.getValueById(_options.valueObjId);
             if (_valueIdBinding.hasAncestor && _valueIdBinding.hasAncestor(HValue)) {
               _options.valueObj = _valueIdBinding;

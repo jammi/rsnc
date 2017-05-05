@@ -3,7 +3,6 @@ module.exports = {
   HApplication: require('foundation/application'),
   HControl: require('foundation/control'),
   EVENT: require('foundation/eventmanager'),
-  HEventResponder: require('foundation/eventresponder'),
   JSONRenderer: require('foundation/json_renderer'),
   HLocale: require('foundation/locale'),
   HSystem: require('foundation/system'),

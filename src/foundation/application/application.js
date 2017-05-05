@@ -126,13 +126,13 @@ class HApplication extends HValueResponder {
   *
   **/
   removeView(_viewId) {
-    if (this.typeChr(_viewId) in ['h', 'o'] && this.typeChr(_viewId.remove) === '>') {
+    if (this.isObject(_viewId) && this.isFunction(_viewId.remove)) {
       console.warn('warning, viewId not a number:', _viewId, ', trying to call its remove method directly..');
       _viewId.remove();
     }
     const _view = HSystem.views[_viewId];
     if (_view) {
-      if (this.typeChr(_view.remove) === '>') {
+      if (this.isFunction(_view.remove)) {
         _view.remove();
       }
       else {
@@ -156,7 +156,7 @@ class HApplication extends HValueResponder {
   **/
   destroyView(_viewId) {
     const _view = HSystem.views[_viewId];
-    if (this.typeChr(_view.die) === '>') {
+    if (this.isFunction(_view.die)) {
       _view.die();
     }
     else {
@@ -185,7 +185,7 @@ class HApplication extends HValueResponder {
     const _views = this.cloneObject(this.views);
     this.views = [];
     _views.forEach(_view => {
-      if (this.typeChr(_view) in ['h', 'o'] && this.typeChr(_view.die) === '>') {
+      if (this.isObject(_view) && this.isFunction(_view.die)) {
         _view.die();
       }
       else {
@@ -209,11 +209,11 @@ class HApplication extends HValueResponder {
         const _view = HSystem.views[_viewId];
         if (_view) {
           ['idle', 'onIdle'].forEach(_method => {
-            if (this.typeChr(_view[_method]) === '>') {
+            if (this.isFunction(_view[_method])) {
               _view[_method]();
             }
           });
-          if (_view.hasAncestor && this.typeChr(_view.hasAncestor === '>') && _view.hasAncestor(HView)) {
+          if (_view.hasAncestor && this.isFunction(_view.hasAncestor) && _view.hasAncestor(HView)) {
             return _view;
           }
           else {
@@ -226,7 +226,7 @@ class HApplication extends HValueResponder {
       }).filter(_item => {
         return _item !== null;
       }).filter(_view => {
-        return this.typeChr(_view.views) === 'a' && _view.views.length > 0;
+        return this.isArray(_view.views) && _view.views.length > 0;
       }).forEach(_view => {
         this._pollViewsRecurse(_view.views);
       });

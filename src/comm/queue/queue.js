@@ -113,11 +113,10 @@ class QueueApp extends HApplication {
         const _item = this.commandQueue.shift();
 
         try {
-          const _itemType = this.typeChr(_item);
-          if (_itemType === '>') {
+          if (this.isFunction(_item)) {
             _item.call();
           }
-          else if (_itemType === 'a') {
+          else if (this.isArray(_item)) {
             const [_function, _arguments] = _item;
             _function.apply(this, _arguments);
           }

@@ -283,7 +283,7 @@ class HThemeManager extends HClass {
         }
         this.incrementCSSUseCount(_themeName, _componentName);
         if (!_noHTML) {
-          for (const _ancestor in _view.ancestors) {
+          for (let _ancestor of _view.ancestors) {
             if (!_ancestor.componentName) {
               break;
             }
@@ -307,7 +307,7 @@ class HThemeManager extends HClass {
       const _componentName = _view.componentName;
       this.decrementCSSUseCount(_themeName, _componentName);
       if (!_noRecursion) {
-        for (const _ancestor in _view.ancestors) {
+        for (let _ancestor of _view.ancestors) {
           if (!_ancestor.componentName) {
             break;
           }

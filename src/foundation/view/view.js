@@ -8,6 +8,7 @@ const HPoint = require('util/geom/point');
 const HLocale = require('foundation/locale');
 const HSystem = require('foundation/system');
 const HThemeManager = require('foundation/thememanager');
+const HValueResponder = require('foundation/valueresponder');
 
 /** = Description
   * Define default HView setting here. Will be used, when no or invalid constructor
@@ -30,11 +31,7 @@ class HViewDefaults extends HClass.mixin({
   /**  Use utc time as default
   **/
   useUTC: false
-}) {
-  constructor() {
-    super();
-  }
-}
+}) {}
 
 /** = Description
  ** HView is the foundation class for all views. HView is useful for
@@ -58,50 +55,100 @@ class HViewDefaults extends HClass.mixin({
  **  var mySubView2 = HView.nu( rect3, mySubView1, { style: { backgroundColor: '#000' } } );
  **
 **/
-class HView extends UtilMethods.mixin({
-  isView: true,  // attribute to check if the object is a view
-  isCtrl: false, // attribute to check for if the object is a control
-  isDead: false, // attribute to check for killed object references
+class HView extends HValueResponder {
+  get isView() {return true;}  // attribute to check if the object is a view
+  get isCtrl() {return false;} // attribute to check for if the object is a control
+  // attribute to check for killed object references
+  get isDead() {
+    if (this.isntUndefined(this.__isDead)) {
+      return false;
+    }
+    else {
+      return this.__isDead;
+    }
+  }
+  set isDead(_value) {
+    if (this.isntBoolean(_value)) {
+      console.error('isDead must be boolean, but got: ' + (typeof _value));
+      this.__isDead = true;
+    }
+    else if (this.__isDead === true) {
+      console.error('isDead was already true, kill only once!');
+      this.__isDead = true;
+    }
+    else {
+      this.__isDead = _value;
+    }
+  }
 
 /** Component specific theme path.
   **/
-  themePath: null,
+  // themePath: null,
 
 /** Component CSS position type: absolute|relative|fixed
   **/
-  cssPosition: 'absolute',
+  get cssPosition() {
+    return 'absolute';
+  }
 
 /** Component CSS overflow type: false|visible|hidden|scroll|auto|initial|inherit
   **/
-  cssOverflow: 'hidden',
+  get cssOverflow() {
+    return 'hidden';
+  }
 
 /** Component CSS overflow-x type: false|visible|hidden|scroll|auto|initial|inherit
   **/
-  cssOverflowY: false,
+  get cssOverflowY() {
+    return false;
+  }
 
 /** Component CSS overflow-x type: false|visible|hidden|scroll|auto|initial|inherit
   **/
-  cssOverflowX: false,
+  get cssOverflowX() {
+    return false;
+  }
 
 /** The display mode to use.
   * Defaults to 'block'.
   * The other sane alternative is 'inline'.
   **/
-  displayMode: 'block',
+  // displayMode: 'block',
+  get displayMode() {
+    return 'block';
+  }
 
 /** The visual value of a component, usually a String.
   * See +#setLabel+.
   **/
-  label: null,
+  // label: null,
+  get label() {
+    if (this.isObject(this.options)) {
+      return this.options.label;
+    }
+    else {
+      return '';
+    }
+  }
+
+  set label(_label) {
+    if (this.isObject(this.options)) {
+      this.options.label = _label;
+    }
+  }
 
 /** When true, calls the +refreshLabel+ method whenever
   * +self.label+ is changed.
   **/
-  refreshOnLabelChange: true,
+  get refreshOnLabelChange() {
+    return true;
+  }
 
 /** Escapes HTML in the label when true.
   **/
-  escapeLabelHTML: false,
+  get escapeLabelHTML() {
+    return false;
+  }
 
 /** True, if the coordinates are right-aligned.
   * False, if the coordinates are left-aligned.
@@ -109,7 +156,17 @@ class HView extends UtilMethods.mixin({
   * for the _rect parameter of setRect or the constructor.
   * Can be set directly using the setFlexRight method.
   **/
-  flexRight: false,
+  get flexRight() {
+    return this.__flexRight || false;
+  }
+  set flexRight(_state) {
+    if (this.isBoolean(_state)) {
+      this.__flexRight = _state;
+    }
+    else {
+      console.error('invalid flexRight:', _state);
+    }
+  }
 
 /** True, if the coordinates are left-aligned.
   * False, if the coordinates are right-aligned.
@@ -118,7 +175,17 @@ class HView extends UtilMethods.mixin({
   * for the _rect parameter of setRect or the constructor.
   * Can be set directly using the setFlexLeft method.
   **/
-  flexLeft: true,
+  get flexLeft() {
+    return this.__flexLeft || true;
+  }
+  set flexLeft(_state) {
+    if (this.isBoolean(_state)) {
+      this.__flexLeft = _state;
+    }
+    else {
+      console.error('invalid flexLeft:', _state);
+    }
+  }
 
 /** True, if the coordinates are top-aligned.
   * False, if the coordinates are bottom-aligned.
@@ -127,7 +194,17 @@ class HView extends UtilMethods.mixin({
   * for the _rect parameter of setRect or the constructor.
   * Can be set directly using the setFlexTop method.
   **/
-  flexTop: true,
+  get flexTop() {
+    return this.__flexTop || true;
+  }
+  set flexTop(_state) {
+    if (this.isBoolean(_state)) {
+      this.__flexTop = _state;
+    }
+    else {
+      console.error('invalid flexTop:', _state);
+    }
+  }
 
 /** True, if the coordinates are bottom-aligned.
   * False, if the coordinates are top-aligned.
@@ -135,61 +212,125 @@ class HView extends UtilMethods.mixin({
   * for the _rect parameter of setRect or the constructor.
   * Can be set directly using the setFlexRight method.
   **/
-  flexBottom: false,
+  get flexBottom() {
+    return this.__flexBottom || false;
+  }
+  set flexBottom(_state) {
+    if (this.isBoolean(_state)) {
+      this.__flexBottom = _state;
+    }
+    else {
+      console.error('invalid flexBottom:', _state);
+    }
+  }
 
 /** The amount of pixels to offset from the right edge when
   * flexRight is true. Defined with 6-item arrays
   * for the _rect parameter of setRect or the constructor.
   * Can be set directly using the setFlexRight method.
   **/
-  _rightOffset: 0,
+  get _rightOffset() {
+    if (this.isntNumber(this.__rightOffset)) {
+      this.__rightOffset = 0;
+    }
+    return this.__rightOffset;
+  }
+
+  set _rightOffset(_num) {
+    if (this.isNumber(_num)) {
+      this.__rightOffset = _num;
+    }
+    else {
+      console.error('invalid _rightOffset:', _num);
+    }
+  }
 
 /** The amount of pixels to offset from the bottom edge when
   * flexBottom is true.Defined with 6-item arrays
   * for the _rect parameter of setRect or the constructor.
   * Can be set directly using the setFlexBottom method.
   **/
-  _bottomOffset: 0,
+  // _bottomOffset: 0,
+  get _bottomOffset() {
+    if (this.isntNumber(this.__bottomOffset)) {
+      this.__bottomOffset = 0;
+    }
+    return this.__bottomOffset;
+  }
+
+  set _bottomOffset(_num) {
+    if (this.isNumber(_num)) {
+      this.__bottomOffset = _num;
+    }
+    else {
+      console.error('invalid _bottomOffset:', _num);
+    }
+  }
 
 /** The drawn flag is false before the component is visually
   * drawn, it's true after it's drawn.
   **/
-  drawn: false,
+  // drawn: false,
+  get drawn() {
+    return this.__drawn;
+  }
+
+  set drawn(_drawn) {
+    this.__drawn = !!_drawn;
+  }
 
 /** The theme the component is constructed with. By default,
   * uses the HThemeManager.currentTheme specified at the time
   * of construction.
   **/
-  theme: null,
+  // theme: null,
 
 /** The preserveTheme flag prevents the view from being redrawn
   * if HThemeManager.currentTheme is changed after the view
   * has been drawn. Is true, if theme has been set.
   **/
-  preserveTheme: false,
+  // preserveTheme: false,
+  get preserveTheme() {
+    if (this.isntUndefined(this.__preserveTheme)) {
+      this.__preserveTheme = false;
+    }
+    return this.__preserveTheme;
+  }
+  set preserveTheme(_value) {
+    if (this.isntBoolean(_value)) {
+      console.error('preserveTheme must be boolean, but got: ' + (typeof _value));
+      this.__preserveTheme = !!_value;
+    }
+    else {
+      this.__preserveTheme = _value;
+    }
+  }
 
 /** The optimizeWidthOnRefresh flag, when enabled, allows
   * automatic width calculation for components that support
   * that feature.
   **/
-  optimizeWidthOnRefresh: false,
+  // optimizeWidthOnRefresh: false,
+  get optimizeWidthOnRefresh() {
+    return false;
+  }
 
 /** The parent is the +_parent+ supplied to the constructor.
   * This is a complete object reference to the parent's name-space.
   **/
-  parent: null,
+  // parent: null,
 
 /** The parents is an array containing parent instances up to
   * the root controller level. The root controller is almost
   * always an instance of HApplication.
   **/
-  parents: null,
+  // parents: null,
 
 /** The viewId is the unique ID (serial number) of this view.
   * This means the view can be looked up globally based on its
   * id by using the +HSystem.views+ array.
   **/
-  viewId: null,
+  // viewId: null,
 
 /** The appId is the unique ID (serial number) of the app process
   * acting as the root controller of the view tree of which this
@@ -197,62 +338,105 @@ class HView extends UtilMethods.mixin({
   * This means the app can be looked up globally based on this
   * id by using the +HSystem.apps+ array.
   **/
-  appId: null,
+  // appId: null,
 
 /** The app is the reference of the app process acting as
   * the root controller of the view tree of which this view is a
   * member.
   * This is a complete object reference to the app's name-space.
   **/
-  app: null,
+  // app: null,
 
 /** The views array contains a list of sub-views of this view
   * by id. To access the object reference, use the +HSystem.views+
   * array with the id.
   **/
-  views: null,
+  // views: null,
 
 /** The viewsZOrder array contains a list of sub-views ordered by
   * zIndex. To change the order, use the bringToFront,
   * sendToBack, bringForwards, sendBackwards, bringToFrontOf and
   * sentToBackOf methods.
   **/
-  viewsZOrder: null,
+  // viewsZOrder: null,
 
 /** The isHidden flog reflects the visibility of the view.
   **/
-  isHidden: false,
+  get isHidden() {
+    if (this.isObject(this.options)) {
+      return !!this.options.isHidden;
+    }
+    else {
+      return false;
+    }
+  }
+
+  set isHidden(_isHidden) {
+    if (this.isObject(this.options) && this.isBoolean(_isHidden)) {
+      this.options.isHidden = !!_isHidden;
+    }
+  }
 
 /** The +HRect+ instance bound to +self+ using the +constructor+ or +setRect+.
   **/
-  rect: null,
+  // rect: null,
 
 /** An reference to the options block given as the constructor
   * parameter _options.
   **/
-  options: null,
+  // options: null,
+  get options() {
+    return this.__options;
+  }
 
-/** The viewDefaults is a HViewDefaults object that is extended
-  * in the constructor with the options block given. The format of
-  * it is an Object.
-  * It's only used when not extended via HControl, see HControl#controlDefaults.
-  **/
-  viewDefaults: HViewDefaults,
+  set options(_options) {
+    if (this.isObject(_options)) {
+      this.__options = _options;
+    }
+  }
 
   // Allows text to be selected when true
-  textSelectable: false,
+  get textSelectable() {
+    return false;
+  }
 
-  markupElemNames: ['bg', 'label', 'state', 'control', 'value', 'subview'],
+  get markupElemNames() {
+    return ['bg', 'label', 'state', 'control', 'value', 'subview'];
+  }
 
-  minWidth: 0,
-  minHeight: 0,
-  _stringSizeImportantAttrs: [
-    'fontSize',
-    'fontWeight',
-    'fontFamily',
-    'lineHeight'
-  ],
-}) /* end of mixin, class begins */ {
+  get minWidth() {
+    return this.__minWidth || 0;
+  }
+  set minWidth(_num) {
+    if (this.isNumber(_num)) {
+      this.__minWidth = _num;
+    }
+    else {
+      console.error('invalid minWidth:', _num);
+    }
+  }
+
+  get minHeight() {
+    return this.__minHeight || 0;
+  }
+  set minHeight(_num) {
+    if (this.isNumber(_num)) {
+      this.__minHeight = _num;
+    }
+    else {
+      console.error('invalid minHeight:', _num);
+    }
+  }
+
+  get _stringSizeImportantAttrs() {
+    return [
+      'fontSize',
+      'fontWeight',
+      'fontFamily',
+      'lineHeight'
+    ];
+  }
+
   /* = Description
   * Constructs the logic part of a HView.
   * The view still needs to be drawn on screen. To do that, call draw after
@@ -370,9 +554,7 @@ class HView extends UtilMethods.mixin({
       this.appId = this.parent.appId;
     }
     this.app = HSystem.apps[this.appId];
-    if (!this.isinherited) {
-      _options = (this.viewDefaults.extend(_options)).new(this);
-    }
+    _options = this.defaultOptionsClass.extend(_options).new(this);
     if (this.isFunction(this.customOptions)) {
       this.customOptions(_options);
     }
@@ -406,9 +588,22 @@ class HView extends UtilMethods.mixin({
     // Additional DOM element bindings are saved into this array so they can be
     // deleted from the element manager when the view gets destroyed.
     this._domElementBindings = [];
-    if (!this.isinherited && this.options.autoDraw) {
+    if (this.options.autoDraw) {
       this.draw();
     }
+  }
+
+/** The defaultOptionsClass in HView is a HViewDefaults object that is extended
+  * in the constructor with the options block given. The format of
+  * it its return value is a class.
+  * It's only used when not extended via HControl, see HControl#defaultOptionsClass.
+  **/
+  get defaultOptionsClass() {
+    return HViewDefaults;
+  }
+
+  get viewDefaults() {
+    return this.defaultOptionsClass;
   }
 
   /* = Description
@@ -632,7 +827,7 @@ class HView extends UtilMethods.mixin({
   * main DOM element of the view.
   **/
   createElement() {
-    if (this.isntNullOrUndefined(this.elemId)) {
+    if (this.isntNumber(this.elemId)) {
       this._makeElem(this.getParentElemId());
       if (this.cssOverflowY === false && this.cssOverflowX === false) {
         if (this.cssOverflow) {
@@ -687,7 +882,7 @@ class HView extends UtilMethods.mixin({
   *
   **/
   drawRect() {
-    if (this.isntNullOrUndefined(this.rect)) {
+    if (this.isNullOrUndefined(this.rect)) {
       if (this.drawn === false) {
         this._updateZIndex();
       }
@@ -756,10 +951,11 @@ class HView extends UtilMethods.mixin({
   *
   */
   draw() {
+    const _wasDrawn = this.drawn;
     this.drawRect();
-    if (!this.drawn) {
+    if (!_wasDrawn) {
       this.firstDraw();
-      if (this.isntNullOrUndefined(this.componentName)) {
+      if (this.isString(this.componentName)) {
         this.drawMarkup();
       }
       if (this.isArray(this.options.classNames)) {
@@ -1185,7 +1381,7 @@ class HView extends UtilMethods.mixin({
     }
     else {
       throw new TypeError(
-        `HView#setStyles: Invalid style type ${this.getChr(_styles)
+        `HView#setStyles: Invalid style type ${this.typeChr(_styles)
         }, expected array or object; got: ${_styles}`);
     }
     return this;
@@ -1224,6 +1420,9 @@ class HView extends UtilMethods.mixin({
   }
 
   _getMarkupElemIdPart(_partName, _warnPrefix) {
+    if (!this.componentName && !this.markupElemIds) {
+      return null;
+    }
     if (!_warnPrefix) {
       _warnPrefix = 'HView#_getMarkupElemIdPart';
     }

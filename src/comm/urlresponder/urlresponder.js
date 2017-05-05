@@ -72,7 +72,7 @@ class URLResponder extends HApplication {
     const _urlMatcher = new RegExp(_matchRegExp);
     this.urlMatchers.push(_urlMatcher);
     this.urlCallBacks.push(_callBack);
-    if (this.typeChr(_activate) === 's') {
+    if (this.isString(_activate)) {
       window.location.href = _activate;
     }
     const _matchStr = this.value;
