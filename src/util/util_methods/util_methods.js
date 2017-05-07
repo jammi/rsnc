@@ -399,6 +399,14 @@ class UtilMethods extends HClass {
     return !this.isBoolean(_item);
   }
 
+  isClass(_item) {
+    return this.isFunction(_item) && _item.prototype.constructor === _item;
+  }
+
+  instClass(_item) {
+    return !this.isClass(_item);
+  }
+
   get _momentUTCOptions() {
     return (this.options && this.options.useUTC) ||
       ((!this.options || this.isNullOrUndefined(this.options.useUTC)) && HLocale.dateTime.defaultOptions.useUTC);

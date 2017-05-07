@@ -1,30 +1,38 @@
 
+const isClass = obj => {
+  return typeof obj === 'function' && obj.prototype.constructor === obj;
+};
+
 const mixin = function(Parent/* , ...mixins */) {
   class Mixed extends Parent {}
-  // console.log(
-  //   'Parent:', Parent,
-  //   ', type:', typeof Parent,
-  //   ', proto:', Parent.prototype,
-  //   ', constructor:', Parent.constructor
-  // );
   Array
     .prototype
     .slice
     .call(arguments, 1)
     .forEach(_item => {
-      // console.log(
-      //   'item:', _item,
-      //   ', type:', typeof _item,
-      //   ', proto:', _item.prototype,
-      //   ', constructor:', _item.constructor
-      // );
-      Object
-        .entries(_item)
-        .forEach(([_key, _value]) => {
-          Mixed.prototype[_key] = _value;
-        });
+      if (isClass(_item)) {
+        Object.assign(Mixed.prototype, _item.prototype);
+      }
+      else {
+        Object.assign(Mixed.prototype, _item);
+      }
     });
   return Mixed;
+};
+
+const copyGuess = (fromObjects, toObject) => {
+  let copyTarget = toObject;
+  if (isClass(toObject)) {
+    copyTarget = toObject.prototype;
+  }
+  fromObjects
+    .forEach(copySource => {
+      if (isClass(copySource)) {
+        copySource = copySource.prototype;
+      }
+      Object.assign(copyTarget, copySource);
+    });
+  return toObject;
 };
 
 // Includes some extras than plain classes don't have,
@@ -49,19 +57,10 @@ class HClass {
   }
 
   extend() {
-    const _klass = this;
-    Array
+    return copyGuess(Array
       .prototype
       .slice
-      .call(arguments, 0)
-      .forEach(_item => {
-        Object
-          .entries(_item)
-          .forEach(([_key, _value]) => {
-            _klass.prototype[_key] = _value;
-          });
-      });
-    return _klass;
+      .call(arguments, 0), this);
   }
 
   static new() {
@@ -74,19 +73,10 @@ class HClass {
   }
 
   static implement() {
-    const _klass = this;
-    Array
+    return copyGuess(Array
       .prototype
       .slice
-      .call(arguments, 0)
-      .forEach(_item => {
-        Object
-          .entries(_item)
-          .forEach(([_key, _value]) => {
-            _klass.prototype[_key] = _value;
-          });
-      });
-    return _klass;
+      .call(arguments, 0), this);
   }
 
   static extend() {

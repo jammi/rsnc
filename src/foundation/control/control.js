@@ -5,65 +5,8 @@ const HView = require('foundation/view');
 const HDummyValue = require('foundation/value/dummyvalue');
 const EVENT = require('foundation/eventmanager');
 const {ELEM} = require('core/elem');
-/** = Description
-  * Define default setting here. Will be used, when no or invalid constructor
-  * options are supplied.
-  **/
-class HControlDefaults extends HClass.mixin({
-  /* Whether or not to draw when constructed.
-  */
-  autoDraw: true,
 
-  /* The default label. A label is the "visual value" of a component that
-  * operates on a "hidden" value.
-  **/
-  label: '',
-
-  /* The default initial visibility of the component.
-  **/
-  visible: true,
-
-  /* The default initial event responders to register to a component.
-  *  By default no events are enabled.
-  **/
-  events: null,
-
-  /* The default initial value of the component.
-  **/
-  value: 0,
-
-  /* The default initial enabled state of the component.
-  **/
-  enabled: true,
-
-  /* The default initial active state of the component.
-  **/
-  active: false,
-
-  /* The default initial minimum value of the component.
-  **/
-  minValue: -2147483648,
-
-  /* The default initial maximum value of the component.
-  **/
-  maxValue: 2147483648,
-
-  /* The default focus value of the component.
-  **/
-  focusOnCreate: false,
-
-  /*  Use utc time as default
-  **/
-  useUTC: false
-
-}) {
-  constructor() {
-    super();
-    if (typeof this.events !== 'object') {
-      this.events = {};
-    }
-  }
-}
+const HControlDefaults = require('foundation/control/controldefaults');
 
 /** = Description
   * The foundation class for all active visual components that
@@ -129,7 +72,15 @@ class HControl extends HView {
 /** Default event listeners.
   **/
   get defaultEvents() {
-    return {};
+    return this.__defaultEvents || {};
+  }
+  set defaultEvents(_defaultEvents) {
+    if (this.isObject(_defaultEvents)) {
+      this.__defaultEvents = _defaultEvents;
+    }
+    else {
+      console.error('invalid format of defaultEvents:', _defaultEvents);
+    }
   }
 
   get isCtrl() {
@@ -369,11 +320,18 @@ class HControl extends HView {
   * it is an Object.
   **/
   get defaultOptionsClass() {
-    return HControlDefaults;
+    return this.__defaultOptionsClass || HControlDefaults;
   }
-
   get controlDefaults() {
     return this.defaultOptionsClass;
+  }
+  set controlDefaults(_defaultOptionsClass) {
+    if (this.isClass(_defaultOptionsClass)) {
+      this.__defaultOptionsClass = _defaultOptionsClass;
+    }
+    else {
+      console.error('invalid format of controlDefaults: ', _defaultOptionsClass);
+    }
   }
 
 /** = Description

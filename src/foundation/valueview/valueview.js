@@ -2,9 +2,11 @@ const HDummyValue = require('foundation/value/dummyvalue');
 const HValueResponder = require('foundation/valueresponder');
 const HView = require('foundation/view');
 
-class HValueView extends HView.mixin(HValueResponder, {
-  refreshOnValueChange: true
-}) {
+class HValueView extends HView {
+  get refreshOnValueChange() {
+    return true;
+  }
+
   constructor(_rect, _parent, _options) {
     if (this.isNullOrUndefined(_options)) {
       _options = {};

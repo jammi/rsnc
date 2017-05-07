@@ -3,7 +3,7 @@ const UtilMethods = require('util/util_methods');
 const HValueResponder = require('foundation/valueresponder');
 const HSystem = require('foundation/system');
 
-class HValueAction extends UtilMethods.mixin(HValueResponder) {
+class HValueAction extends HValueResponder {
   constructor(_rect, _parent, _options) {
     super();
     if (this.isntNullOrUndefined(_rect) &&

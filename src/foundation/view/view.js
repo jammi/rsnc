@@ -1,7 +1,6 @@
 
 const HClass = require('core/class');
 const {BROWSER_TYPE, ELEM, LOAD} = require('core/elem');
-let EVENT; LOAD(() => {EVENT = require('foundation/eventmanager');});
 const UtilMethods = require('util/util_methods');
 const HRect = require('util/geom/rect');
 const HPoint = require('util/geom/point');
@@ -9,29 +8,10 @@ const HLocale = require('foundation/locale');
 const HSystem = require('foundation/system');
 const HThemeManager = require('foundation/thememanager');
 const HValueResponder = require('foundation/valueresponder');
+const HViewDefaults = require('foundation/view/viewdefaults');
 
-/** = Description
-  * Define default HView setting here. Will be used, when no or invalid constructor
-  * options are supplied.
-  **/
-class HViewDefaults extends HClass.mixin({
-  /* Whether or not to draw when constructed.
-  */
-  autoDraw: true,
-  /** The default label. A label is the "visual value" of a component that
-  * operates on a "hidden" value.
-  **/
-  label: '',
-  /** The default initial visibility of the component.
-  **/
-  visible: true,
-  /** The default value of the component
-  **/
-  value: 0,
-  /**  Use utc time as default
-  **/
-  useUTC: false
-}) {}
+const CSS_OVERFLOWS = ['false', 'visible', 'hidden', 'scroll', 'auto', 'initial', 'inherit'];
+const DISPLAY_MODES = ['block', 'inline', 'flex'];
 
 /** = Description
  ** HView is the foundation class for all views. HView is useful for
@@ -88,34 +68,66 @@ class HView extends HValueResponder {
 /** Component CSS position type: absolute|relative|fixed
   **/
   get cssPosition() {
-    return 'absolute';
+    return this.__cssPosition || 'absolute';
+  }
+  set cssPosition(_cssPosition) {
+    if (_cssPosition === 'absolute' || _cssPosition === 'relative') {
+      this.__cssPosition = _cssPosition;
+    }
+    else {
+      console.error('invalid cssPosition:', _cssPosition);
+    }
   }
 
 /** Component CSS overflow type: false|visible|hidden|scroll|auto|initial|inherit
   **/
   get cssOverflow() {
-    return 'hidden';
+    return this.isntNullOrUndefined(this.__cssOverflow) ?
+      this.__cssOverflow : 'hidden';
+  }
+
+  set cssOverflow(_cssOverflow) {
+    if (CSS_OVERFLOWS.includes(_cssOverflow)) {
+      this.__cssOverflow = _cssOverflow;
+    }
   }
 
 /** Component CSS overflow-x type: false|visible|hidden|scroll|auto|initial|inherit
   **/
   get cssOverflowY() {
-    return false;
+    return this.isntNullOrUndefined(this.__cssOverflowY) ?
+      this.__cssOverflowY : false;
+  }
+  set cssOverflowY(_cssOverflowY) {
+    if (CSS_OVERFLOWS.includes(_cssOverflowY)) {
+      this.__cssOverflowY = _cssOverflowY;
+    }
   }
 
 /** Component CSS overflow-x type: false|visible|hidden|scroll|auto|initial|inherit
   **/
   get cssOverflowX() {
-    return false;
+    return this.isntNullOrUndefined(this.__cssOverflowX) ?
+      this.__cssOverflowX : false;
+  }
+  set cssOverflowY(_cssOverflowX) {
+    if (CSS_OVERFLOWS.includes(_cssOverflowX)) {
+      this.__cssOverflowY = _cssOverflowX;
+    }
   }
 
 /** The display mode to use.
   * Defaults to 'block'.
-  * The other sane alternative is 'inline'.
+  * The other sane alternatives are 'inline' and 'flex'.
   **/
   // displayMode: 'block',
   get displayMode() {
-    return 'block';
+    return this.__displayMode || 'block';
+  }
+  set displayMode(_displayMode) {
+    if (DISPLAY_MODES.includes(_displayMode)) {
+      this.__displayMode = _displayMode;
+    }
   }
 
 /** The visual value of a component, usually a String.
@@ -229,14 +241,14 @@ class HView extends HValueResponder {
   * for the _rect parameter of setRect or the constructor.
   * Can be set directly using the setFlexRight method.
   **/
-  get _rightOffset() {
+  get flexRightOffset() {
     if (this.isntNumber(this.__rightOffset)) {
       this.__rightOffset = 0;
     }
     return this.__rightOffset;
   }
 
-  set _rightOffset(_num) {
+  set flexRightOffset(_num) {
     if (this.isNumber(_num)) {
       this.__rightOffset = _num;
     }
@@ -251,14 +263,14 @@ class HView extends HValueResponder {
   * Can be set directly using the setFlexBottom method.
   **/
   // _bottomOffset: 0,
-  get _bottomOffset() {
+  get flexBottomOffset() {
     if (this.isntNumber(this.__bottomOffset)) {
       this.__bottomOffset = 0;
     }
     return this.__bottomOffset;
   }
 
-  set _bottomOffset(_num) {
+  set flexBottomOffset(_num) {
     if (this.isNumber(_num)) {
       this.__bottomOffset = _num;
     }
@@ -401,12 +413,22 @@ class HView extends HValueResponder {
   }
 
   get markupElemNames() {
-    return ['bg', 'label', 'state', 'control', 'value', 'subview'];
+    return this.__markupElemNames || ['bg', 'label', 'state', 'control', 'value', 'subview'];
+  }
+
+  set markupElemNames(_markupElemNames) {
+    if (this.isArray(_markupElemNames)) {
+      this.__markupElemNames = _markupElemNames;
+    }
+    else {
+      console.error('invalid format of markupElemNames:', _markupElemNames);
+    }
   }
 
   get minWidth() {
     return this.__minWidth || 0;
   }
+
   set minWidth(_num) {
     if (this.isNumber(_num)) {
       this.__minWidth = _num;
@@ -419,6 +441,7 @@ class HView extends HValueResponder {
   get minHeight() {
     return this.__minHeight || 0;
   }
+
   set minHeight(_num) {
     if (this.isNumber(_num)) {
       this.__minHeight = _num;
@@ -599,13 +622,19 @@ class HView extends HValueResponder {
   * It's only used when not extended via HControl, see HControl#defaultOptionsClass.
   **/
   get defaultOptionsClass() {
-    return HViewDefaults;
+    return this.__defaultOptionsClass || HViewDefaults;
   }
-
   get viewDefaults() {
     return this.defaultOptionsClass;
   }
-
+  set viewDefaults(_defaultOptionsClass) {
+    if (this.isClass(_defaultOptionsClass)) {
+      this.__defaultOptionsClass = _defaultOptionsClass;
+    }
+    else {
+      console.error('invalid format of viewDefaults: ', _defaultOptionsClass);
+    }
+  }
   /* = Description
   * When the +_flag+ is true, the view will be aligned to the right.
   * The +_px+ offset defines how many pixels from the parent's right
@@ -1020,7 +1049,7 @@ class HView extends HValueResponder {
     const _themeName = this.preserveTheme ? this.theme : HThemeManager.currentTheme;
     const _markup = HThemeManager.resourcesFor(this, _themeName);
     this.markupElemIds = {};
-    if (_markup !== '') {
+    if (this.isString(_markup) && _markup !== '') {
       ELEM.setHTML(this.elemId, _markup);
       this.markupElemNames.forEach(_partName => {
         const _elemName = _partName + this.elemId;
@@ -1305,7 +1334,7 @@ class HView extends HValueResponder {
       this.setFlexRight(_validRightOffset, _rightOffset);
       this.setFlexBottom(_validBottomOffset, _bottomOffset);
       this.rect = new HRect(_leftOffset, _topOffset, _right, _bottom);
-      if (!this.rect.isValid && !this.isProduction) {
+      if (!this.rect.isValid) {
         console.log('---------------------------------------------');
         console.log(`invalid rect; left: ${this.rect.left
           }, top: ${this.rect.top}, width: ${this.rect.width}, height: ${this.rect.height
@@ -1342,7 +1371,7 @@ class HView extends HValueResponder {
     if (this.isArray(_rect)) {
       this._setArrayRect(_rect);
     }
-    else if (_rect.hasAncestor(HRect)) {
+    else if (this.isObject(_rect) && _rect.hasAncestor(HRect)) {
       this.rect = _rect;
     }
     if (this.rect) {
@@ -2233,7 +2262,7 @@ class HView extends HValueResponder {
     const _elem = ELEM.get(this.elemId);
     if (this.isntNullOrUndefined(_elem)) {
       _elem.focus();
-      EVENT.changeActiveControl(this);
+      require('foundation/eventmanager').changeActiveControl(this);
     }
   }
 

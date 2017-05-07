@@ -1345,7 +1345,7 @@ class EventManagerApp extends HApplication.mixin({
     if (_wantsTextSelectionCancelled.length !== 0) {
       this._cancelTextSelection();
     }
-    if (e.type === 'touchend') {
+    if (e.type && e.type === 'touchend') {
       this.click(e);
       return true;
     }

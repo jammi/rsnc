@@ -118,7 +118,7 @@ class _ELEM {
   // Sets the innerHTML contents of the element
   setHTML(_id, _html) {
     const _elem = this._elements[_id];
-    if (_elem.innerHTML !== _html) {
+    if (_elem && _elem.innerHTML !== _html) {
       _elem.innerHTML = _html;
     }
   }
@@ -806,7 +806,6 @@ class _ELEM {
     else {
       _tagName = _tagName.toUpperCase();
     }
-    const _this = this;
     const _elem = document.createElement(_tagName);
     const _id = this._add(_elem);
     this._initCache(_id);
@@ -824,7 +823,7 @@ class _ELEM {
         }
         if (_attrs instanceof Array) {
           _attrs.forEach(([_key, _value]) => {
-            _this.setAttr(_id, _key, _value, true);
+            this.setAttr(_id, _key, _value, true);
           });
         }
       }
@@ -832,7 +831,7 @@ class _ELEM {
       if (_classes) {
         if (_classes instanceof Array) {
           _classes.forEach(_className => {
-            _this.addClassName(_id, _className);
+            this.addClassName(_id, _className);
           });
         }
       }
@@ -843,7 +842,9 @@ class _ELEM {
         this.setHTML(_id, _options.html);
       }
     }
-    this._elements[_targetId].appendChild(_elem);
+    if (!this._elements[_targetId] === _elem.parentNode) {
+      this._elements[_targetId].appendChild(_elem);
+    }
     return _id;
   }
 

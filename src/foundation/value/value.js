@@ -1,6 +1,5 @@
 const HClass = require('core/class');
 const {LOAD} = require('core/elem');
-let Values; LOAD(() => {Values = require('comm/values');});
 const HDummyValue = require('foundation/value/dummyvalue');
 const Queue = require('comm/queue');
 
@@ -55,7 +54,7 @@ class HValue extends HClass {
     this.value = _value;
     this.views = [];
     if (_id) {
-      Values.add(_id, this);
+      require('comm/values').add(_id, this);
     }
   }
 
@@ -71,7 +70,7 @@ class HValue extends HClass {
     });
     this.views = [];
     if (this.id) {
-      Values.del(this.id);
+      require('comm/values').del(this.id);
     }
   }
 
@@ -95,7 +94,7 @@ class HValue extends HClass {
     if (this.differs(_value)) {
       this.value = _value;
       if (this.id) {
-        Values.changed(this);
+        require('comm/values').changed(this);
       }
       Queue.push(() => {
         this.refresh();
@@ -108,6 +107,7 @@ class HValue extends HClass {
   * true or false, depending on the equality
   **/
   differs(_value) {
+    const Values = require('comm/values');
     return Values.encode(_value) !== Values.encode(this.value);
   }
 

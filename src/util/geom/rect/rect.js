@@ -1,6 +1,6 @@
 
 const HValueResponder = require('foundation/valueresponder');
-const ELEM = require('core/elem');
+const {ELEM} = require('core/elem');
 const HSystem = require('foundation/system');
 const HPoint = require('util/geom/point');
 
