@@ -1,21 +1,24 @@
 #!/usr/bin/env node
+
 require('../support/path_setup');
 
+const parseArgs = require('lib/run/parse_argv');
 const readConfig = require('lib/build/read_config');
 const findBundles = require('lib/build/find_bundles');
 const flattenBundles = require('lib/build/flatten_bundles');
+const brewCoffee = require('lib/build/brew_coffee');
+const findThemes = require('lib/build/find_themes');
+const readThemes = require('lib/build/read_themes');
 const makePackages = require('lib/build/make_packages');
 const writePackages = require('lib/build/write_packages');
 
-readConfig('conf/client_pkg.yaml')
+readConfig(parseArgs.buildConfigFiles)
   .then(findBundles)
   .then(flattenBundles)
+  .then(brewCoffee)
+  .then(findThemes)
+  .then(readThemes)
   .then(makePackages)
-  .then(writePackages)
-  // .then(({bundles, config}) => {
-  //   console.log('config:', config);
-  //   console.log('bundles:', bundles);
-  //   return bundles;
-  // })
+  .then(writePackages(parseArgs.buildTargetDirectory))
   .catch(console.error)
   .then(() => console.log('end'));

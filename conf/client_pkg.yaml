@@ -2,7 +2,7 @@
 
 # Source directories to scan
 src_dirs:
-  - src/
+  - ../src/
 
 # List of theme names to include and pack
 theme_names:
@@ -37,6 +37,7 @@ packages:
     - util/geom/point
     - util/geom/rect
     - foundation/thememanager
+    - foundation/view/viewdefaults
     - foundation/view
     - foundation/eventmanager
     - comm/transporter
@@ -44,6 +45,7 @@ packages:
     - foundation/json_renderer
     - comm # multibundle and comm utils
     - foundation/valueview
+    - foundation/control/controldefaults
     - foundation/control
     - foundation/valueaction
     - core/rsence_ns

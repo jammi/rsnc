@@ -38,11 +38,13 @@ const flattenBundles = ({config, bundles: sources}) => {
       return flattenSource(source);
     })
   ).then(bundles => {
-    return {config, bundles: bundles.reduce((obj, curr) => {
-      Object.entries(curr).forEach((key, value) => {
+    bundles = bundles.reduce((obj, curr) => {
+      Object.entries(curr).forEach(([key, value]) => {
         obj[key] = value;
       });
-    })};
+      return obj;
+    });
+    return {config, bundles};
   });
 };
 
