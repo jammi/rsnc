@@ -3,20 +3,16 @@ const isClass = obj => {
   return typeof obj === 'function' && obj.prototype.constructor === obj;
 };
 
-const mixin = function(Parent/* , ...mixins */) {
+const mixin = function(Parent, ...mixins) {
   class Mixed extends Parent {}
-  Array
-    .prototype
-    .slice
-    .call(arguments, 1)
-    .forEach(_item => {
-      if (isClass(_item)) {
-        Object.assign(Mixed.prototype, _item.prototype);
-      }
-      else {
-        Object.assign(Mixed.prototype, _item);
-      }
+  mixins.forEach(_item => {
+    if (isClass(_item)) {
+      _item = _item.prototype;
+    }
+    Reflect.ownKeys(_item).forEach(_key => {
+      Mixed.prototype[_key] = _item[_key];
     });
+  });
   return Mixed;
 };
 
@@ -30,7 +26,9 @@ const copyGuess = (fromObjects, toObject) => {
       if (isClass(copySource)) {
         copySource = copySource.prototype;
       }
-      Object.assign(copyTarget, copySource);
+      Reflect.ownKeys(copySource).forEach(_key => {
+        copyTarget[_key] = copySource[_key];
+      });
     });
   return toObject;
 };
@@ -39,6 +37,11 @@ const copyGuess = (fromObjects, toObject) => {
 // some of these are for backwards-compatibility and
 // deprecation warnings for legacy code.
 class HClass {
+
+  get isProduction() {
+    // this function is found in the package header:
+    return isProductionBuild();
+  }
 
   base() {
     throw new Error('HClass#base() error; Use super() rather than this.base()');
@@ -49,18 +52,21 @@ class HClass {
   }
 
   get ancestors() {
-    throw new Error('HClass#ancestors[] error; Use #hasAncestor() to test ancestry');
+    const _arr = [];
+    let _target = this;
+    while (_target) {
+      _arr.push(_target);
+      _target = _target.__proto__;
+    }
+    return _arr;
   }
 
   hasAncestor(_obj) {
-    return _obj.isPrototypeOf(this.constructor);
+    return this.ancestors.includes(_obj.prototype);
   }
 
-  extend() {
-    return copyGuess(Array
-      .prototype
-      .slice
-      .call(arguments, 0), this);
+  extend(...items) {
+    return copyGuess(items, this);
   }
 
   static new() {
@@ -72,27 +78,16 @@ class HClass {
     return new this(...arguments);
   }
 
-  static implement() {
-    return copyGuess(Array
-      .prototype
-      .slice
-      .call(arguments, 0), this);
+  static implement(...items) {
+    return copyGuess(items, this);
   }
 
-  static extend() {
-    return mixin(this, ...Array
-      .prototype
-      .slice
-      .call(arguments, 0)
-    );
+  static extend(...items) {
+    return mixin(this, ...items);
   }
 
-  static mixin() {
-    return mixin(this, ...Array
-      .prototype
-      .slice
-      .call(arguments, 0)
-    );
+  static mixin(...items) {
+    return mixin(this, ...items);
   }
 }
 
