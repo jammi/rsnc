@@ -1,9 +1,9 @@
+const HClass = require('core/class');
 
 /*
 BROWSER_TYPE contains browser types.
 Used for quick checks mostly in layout code
 */
-
 const BROWSER_TYPE = {
   version: 0.0,
   mac: false,
@@ -25,8 +25,9 @@ const BROWSER_TYPE = {
 /**
 The DOM Element abstraction engine
 **/
-class _ELEM {
+class _ELEM extends HClass {
   constructor(options) {
+    super();
     if (!options) {
       options = {};
     }
@@ -75,7 +76,7 @@ class _ELEM {
     }
     else {
       _id = this._nextElemId;
-      this._nextElemId++;
+      this._nextElemId += 1;
     }
     this._elements[_id] = _elem;
     return _id;
@@ -842,7 +843,7 @@ class _ELEM {
         this.setHTML(_id, _options.html);
       }
     }
-    if (!this._elements[_targetId] === _elem.parentNode) {
+    if (this._elements[_targetId] !== _elem.parentNode) {
       this._elements[_targetId].appendChild(_elem);
     }
     return _id;

@@ -186,7 +186,7 @@ class JSONRenderer extends UtilMethods {
 
   extEval(_block) {
     if (_block.indexOf('function(') === 0) {
-      console.warning('JSONRenderer.extEval; evaluation of functions is deprecated!');
+      console.warn('JSONRenderer.extEval; evaluation of functions is deprecated!');
       eval(`_block = ${_block}`);
     }
     return _block;

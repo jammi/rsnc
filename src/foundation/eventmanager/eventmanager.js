@@ -467,14 +467,16 @@ class EventManagerApp extends HApplication.mixin({
       _warnMethodName = '_ensureValidControl';
     }
     if (this.isntFunction(_ctrl.hasAncestor)) {
-      console.warn(`EventManager#${_warnMethodName} => Not a HClass: `, _ctrl);
+      console.Warn(
+        `EventManager#${_warnMethodName} => Not a HClass: `, _ctrl);
       return false;
     }
     else if (this.isFunction(_ctrl.hasAncestor) && _ctrl.hasAncestor(HView) && _ctrl.isCtrl) {
       return true;
     }
     else {
-      console.warn(`EventManager#${_warnMethodName} => Not a HControl: `, _ctrl);
+      console.warn(
+        `EventManager#${_warnMethodName} => Not a HControl: `, _ctrl, _ctrl.isCtrl, _ctrl.hasAncestor(HView));
       return false;
     }
   }
@@ -581,7 +583,7 @@ class EventManagerApp extends HApplication.mixin({
     });
     const _elem = ELEM.get(_ctrl.elemId);
     ['dragged', 'selected', 'hovered', 'active', 'focused', 'enabled'].forEach(_statusItem => {
-      const _viewIdx = this._listeners[_statusItem].indexOf(_viewId);
+      let _viewIdx = this._listeners[_statusItem].indexOf(_viewId);
       if (_viewIdx !== -1) {
         if (_statusItem === 'dragged') {
           _ctrl.endDrag(this.status.crsrX, this.status.crsrY);
@@ -705,13 +707,15 @@ class EventManagerApp extends HApplication.mixin({
         return false;
       }
       else if (this.isNullOrUndefined(_elem.view_id)) {
-        console.warn(`EventManager#${_warnMethodName} => The element doesn't have an 'view_id' attribute.`);
+        console.warn(
+          `EventManager#${_warnMethodName} => The element doesn't have an 'view_id' attribute.`);
         return false;
       }
       else {
         const _viewId = parseInt(_elem.view_id, 10);
         if (this.isNullOrUndefined(this._views[_viewId])) {
-          console.warn(`EventManager#${_warnMethodName} => The viewId:${_viewId} doesn't have a view.`);
+          console.warn(
+            `EventManager#${_warnMethodName} => The viewId:${_viewId} doesn't have a view.`);
           return false;
         }
         else {
@@ -740,7 +744,8 @@ class EventManagerApp extends HApplication.mixin({
       const _elem = ELEM.get(_ctrl.elemId);
       this._listeners.focused.unshift(_viewId);
       if (this.isntFunction(_ctrl.focus)) {
-        console.warn(`EventManager#focus => The viewId:${_viewId} doesn't have a 'focus' method.`);
+        console.warn(
+          `EventManager#focus => The viewId:${_viewId} doesn't have a 'focus' method.`);
         return false;
       }
       else {
@@ -761,7 +766,8 @@ class EventManagerApp extends HApplication.mixin({
       const _elem = ELEM.get(_ctrl.elemId);
       this._listeners.focused.splice(_viewIdx, 1);
       if (this.isntFunction(_ctrl.blur)) {
-        console.warn(`EventManager#blur => The viewId:${_viewId} doesn't have a 'blur' method.`);
+        console.warn(
+          `EventManager#blur => The viewId:${_viewId} doesn't have a 'blur' method.`);
         return false;
       }
       else {
@@ -771,7 +777,7 @@ class EventManagerApp extends HApplication.mixin({
   }
 
   _debugHighlight() {
-    if (this.isProduction && BROWSER_TYPE.mobile) {
+    if (!this.isProduction || BROWSER_TYPE.mobile) {
       return false;
     }
     else {
@@ -1071,11 +1077,13 @@ class EventManagerApp extends HApplication.mixin({
   _validateActiveListeners() {
     this._listeners.active = this._listeners.active.filter(_viewId => {
       if (_viewId === null) {
-        console.warn('EventManager#_validateActiveListeners warning; encountered null viewId in active listeners!');
+        console.warn(
+          'EventManager#_validateActiveListeners warning; encountered null viewId in active listeners!');
         return false;
       }
       else if (!this._isValidView(this._views[_viewId])) {
-        console.warn('EventManager#_validateActiveListeners warning; encountered invalid viewId in active listeners!');
+        console.warn(
+          'EventManager#_validateActiveListeners warning; encountered invalid viewId in active listeners!');
         return false;
       }
       else if (this._views[_viewId].isDead) {
@@ -1089,7 +1097,8 @@ class EventManagerApp extends HApplication.mixin({
       }
     });
     if (this._listeners.active.length > 1) {
-      console.warn('EventManager#_validateActiveListeners warning; too many active items: ', this._listeners.active);
+      console.warn(
+        'EventManager#_validateActiveListeners warning; too many active items: ', this._listeners.active);
       // TODO: should probably make this an error and throw something; see delActiveControl as well about the situation
     }
   }
@@ -1382,7 +1391,9 @@ class EventManagerApp extends HApplication.mixin({
     if (xd > 20 || yd > 20) {
       return true;
     }
-    this.handleClick(e);
+    else {
+      return this.handleClick(e);
+    }
   }
 
   handleClick(e) {
