@@ -113,26 +113,6 @@ class HControl extends HView {
   **/
   // enabled: null,
 
-/** The current value of a component. See setValue.
-  **/
-  // value: null,
-
-/** The current HValue compatible object. Do not set directly.
-  * Holds reference to the bound HValue instance.
-  * Set with HValue.bind.
-  **/
-  // valueObj: null,
-
-/** The minimum numeric value allowed, when the component
-  * utilizes value ranges. See setValueRange
-  **/
-  // minValue: null,
-
-/** The maximum allowed value, when the component
-  * utilizes value ranges. See setValueRange
-  **/
-  // maxValue: null,
-
 /** A boolean value that shows whether this control is currently
   * active or not. Control gets active when the user clicks on it.
   **/
@@ -269,49 +249,8 @@ class HControl extends HView {
   **/
   constructor(_rect, _parent, _options) {
     super(_rect, _parent, _options);
-
-    const _isValueRange = (this.options.minValue || this.options.maxValue);
-
-    if (_isValueRange) {
-      this.minValue = this.options.minValue;
-      this.maxValue = this.options.maxValue;
-    }
-
     this.setEvents(this.options.events);
     this.setEnabled(this.options.enabled);
-
-    // The traditional HValue instance to pass in options to be bound:
-    if (this.options.valueObj) {
-      this.options.valueObj.bindResponder(this);
-    }
-
-    // The newer HValue instance to pass in options to be bound:
-    // - Same as in guitree syntax, also allows it to be just a valueId
-    if (this.options.bind) {
-      if (this.isString(this.options.bind)) {
-        const _valueId = this.options.bind;
-        const _valueObj = this.getValueById(_valueId);
-        if (_valueObj) {
-          _valueObj.bind(this);
-        }
-      }
-      else if (this.isObject(this.options.bind) && this.isFunction(this.options.bind.bindResponder)) {
-        this.options.bind.bindResponder(this);
-      }
-    }
-
-    // If none of the above value bindings exist, use a lighter-weight
-    // dummy valueObj instead
-    if (this.isntObject(this.valueObj)) {
-      this.valueObj = new HDummyValue();
-    }
-
-    if (this.isNullOrUndefined(this.value) && this.isntNullOrUndefined(this.options.value)) {
-      this.setValue(this.options.value);
-    }
-    if (_isValueRange) {
-      this.setValueRange(this.value, this.options.minValue, this.options.maxValue);
-    }
   }
 
 /** -- Use this object to specify class-specific default settings. ++
@@ -342,81 +281,8 @@ class HControl extends HView {
   *
   **/
   die(_delay) {
-    if (this.valueObj) {
-      this.valueObj.releaseResponder(this);
-      this.valueObj = null;
-    }
     EVENT.unreg(this);
     super.die(_delay);
-  }
-
-/** = Description
-  * Assigns the object a new value range. Used for sliders, steppers etc. Calls
-  * setValue with the value given.
-  *
-  * = Parameters
-  * +_value+::    The new value to be set to the component's
-  *               HValue compatible instance.
-  *
-  * +_minValue+:: The new minimum value limit. See minValue.
-  *
-  * +_maxValue+:: The new maximum value limit. See maxValue.
-  *
-  * = Returns
-  * +self+
-  *
-  **/
-  setValueRange(_value, _minValue, _maxValue) {
-    this.minValue = _minValue;
-    this.maxValue = _maxValue;
-    if (this.isNumber(_value)) {
-      _value = (_value < _minValue) ? _minValue : _value;
-      _value = (_value > _maxValue) ? _maxValue : _value;
-      this.setValue(_value);
-    }
-    return this;
-  }
-
-/** = Description
-  * Called when the +self.value+ has been changed. By default
-  * tries to update the value element defined in the theme of
-  * the component. Of course, the HControl itself doesn't
-  * define a theme, so without a theme doesn't do anything.
-  *
-  * = Returns
-  * +self+
-  *
-  **/
-  refreshValue() {
-    if (this.markupElemIds) {
-      if (this.markupElemIds.value) {
-        ELEM.setHTML(this.markupElemIds.value, this.value);
-      }
-    }
-    return this;
-  }
-
-/** = Description
-  * Called mostly internally whenever a property change requires usually visual
-  * action. It's called by methods like setLabel and setValue.
-  * Extends HView.refresh. The boolean properties refreshOnValueChange and
-  * refreshOnLabelChange control whether refreshValue or refreshLabel
-  * should be called. It's used as-is in most components. If you implement
-  * your class extension with properties similar to value or label,
-  * you are advised to extend the refresh method.
-  *
-  * = Returns
-  * +self+
-  *
-  **/
-  refresh() {
-    super.refresh();
-    if (this.drawn) {
-      if (this.refreshOnValueChange) {
-        this.refreshValue();
-      }
-    }
-    return this;
   }
 
 /** = Description
@@ -861,7 +727,7 @@ class HControl extends HView {
   *
   **/
   gainedActiveStatus(_lastActiveControl) {
-    const _parentIdx = this.parents.length - 1;
+    let _parentIdx = this.parents.length - 1;
     if (HSystem.windowFocusMode === 1 && _parentIdx > 1) {
       for (; _parentIdx > 0; _parentIdx--) {
         // Send gainedActiveStatus to HWindow parent(s)

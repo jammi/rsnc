@@ -1,22 +1,22 @@
-const HClass = require('core/class');
+const HViewDefaults = require('foundation/view/viewdefaults');
 
 /** = Description
   * Define default setting here. Will be used, when no or invalid constructor
   * options are supplied.
   **/
-class HControlDefaults extends HClass.mixin({
+class HControlDefaults extends HViewDefaults.mixin({
   /* Whether or not to draw when constructed.
   */
-  autoDraw: true,
+  // autoDraw: true,
 
   /* The default label. A label is the "visual value" of a component that
   * operates on a "hidden" value.
   **/
-  label: '',
+  // label: '',
 
   /* The default initial visibility of the component.
   **/
-  visible: true,
+  // visible: true,
 
   /* The default initial event responders to register to a component.
   *  By default no events are enabled.
@@ -25,7 +25,7 @@ class HControlDefaults extends HClass.mixin({
 
   /* The default initial value of the component.
   **/
-  value: 0,
+  // value: 0,
 
   /* The default initial enabled state of the component.
   **/
@@ -37,11 +37,11 @@ class HControlDefaults extends HClass.mixin({
 
   /* The default initial minimum value of the component.
   **/
-  minValue: -2147483648,
+  // minValue: -2147483648,
 
   /* The default initial maximum value of the component.
   **/
-  maxValue: 2147483648,
+  // maxValue: 2147483648,
 
   /* The default focus value of the component.
   **/
@@ -49,7 +49,7 @@ class HControlDefaults extends HClass.mixin({
 
   /*  Use utc time as default
   **/
-  useUTC: false
+  // useUTC: false
 
 }) {
   constructor() {

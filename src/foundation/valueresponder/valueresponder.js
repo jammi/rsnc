@@ -1,4 +1,5 @@
-
+const HValueResponderDefaults = require('foundation/valueresponder/valueresponderdefaults');
+const HDummyValue = require('foundation/value/dummyvalue');
 const UtilMethods = require('util/util_methods');
 
 /** = Description
@@ -6,6 +7,59 @@ const UtilMethods = require('util/util_methods');
  ** It's implemented by default by +HControl+.
 ***/
 class HValueResponder extends UtilMethods {
+
+  constructor(_options) {
+    super();
+    this.setOptions(_options);
+  }
+
+/** An reference to the options block given as the constructor
+  * parameter _options.
+  **/
+  // options: null,
+  get options() {
+    return this.__options;
+  }
+
+  set options(_options) {
+    if (this.isObject(_options)) {
+      this.__options = _options;
+    }
+  }
+
+  setOptions(_options) {
+    if (this.isNullOrUndefined(_options)) {
+      _options = {};
+    }
+    _options = this.defaultOptionsClass.extend(_options).new(this);
+    this.options = _options;
+    if (this.isObject(_options.valueObj) && this.isFunction(this.options.valueObj)) {
+      _options.valueObj.bindResponder(this);
+    }
+    else if (this.isString(_options.bind)) {
+      const _valueId = _options.bind;
+      const _valueObj = this.getValueById(_valueId);
+      if (_valueObj) {
+        _valueObj.bindResponder(this);
+      }
+    }
+    else if (this.isObject(this.options.bind) && this.isFunction(this.options.bind.bindResponder)) {
+      _options.bind.bindResponder(this);
+    }
+    if (this.isntObject(this.valueObj)) {
+      this.setValueObj(new HDummyValue());
+    }
+    if (this.isNullOrUndefined(this.value) && this.isntNullOrUndefined(_options.value)) {
+      this.setValue(_options.value);
+    }
+    this.options = _options;
+    return _options;
+  }
+
+  get defaultOptionsClass() {
+    return this.__defaultOptionsClass || HValueResponderDefaults;
+  }
+
   /* = Description
   * Binds an HValue compatible instance to the component's valueObj. Also
   * calls +setValue+. It should not be called from user code, instead
@@ -25,6 +79,11 @@ class HValueResponder extends UtilMethods {
     }
   }
 
+/** The current HValue compatible object. Do not set directly.
+  * Holds reference to the bound HValue instance.
+  * Set with HValue.bind.
+  **/
+  // valueObj: null,
   set valueObj(_valueObj) {
     this.setValueObj(_valueObj);
   }
@@ -79,12 +138,28 @@ class HValueResponder extends UtilMethods {
     }
   }
 
+  die() {
+    if (this.valueObj) {
+      this.valueObj.releaseResponder(this);
+      this.valueObj = null;
+    }
+  }
+
+/** The current value of a component. See setValue.
+  **/
   set value(_value) {
     this.setValue(_value);
   }
 
   get value() {
-    return this.__value;
+    if (this.isUndefined(this.__value)) {
+      if (this.isntUndefined(this.options)) {
+        return this.options.value;
+      }
+    }
+    else {
+      return this.__value;
+    }
   }
 }
 

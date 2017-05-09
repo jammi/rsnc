@@ -1,3 +1,4 @@
+const HClass = require('core/class');
 
 /** = Description
  ** A HDummyValue is just a placeholder for HValue values. HDummyValue
@@ -6,7 +7,7 @@
  ** content when an actual HValue instance isn't bound.
  ** It's the default valueObj type for components not bound to real HValue instances.
 **/
-class HDummyValue {
+class HDummyValue extends HClass {
 
   /* = Description
   * HDummyValue is initialized just like a real HValue.
@@ -17,6 +18,7 @@ class HDummyValue {
   *
   **/
   constructor(_id, _value) {
+    super();
     this.id = _id;
     this.value = _value;
   }
@@ -33,16 +35,41 @@ class HDummyValue {
     return this.value;
   }
 
-  /* Binds HControl, does actually nothing.
-  **/
-  bind(_theObj) {
-
+  bind(_responder) {
+    console.warn('HDummyValue#bind is deprecated; use #bindResponder instead!');
+    return this.bindResponder(_responder);
   }
 
-  /* Unbinds (releases) HControl, does actually nothing.
+  /* = Description
+  * Bind a responder to the value, use to attach HValues to responders derived from HControl.
+  *
+  * = Parameters
+  * +_responder+::   Any responder that is derived from HControl or any other
+  *                  class instance that implements HValueResponder or has
+  *                  compatible typing.
   **/
-  unbind(_theObj) {
+  bindResponder(_responder) {
+  }
 
+  unbind(_responder) {
+    console.warn('HDummyValue#unbind is deprecated; use #releaseResponder instead!');
+    return this.releaseResponder(_responder);
+  }
+
+  release(_responder) {
+    console.warn('HDummyValue#release is deprecated; use #releaseResponder instead!');
+    return this.releaseResponder(_responder);
+  }
+
+  /* = Description
+  * Release a responder bound to the HValue instance itself.
+  *
+  * = Parameters
+  * +_responder+::   Any responder that is derived from HControl or any other
+  *                  class instance that implements HValueResponder or has
+  *                  compatible typing.
+  **/
+  releaseResponder(_responder) {
   }
 }
 

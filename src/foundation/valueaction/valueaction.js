@@ -1,4 +1,6 @@
 const HClass = require('core/class');
+const HView = require('foundation/view');
+const HApplication = require('foundation/application');
 const UtilMethods = require('util/util_methods');
 const HValueResponder = require('foundation/valueresponder');
 const HSystem = require('foundation/system');
@@ -6,10 +8,8 @@ const HSystem = require('foundation/system');
 class HValueAction extends HValueResponder {
   constructor(_rect, _parent, _options) {
     super();
-    if (this.isntNullOrUndefined(_rect) &&
-        this.isFunction(_rect.hasAncestor) &&
-        _rect.hasAncestor(HClass)
-    ) {
+    if (this.isUndefined(_options) && this.isClass(_rect.constructor) && this.isClass(_parent.constructor) &&
+      this.isFunction(_rect.hasAncestor) && (_rect.hasAncestor(HView) || _rect.hasAncestor(HApplication))) {
       _options = _parent;
       _parent = _rect;
     }

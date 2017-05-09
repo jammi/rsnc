@@ -1,10 +1,10 @@
-const HClass = require('core/class');
+const HValueResponderDefaults = require('foundation/valueresponder/valueresponderdefaults');
 
 /** = Description
   * Define default HView setting here. Will be used, when no or invalid constructor
   * options are supplied.
   **/
-class HViewDefaults extends HClass.mixin({
+class HViewDefaults extends HValueResponderDefaults.extend({
   /* Whether or not to draw when constructed.
   */
   autoDraw: true,
@@ -18,6 +18,12 @@ class HViewDefaults extends HClass.mixin({
   /** The default value of the component
   **/
   value: 0,
+  /* The default initial minimum value of the component.
+  **/
+  minValue: -2147483648,
+  /* The default initial maximum value of the component.
+  **/
+  maxValue: 2147483648,
   /**  Use utc time as default
   **/
   useUTC: false

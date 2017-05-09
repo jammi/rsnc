@@ -1,5 +1,4 @@
 
-const HClass = require('core/class');
 const {BROWSER_TYPE, ELEM, LOAD} = require('core/elem');
 const UtilMethods = require('util/util_methods');
 const HRect = require('util/geom/rect');
@@ -36,6 +35,10 @@ const DISPLAY_MODES = ['block', 'inline', 'flex'];
  **
 **/
 class HView extends HValueResponder {
+  get refreshOnValueChange() {
+    return true;
+  }
+
   get isView() {return true;}  // attribute to check if the object is a view
   get isCtrl() {return false;} // attribute to check for if the object is a control
   // attribute to check for killed object references
@@ -393,23 +396,12 @@ class HView extends HValueResponder {
   **/
   // rect: null,
 
-/** An reference to the options block given as the constructor
-  * parameter _options.
-  **/
-  // options: null,
-  get options() {
-    return this.__options;
-  }
-
-  set options(_options) {
-    if (this.isObject(_options)) {
-      this.__options = _options;
-    }
-  }
-
   // Allows text to be selected when true
   get textSelectable() {
-    return false;
+    return this.options.textSelectable || false;
+  }
+  set textSelectable(_textSelectable) {
+    this.options.textSelectable = _textSelectable;
   }
 
   get markupElemNames() {
@@ -562,42 +554,40 @@ class HView extends HValueResponder {
   *
   **/
   constructor(_rect, _parent, _options) {
-    super();
+    if (!_parent && !_options && _rect) {
+      _options = _rect;
+    }
+    if (!_options) {
+      _options = {};
+    }
+    if (!_options.rect && _rect && _options !== _rect) {
+      _options.rect = _rect;
+    }
+    if (!_options.parent && _parent) {
+      _options.parent = _parent;
+    }
+    super(_options);
+    if (this.options.autoDraw) {
+      this.draw();
+    }
+  }
+
+  setOptions(_options) {
+    _options = super.setOptions(_options);
+    const _parent = _options.parent;
+    const _rect = _options.rect;
     // destructable timeouts:
     this.timeouts = [];
     // adds the parentClass as a "super" object
     this.parent = _parent;
-    if (this.isNullOrUndefined(_options)) {
-      _options = {};
-    }
-    if (this.isntNullOrUndefined(HSystem.apps[_options.appId])) {
-      this.appId = _options.appId;
+    if (this.isntNullOrUndefined(HSystem.apps[this.options.appId])) {
+      this.appId = this.options.appId;
     }
     else {
       this.appId = this.parent.appId;
     }
     this.app = HSystem.apps[this.appId];
-    _options = this.defaultOptionsClass.extend(_options).new(this);
-    if (this.isFunction(this.customOptions)) {
-      this.customOptions(_options);
-    }
-    this.options = _options;
-    this.label = _options.label;
-    // Moved these to the top to ensure safe theming operation
-    if (_options.theme) {
-      this.theme = _options.theme;
-      this.preserveTheme = true;
-    }
-    else if (!this.theme) {
-      this.theme = HThemeManager.currentTheme;
-      this.preserveTheme = false;
-    }
-    else {
-      this.preserveTheme = true;
-    }
-    if (_options.visible === false || _options.hidden === true) {
-      this.isHidden = true;
-    }
+    this.isHidden = this.options.visible === false || this.options.hidden === true;
     this.viewId = this.parent.addView(this);
     // the parent addView method adds this.parents.
     // sub-view ids, index of HView-derived objects that are found in HSystem.views[viewId]
@@ -611,9 +601,47 @@ class HView extends HValueResponder {
     // Additional DOM element bindings are saved into this array so they can be
     // deleted from the element manager when the view gets destroyed.
     this._domElementBindings = [];
-    if (this.options.autoDraw) {
-      this.draw();
+    if (this.isFunction(this.customOptions)) {
+      this.customOptions(_options || {});
     }
+    this.label = _options.label;
+    // Moved these to the top to ensure safe theming operation
+    if (_options.theme) {
+      this.theme = _options.theme;
+      this.preserveTheme = true;
+    }
+    else if (!this.theme) {
+      this.theme = HThemeManager.currentTheme;
+      this.preserveTheme = false;
+    }
+    else {
+      this.preserveTheme = true;
+    }
+    const _isValueRange = _options.minValue || _options.maxValue;
+    if (_isValueRange && this.isFunction(this.setValueRange)) {
+      this.setValueRange(this.value, _options.minValue, _options.maxValue);
+    }
+    return _options;
+  }
+
+/** The minimum numeric value allowed, when the component
+  * utilizes value ranges. See setValueRange
+  **/
+  get minValue() {
+    return this.options.minValue || null;
+  }
+  set minValue(_minValue) {
+    this.options.minValue = _minValue;
+  }
+
+/** The maximum allowed value, when the component
+  * utilizes value ranges. See setValueRange
+  **/
+  get maxValue() {
+    return this.options.maxValue || null;
+  }
+  set maxValue(_maxValue) {
+    this.options.maxValue = _maxValue;
   }
 
 /** The defaultOptionsClass in HView is a HViewDefaults object that is extended
@@ -856,6 +884,7 @@ class HView extends HValueResponder {
   * main DOM element of the view.
   **/
   createElement() {
+    // debugger;
     if (this.isntNumber(this.elemId)) {
       this._makeElem(this.getParentElemId());
       if (this.cssOverflowY === false && this.cssOverflowX === false) {
@@ -1048,6 +1077,7 @@ class HView extends HValueResponder {
   drawMarkup() {
     const _themeName = this.preserveTheme ? this.theme : HThemeManager.currentTheme;
     const _markup = HThemeManager.resourcesFor(this, _themeName);
+    // debugger;
     this.markupElemIds = {};
     if (this.isString(_markup) && _markup !== '') {
       ELEM.setHTML(this.elemId, _markup);
@@ -1152,6 +1182,14 @@ class HView extends HValueResponder {
 
   /* = Description
   *
+  * Called mostly internally whenever a property change requires usually visual
+  * action. It's called by methods like setLabel and setValue.
+  * Extends HView.refresh. The boolean properties refreshOnValueChange and
+  * refreshOnLabelChange control whether refreshValue or refreshLabel
+  * should be called. It's used as-is in most components. If you implement
+  * your class extension with properties similar to value or label,
+  * you are advised to extend the refresh method.
+  *
   * This method should be extended in order to redraw only specific parts. The
   * base implementation calls optimizeWidth when optimizeWidthOnRefresh is set
   * to true.
@@ -1166,14 +1204,64 @@ class HView extends HValueResponder {
       // constructor when setRect() is initially called.
       this.drawRect();
     }
-    if (this.refreshOnLabelChange) {
+    if (this.isFunction(this.refreshOnLabelChange)) {
       this.refreshLabel();
     }
     if (this.isFunction(this.themeStyle)) {
       this.themeStyle.call(this);
     }
-    if (this.optimizeWidthOnRefresh && this.options.pack && this.drawn) {
+    if (this.drawn && this.refreshOnValueChange && this.isFunction(this.refreshValue)) {
+      this.refreshValue();
+    }
+    if (this.optimizeWidthOnRefresh && this.options.pack && this.drawn && this.isFunction(this.optimizeWidth)) {
       this.optimizeWidth();
+    }
+    return this;
+  }
+
+
+/** = Description
+  * Called when the +self.value+ has been changed. By default
+  * tries to update the value element defined in the theme of
+  * the component. Of course, the HControl itself doesn't
+  * define a theme, so without a theme doesn't do anything.
+  *
+  * = Returns
+  * +self+
+  *
+  **/
+  refreshValue() {
+    if (this.markupElemIds) {
+      if (this.markupElemIds.value) {
+        ELEM.setHTML(this.markupElemIds.value, this.value);
+      }
+    }
+    return this;
+  }
+
+/** = Description
+  * Assigns the object a new value range. Used for sliders, steppers etc. Calls
+  * setValue with the value given.
+  *
+  * = Parameters
+  * +_value+::    The new value to be set to the component's
+  *               HValue compatible instance.
+  *
+  * +_minValue+:: The new minimum value limit. See minValue.
+  *
+  * +_maxValue+:: The new maximum value limit. See maxValue.
+  *
+  * = Returns
+  * +self+
+  *
+  **/
+  setValueRange(_value, _minValue, _maxValue) {
+    this.minValue = _minValue;
+    this.maxValue = _maxValue;
+    if (this.isNumber(_value)) {
+      _value = (_value < _minValue) ? _minValue : _value;
+      _value = (_value > _maxValue) ? _maxValue : _value;
+      this.setValue(_value);
     }
     return this;
   }
@@ -1455,14 +1543,14 @@ class HView extends HValueResponder {
     if (!_warnPrefix) {
       _warnPrefix = 'HView#_getMarkupElemIdPart';
     }
-    if (!this.markupElemIds) {
+    if (this.isNullOrUndefined(this.markupElemIds)) {
       console.warn(_warnPrefix +
         ` warning; componentName: ${this.componentName} with viewId: ${this.viewId} does not have any markupElemIds!`);
       return null;
     }
     else if (this.isNullOrUndefined(this.markupElemIds[_partName])) {
-      console.warn(_warnPrefix +
-        ` warning; partName: ${_partName} does not exist for viewId: ${this.viewId}`);
+      // console.warn(_warnPrefix +
+      //   ` warning; partName: ${_partName} does not exist for viewId: ${this.viewId}`);
       return null;
     }
     else {
@@ -1743,6 +1831,7 @@ class HView extends HValueResponder {
   *
   **/
   die(_delay) {
+    super.die();
     if (this.isNumber(_delay)) {
       this.timeouts.push(setTimeout(() => {
         this.dieMethods();
