@@ -1,4 +1,4 @@
-
+const {LOAD} = require('core/elem');
 const HThemeManager = require('foundation/thememanager');
 const COMM = require('comm');
 const HLocale = require('foundation/locale');
@@ -27,6 +27,7 @@ const unselectableCSS = `
 const loadUnselectable = () => {
   HThemeManager.useCSS(unselectableCSS);
 };
+LOAD(loadUnselectable);
 
 // Call this method from the index page for
 // client-only features
