@@ -4,27 +4,27 @@ const fs = promisify('fs');
 
 const processEntries = ({config, bundles}) => {
   const findThemePaths = (bundleName, bundle) => {
-    const hasTheme = (bundleDir, entries) => {
-      const parseThemesDirectory = themesDir => {
-        return themeNamesInDir => {
-          return config
-            .themeNames
-            .map(themeName => {
-              if (themeNamesInDir.includes(themeName)) {
-                return [path.resolve(themesDir, themeName), themeName];
-              }
-              else {
-                return null;
-              }
-            })
-            .filter(themeDir => {
-              return themeDir !== null;
-            })
-            .map(([themeDir, themeName]) => {
-              return {themeDir, themeName, bundleName, bundle};
-            });
-        };
+    const parseThemesDirectory = themesDir => {
+      return themeNamesInDir => {
+        return config
+          .themeNames
+          .map(themeName => {
+            if (themeNamesInDir.includes(themeName)) {
+              return [path.resolve(themesDir, themeName), themeName];
+            }
+            else {
+              return null;
+            }
+          })
+          .filter(themeDir => {
+            return themeDir !== null;
+          })
+          .map(([themeDir, themeName]) => {
+            return {themeDir, themeName, bundleName, bundle};
+          });
       };
+    };
+    const hasTheme = (bundleDir, entries) => {
       if (entries.includes('themes')) {
         const themesDir = path.resolve(bundleDir, 'themes');
         return fs

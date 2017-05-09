@@ -9,6 +9,7 @@ const flattenBundles = require('lib/build/flatten_bundles');
 const brewCoffee = require('lib/build/brew_coffee');
 const findThemes = require('lib/build/find_themes');
 const readThemes = require('lib/build/read_themes');
+const parseTemplates = require('lib/build/parse_templates');
 const makePackages = require('lib/build/make_packages');
 const writePackages = require('lib/build/write_packages');
 
@@ -18,6 +19,7 @@ readConfig(parseArgs.buildConfigFiles)
   .then(brewCoffee)
   .then(findThemes)
   .then(readThemes)
+  .then(parseTemplates)
   .then(makePackages)
   .then(writePackages(parseArgs.buildTargetDirectory))
   .catch(console.error)

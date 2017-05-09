@@ -4,6 +4,12 @@
 src_dirs:
   - ../src/
 
+# Environment variables to pass on to the client at build time
+# accessible in the client in `process.env`
+env:
+  BUILD_TYPE: 'development'
+  # BUILD_TYPE: 'production'
+
 # List of theme names to include and pack
 theme_names:
   - default  # Makes default_theme.js containing css and html templates
@@ -23,13 +29,14 @@ packages:
     - util/util_methods
     - foundation/locale
     - foundation/system
+    - foundation/value/dummyvalue
+    - foundation/valueresponder/valueresponderdefaults
     - foundation/valueresponder
     - foundation/application
     - comm/queue
     - comm/session
     - comm/sessionwatcher
     - comm/urlresponder
-    - foundation/value/dummyvalue
     - foundation/value
     - foundation/value/pushvalue
     - foundation/value/pullvalue
@@ -101,3 +108,7 @@ no_gzip: false
 #  - 9 means smallest size, but slow compression
 #  - any number in between is a compromise
 gz_strategy: 9
+
+themes_require:
+  default:
+    - HLocale: foundation/locale

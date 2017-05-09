@@ -16,7 +16,9 @@ const isObject = item => {
 };
 
 // Add more items here, when support for them is added:
-const handledKeys = ['src_dirs', 'theme_names', 'packages'];
+const handledKeys = [
+  'src_dirs', 'theme_names', 'packages', 'gfx_formats',
+  'themes_require', 'env'];
 const configParsers = (parsedConfig, filePath) => {
   const config = parsedConfig;
   const handleConfigItemArray = (source, destination, descr) => {
@@ -82,6 +84,34 @@ const configParsers = (parsedConfig, filePath) => {
         config.packages[name] = handleConfigItemArray(
           items, destination, `packages.${name}`);
       });
+    },
+    'gfx_formats': gfxFormats => {
+      config.gfxFormats = handleConfigItemArray(
+        gfxFormats, config.gfxFormats, 'gfx_formats');
+    },
+    'themes_require': themesRequire => {
+      Object.entries(themesRequire)
+        .forEach(([themeName, requireItems]) => {
+          if (!config.themesRequire[themeName]) {
+            config.themesRequire[themeName] = {__order: []};
+          }
+          const themeRequire = config.themesRequire[themeName];
+          requireItems.forEach(requireItem => {
+            Object.entries(requireItem)
+              .forEach(([constName, requirePath]) => {
+                if (!themeRequire.__order.includes(constName)) {
+                  themeRequire.__order.push(constName);
+                  themeRequire[constName] = requirePath;
+                }
+              });
+          });
+        });
+    },
+    'env': envObj => {
+      Object.entries(envObj)
+        .forEach(([key, value]) => {
+          config.env[key] = value;
+        });
     }
   };
 };
@@ -106,7 +136,10 @@ const readConfig = configFiles => {
       const parsedConfig = {
         srcDirs: [],
         themeNames: [],
-        packages: {}
+        packages: {},
+        gfxFormats: [],
+        themesRequire: {},
+        env: {}
       };
       configs.forEach(config => {
         const parsers = configParsers(parsedConfig, config._filePath);

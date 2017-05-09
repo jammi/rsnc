@@ -1,13 +1,13 @@
-const HClass = require('core/class');
+const UtilMethods = require('util/util_methods');
 const {BROWSER_TYPE, ELEM} = require('core/elem');
 
-class HThemeManager extends HClass {
+class HThemeManager extends UtilMethods {
   constructor() {
     super();
     // temporary solution until new theme is crafted:
     this.allInOneCSS = true;
     this.currentTheme = 'default';
-    this.currentThemePath = null;
+    this.currentThemePath = './';
     this.themePaths = {};
     this.themes = [];
     // CSS Templates and CSS Template methods per theme name
@@ -17,8 +17,6 @@ class HThemeManager extends HClass {
     // Simple reference counting by theme name and component name, when 0, clear the style sheet
     this.cssCountUsedBy = {};
     this.cssByThemeAndComponentName = {};
-    this._variableMatch = /#\{([a-z0-9]+?)\}/;
-    this._assignmentMatch = /\$\{([a-z0-9]+?)\}/;
   }
 
   // Set the graphics loading path of the the themeName
@@ -30,23 +28,14 @@ class HThemeManager extends HClass {
   }
 
   setupAllInOneCSS(_themeName) {
-    let _cssText = '';
     Object
       .entries(this.themeCSSTemplates[_themeName])
       .forEach(([_componentName]) => {
-        _cssText += this.buildCSSTemplate(
+        const _cssText = this.buildCSSTemplate(
           this, _themeName, _componentName
         );
+        const _style = this.useCSS(_cssText);
       });
-    const _style = this.useCSS(_cssText);
-    try {
-      // Causes issues in Firefox?
-      const _cssTitle = `rsence/${_themeName}`;
-      _style.title = _cssTitle;
-    }
-    catch (e) {
-      console.warn('HThemeManager#setupAllInOneCSS error; e:', e);
-    }
   }
 
   setupThemePath(_themeName) {
@@ -127,51 +116,20 @@ class HThemeManager extends HClass {
   }
 
   buildHTMLTemplate(_view, _themeName, _componentName) {
-    if (!this.themeHTMLTemplates[_themeName]) {
+    if (this.isntFunction(this.themeHTMLTemplates[_themeName])) {
       console.warn(`HThemeManager#buildHTMLTemplate warning: Theme '${_themeName}' is not installed`);
       return '';
     }
-    else if (!this.themeHTMLTemplates[_themeName][_componentName]) {
-      console.warn(`HThemeManager#buildHTMLTemplate warning: Theme '${_themeName
-      }' does not have component '${_componentName}' installed`);
-      return '';
-    }
     else {
-      const _tmpl = this.themeHTMLTemplates[_themeName][_componentName];
-      const _tmplJS = _tmpl[0];
-      let _tmplHTML = _tmpl[1];
-      let _rect = _view.rect;
-      if (!_rect) {
-        _rect = [0, 0, 0, 0];
-      }
-      _tmplHTML = _tmplHTML
-        .replace(/\]I\[/g, _view.elemId.toString())
-        .replace(/\]W\[/g, _rect.width)
-        .replace(/\]H\[/g, _rect.height);
-      if (_tmplJS.length === 0) {
-        return _tmplHTML;
+      const themeFn = this.themeHTMLTemplates[_themeName](_componentName);
+      if (this.isntFunction(themeFn)) {
+        console.warn(`HThemeManager#buildHTMLTemplate warning: Theme '${_themeName
+        }' does not have component '${_componentName}' installed`);
+        return '';
       }
       else {
-        const [_variableMatch, _assignmentMatch] = [this._variableMatch, this._assignmentMatch];
-        const _callValue = (_id, _isAssign) => {
-          _id = parseInt(_id, 36) - 10;
-          try {
-            const _out = _tmplJS[_id].apply(_view, [_view.elemId.toString(), _rect.width, _rect.height]);
-            return _isAssign ? '' : _out;
-          }
-          catch (e) {
-            console.error(`HThemeManager#buildHTMLTemplate; Template error(${e
-            }) in ${_themeName}/${_componentName}: ${_tmplJS[_id]}`);
-            return '';
-          }
-        };
-        while (_assignmentMatch.test(_tmplHTML)) {
-          _tmplHTML = _tmplHTML.replace(_assignmentMatch, _callValue(RegExp.$1, true));
-        }
-        while (_variableMatch.test(_tmplHTML)) {
-          _tmplHTML = _tmplHTML.replace(_variableMatch, _callValue(RegExp.$1));
-        }
-        return _tmplHTML;
+        const tmplHTML = themeFn.call(_view);
+        return tmplHTML;
       }
     }
   }
@@ -181,8 +139,7 @@ class HThemeManager extends HClass {
       start: _colors.shift(),
       end: _colors.pop(),
       steps: _colors
-    }
-    );
+    });
     const _style = {};
     _style[_key] = _value;
     return _style;
@@ -209,17 +166,14 @@ class HThemeManager extends HClass {
     }
     else {
       const _tmpl = this.themeCSSTemplates[_themeName][_componentName];
-      const _tmplJS = _tmpl[0];
-      let _tmplCSS = _tmpl[1];
-      const [_variableMatch, _assignmentMatch] = [this._variableMatch, this._assignmentMatch];
       this.getThemeGfxFile = _fileName => {
         return this._buildThemePath(_fileName, _themeName);
       };
       this.getCssFilePath = _fileName => {
         return `url(${this._buildThemePath(_fileName, _themeName)})`;
       };
+      let _tmplCSS = _tmpl.call(this);
       const _cssThemeUrlMatch = /#url\((.+?)\)/gm;
-      // if (_cssThemeUrlMatch.test(_tmplCSS)) {
       while (_cssThemeUrlMatch.test(_tmplCSS)) {
         _tmplCSS = _tmplCSS.replace(
           _cssThemeUrlMatch, (_match, _fileName) => {
@@ -227,33 +181,9 @@ class HThemeManager extends HClass {
           }
         );
       }
-      if (_tmplJS.length === 0) {
-        return _tmplCSS;
-      }
-      else {
-        const _callValue = (_id, _isAssign) => {
-          const _oid = _id;
-          _id = parseInt(_id, 36) - 10;
-          try {
-            const _out = _tmplJS[_id].apply(_context);
-            return _isAssign ? '' : _out;
-          }
-          catch (e) {
-            console.error(`HThemeManager#buildCSSTemplate; Template error(${e
-            }) in ${_themeName}/${_componentName}: ${_tmplJS[_id]}`);
-            return '';
-          }
-        };
-        while (_assignmentMatch.test(_tmplCSS)) {
-          _tmplCSS = _tmplCSS.replace(_assignmentMatch, _callValue(RegExp.$1, false));
-        }
-        while (_variableMatch.test(_tmplCSS)) {
-          _tmplCSS = _tmplCSS.replace(_variableMatch, _callValue(RegExp.$1));
-        }
-        delete this.getCssFilePath;
-        delete this.getThemeGfxFile;
-        return _tmplCSS;
-      }
+      delete this.getCssFilePath;
+      delete this.getThemeGfxFile;
+      return _tmplCSS;
     }
   }
 
@@ -267,6 +197,7 @@ class HThemeManager extends HClass {
     if (!_view.componentName) {
       console.warn(`HThemeManager#resourcesFor warning: Theme '${_themeName
       }' does not have component '${_view._componentName}' installed`);
+      return null;
     }
     else {
       const _componentName = _view.componentName;
@@ -291,7 +222,7 @@ class HThemeManager extends HClass {
           }
         }
       }
-      this.buildHTMLTemplate(_view, _themeName, _componentName);
+      return this.buildHTMLTemplate(_view, _themeName, _componentName);
     }
   }
 
@@ -323,9 +254,7 @@ class HThemeManager extends HClass {
     const _style = document.createElement('style');
     _style.type = 'text/css';
     _style.media = 'all';
-    const _head = document.getElementsByTagName('head')[0];
-    _head.appendChild(_style);
-    if (BROWSER_TYPE.safari || BROWSER_TYPE.firefox || BROWSER_TYPE.opera) {
+    if (BROWSER_TYPE.safari || BROWSER_TYPE.chrome || BROWSER_TYPE.firefox || BROWSER_TYPE.opera) {
       // This is how to do it in KHTML browsers
       _style.appendChild(document.createTextNode(_cssText));
     }
@@ -333,6 +262,8 @@ class HThemeManager extends HClass {
       // This works for many others (add more checks, if problems with new browsers)
       _style.textContent = _cssText;
     }
+    const _head = document.getElementsByTagName('head')[0];
+    _head.appendChild(_style);
     return _style;
   }
 }
