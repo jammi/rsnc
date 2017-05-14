@@ -1,4 +1,4 @@
-const HClass = require('core/class');
+const UtilMethods = require('core/class');
 
 /*
 BROWSER_TYPE contains browser types.
@@ -25,7 +25,7 @@ const BROWSER_TYPE = {
 /**
 The DOM Element abstraction engine
 **/
-class _ELEM extends HClass {
+class _ELEM extends UtilMethods {
   constructor(options) {
     super();
     if (!options) {
@@ -257,60 +257,49 @@ class _ELEM extends HClass {
     return [w, h];
   }
 
-  // Calculates the visible left position of an element
-  // If _noOwnScoll is true, method not include scrollLeft of element itself.
-  _getVisibleLeftPosition(_id, _noOwnScoll) {
+  _getVisibleLeftOrTop(_id, _noOwnScroll, _offsetProp, _scrollProp) {
     let _elem = this._elements[_id];
-    let x = 0;
+    let a = 0;
     if (_elem) {
-      while (_elem !== document.body) {
-        x += _elem.offsetLeft;
-        if (this._getComputedStyle(_elem, 'position') === 'fixed') {
-          x += document.body.scrollLeft;
+      while (this.isntNullOrUndefined(_elem) && _elem !== document.body) {
+        const _pos = this.getComputedStyle(_elem, 'position');
+        if (_pos === 'fixed') {
+          a += _elem[_offsetProp] + document.body[_scrollProp];
           break;
         }
-        if (!_noOwnScoll || _elem !== this._elements[_id]) {
-          x -= _elem.scrollLeft;
+        if (_pos === 'absolute' || _pos === 'relative' || _elem === this.elements[_id]) {
+          a += _elem[_offsetProp];
+        }
+        if (!_noOwnScroll || _elem !== this._elements[_id]) {
+          a -= _elem[_scrollProp];
         }
         _elem = _elem.parentNode;
       }
     }
     else {
-      console.warn('ELEM._getVisibleLeftPosition(', _id, '): Element not found');
+      console.warn('ELEM._getVisibleLeftOrTopPosition(', _id, '): Element not found');
     }
-    return x;
+    return a;
+  }
+
+  // Calculates the visible left position of an element
+  // If _noOwnScroll is true, method not include scrollLeft of element itself.
+  _getVisibleLeftPosition(_id, _noOwnScroll) {
+    return this._getVisibleLeftOrTop(_id, _noOwnScroll, 'offsetLeft', 'scrollLeft');
   }
 
   // Calculates the visible top position of an element
-  // If _noOwnScoll is true, method not include scrollTop of element itself.
-  _getVisibleTopPosition(_id, _noOwnScoll) {
-    let _elem = this._elements[_id];
-    let y = 0;
-    if (_elem) {
-      while (_elem !== document.body) {
-        y += _elem.offsetTop;
-        if (this._getComputedStyle(_elem, 'position' ) === 'fixed') {
-          y += document.body.scrollTop;
-          break;
-        }
-        if (!_noOwnScoll || _elem !== this._elements[_id]) {
-          y -= _elem.scrollTop;
-        }
-        _elem = _elem.parentNode;
-      }
-    }
-    else {
-      console.warn('ELEM._getVisibleTopPosition(', _id, '): Element not found');
-    }
-    return y;
+  // If _noOwnScroll is true, method not include scrollTop of element itself.
+  _getVisibleTopPosition(_id, _noOwnScroll) {
+    return this._getVisibleLeftOrTop(_id, _noOwnScroll, 'offsetTop', 'scrollTop');
   }
 
   // Returns the visible position of the element as a [ left, top ] tuple
-  // If _noOwnScoll is true, method not include scrollLeft and scrollTop of element itself.
-  getVisiblePosition(_id, _noOwnScoll) {
+  // If _noOwnScroll is true, method not include scrollLeft and scrollTop of element itself.
+  getVisiblePosition(_id, _noOwnScroll) {
     return [
-      this._getVisibleLeftPosition(_id, _noOwnScoll),
-      this._getVisibleTopPosition(_id, _noOwnScoll)
+      this._getVisibleLeftPosition(_id, _noOwnScroll),
+      this._getVisibleTopPosition(_id, _noOwnScroll)
     ];
   }
 
@@ -378,8 +367,8 @@ class _ELEM extends HClass {
   }
 
   // Returns the visible box coordinates of the element as a [ left, top, width, height ]
-  getVisibleBoxCoords(_id, _noOwnScoll) {
-    const [x, y] = this.getVisiblePosition(_id, _noOwnScoll);
+  getVisibleBoxCoords(_id, _noOwnScroll) {
+    const [x, y] = this.getVisiblePosition(_id, _noOwnScroll);
     const [w, h] = this.getSize(_id);
     return [x, y, w, h];
   }
@@ -1052,6 +1041,18 @@ class _ELEM extends HClass {
     // WARN: this language hack is going to be deprecated once there's a proper system around:
     BROWSER_TYPE.lang_fi = this.hasLang('fi');
     BROWSER_TYPE.lang_en = !BROWSER_TYPE.lang_fi;
+
+    // TODO: Handle this in some other way:
+    try {
+      window.addEventListener('test', null, Object.defineProperty({}, 'passive', {
+        get: () => {
+          BROWSER_TYPE.passiveEvents = true;
+        }
+      }));
+    }
+    catch (e) {
+      BROWSER_TYPE.passiveEvents = false;
+    }
 
     this._domWaiter();
   }
