@@ -1,6 +1,6 @@
 
 const HValue = require('foundation/value');
-const {LOAD} = require('core/elem');
+const LOAD = require('core/load');
 let Values; LOAD(() => {Values = require('comm/values');});
 
 /* Client -> Server push value buffer.

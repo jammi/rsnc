@@ -1,5 +1,5 @@
 
-const {LOAD} = require('core/elem');
+const LOAD = require('core/load');
 
 /** = Description
  ** XMLHttpRequest abstractor, and handler and utilities.

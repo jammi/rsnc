@@ -1,5 +1,6 @@
+const BROWSER_TYPE = require('core/browser_type');
 const UtilMethods = require('util/util_methods');
-const {BROWSER_TYPE, ELEM} = require('core/elem');
+const ELEM = require('core/elem');
 
 class HThemeManager extends UtilMethods {
   constructor() {

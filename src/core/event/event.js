@@ -1,5 +1,5 @@
-
-const {ELEM, BROWSER_TYPE} = require('core/elem');
+const BROWSER_TYPE = require('core/browser_type');
+const ELEM = require('core/elem');
 const UtilMethods = require('util/util_methods');
 
 /* = Description

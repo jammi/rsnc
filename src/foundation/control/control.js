@@ -4,7 +4,7 @@ const HSystem = require('foundation/system');
 const HView = require('foundation/view');
 const HDummyValue = require('foundation/value/dummyvalue');
 const EVENT = require('foundation/eventmanager');
-const {ELEM} = require('core/elem');
+const ELEM = require('core/elem');
 
 const HControlDefaults = require('foundation/control/controldefaults');
 
@@ -1012,7 +1012,7 @@ class HControl extends HView {
 }
 
 /** testing:
-require('core/elem').LOAD(() => {
+require('core/load').LOAD(() => {
   const app = new (require('foundation/application'))(40, 'testApp');
   class extControl extends HControl {
     gainedActiveStatus(prevActive) {

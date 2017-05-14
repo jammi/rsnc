@@ -1,26 +1,6 @@
-const UtilMethods = require('core/class');
-
-/*
-BROWSER_TYPE contains browser types.
-Used for quick checks mostly in layout code
-*/
-const BROWSER_TYPE = {
-  version: 0.0,
-  mac: false,
-  win: false,
-  edge: false,
-  opera: false,
-  safari: false,
-  chrome: false,
-  firefox: false,
-  firefox4: false, // version 4 or newer
-  ios: false,
-  iphone: false, // also true for iPod touch
-  ipad: false,
-  android: false,
-  mobile: false,
-  lang: 'en-US'
-};
+const BROWSER_TYPE = require('core/browser_type');
+const LOAD = require('core/load');
+const UtilMethods = require('util/util_methods');
 
 /**
 The DOM Element abstraction engine
@@ -38,12 +18,6 @@ class _ELEM extends UtilMethods {
 
   // Sets up object members
   reset() {
-    // Startup queue stuff
-    this._domLoadQueue = [];
-    this._domLoadTimer = null;
-
-    // Flag which turns to true, when the document body is detected as loaded
-    this._domLoadStatus = false;
 
     this._flushTime = 0;
     this._flushCounter = 0;
@@ -262,7 +236,7 @@ class _ELEM extends UtilMethods {
     let a = 0;
     if (_elem) {
       while (this.isntNullOrUndefined(_elem) && _elem !== document.body) {
-        const _pos = this.getComputedStyle(_elem, 'position');
+        const _pos = this._getComputedStyle(_elem, 'position');
         if (_pos === 'fixed') {
           a += _elem[_offsetProp] + document.body[_scrollProp];
           break;
@@ -915,32 +889,7 @@ class _ELEM extends UtilMethods {
     if (!this._timer) {
       this.bind(document.body);
     }
-    while (!this._initDone) {
-      this._flushDomLoadQueue();
-    }
     this._resetFlushLoop(this._minDelay);
-  }
-
-  // Runs a cmd
-  _runCmd(_cmd) {
-    if (this.isFunction(_cmd)) {
-      _cmd.call();
-    }
-    else {
-      console.error(
-        'Evaluation of LOAD strings is not supported.' +
-        'Please convert to anonymous function: ' + _cmd);
-    }
-  }
-
-  // Processes the queue for tasks to run upon completion of document load
-  _flushDomLoadQueue() {
-    if (this._domLoadQueue.length === 0) {
-      this._initDone = true;
-    }
-    else {
-      this._runCmd(this._domLoadQueue.shift());
-    }
   }
 
   /*
@@ -1007,89 +956,30 @@ class _ELEM extends UtilMethods {
     return BROWSER_TYPE.lang.includes(_lang);
   }
 
-  // Does browser version checks and starts the document loaded check poll
-  _warmup() {
-    const _ua = navigator.userAgent;
-    const _av = navigator.appVersion;
-    const _lang = navigator.language || navigator.userLanguage;
-    BROWSER_TYPE.lang = _lang;
-    BROWSER_TYPE.opera = _ua.includes('Opera');
-    BROWSER_TYPE.chrome = _ua.includes('Chrome') || _ua.includes('CriOS');
-    BROWSER_TYPE.safari = _ua.includes('Safari') && !BROWSER_TYPE.chrome;
-    const _isIE = document.all && !BROWSER_TYPE.opera;
-    if (_isIE) {
-      alert('Microsoft Internet Explorer is no longer supported. Please upgrade.');
-    }
-    BROWSER_TYPE.edge = _ua.includes('Edge');
-    BROWSER_TYPE.mac = _ua.includes('Macintosh');
-    BROWSER_TYPE.win = _ua.includes('Windows');
-    BROWSER_TYPE.firefox = _ua.includes('Firefox');
-    BROWSER_TYPE.firefox4 = BROWSER_TYPE.firefox;
-    const _iPhone = _ua.includes('iPhone') || _ua.includes('iPod');
-    const _iPad = _ua.includes('iPad');
-    const _iPod = _ua.includes('iPod');
-    BROWSER_TYPE.ios = _iPhone || _iPad || _iPod;
-    BROWSER_TYPE.iphone = _iPhone;
-    BROWSER_TYPE.ipad = _iPad;
-    BROWSER_TYPE.ipod = _iPod;
-    BROWSER_TYPE.android = _ua.includes('Android');
-    BROWSER_TYPE.mobile = _av.includes('Mobile');
-
-    // WARN: this language hack is going to be deprecated once there's a proper system around:
-    BROWSER_TYPE.lang_fi = this.hasLang('fi');
-    BROWSER_TYPE.lang_en = !BROWSER_TYPE.lang_fi;
-
-    // TODO: Handle this in some other way:
-    try {
-      window.addEventListener('test', null, Object.defineProperty({}, 'passive', {
-        get: () => {
-          BROWSER_TYPE.passiveEvents = true;
-        }
-      }));
-    }
-    catch (e) {
-      BROWSER_TYPE.passiveEvents = false;
-    }
-
-    this._domWaiter();
+  get ELEM() {
+    console.warn(
+      "ELEM#ELEM is deprecated, use `const ELEM = require('core/elem')`; instead of `const {ELEM} = require('core/elem');`");
+    return this;
   }
 
-  // Adds tasks to run when the document load check is completed
-  _domLoader(_cmd) {
-    if (this._initDone) {
-      this._runCmd(_cmd);
-    }
-    else {
-      this._domLoadQueue.push(_cmd);
-    }
+  get LOAD() {
+    console.warn(
+      "ELEM#LOAD is deprecated, use `const LOAD = require('core/load');` instead of `const {LOAD} = require('core/elem');`");
+    return LOAD;
   }
 
-  // Checks if the document is fully loaded
-  _domWaiter() {
-    if (BROWSER_TYPE.safari && document.readyState === 'complete') {
-      this._domLoadStatus = true;
-    }
-    else if (document.body) {
-      this._domLoadStatus = true;
-    }
-    if (this._domLoadStatus) {
-      clearTimeout(this._domLoadTimer);
-      this._init();
-    }
-    else {
-      const _this = this;
-      this._domLoadTimer = setTimeout(() => {
-        _this._domWaiter();
-      }, 10);
-    }
+  get BROWSER_TYPE() {
+    console.warn(
+      "ELEM#BROWSER_TYPE is deprecated, use `const BROWSER_TYPE = require('core/browser_type');` instead of `const {BROWSER_TYPE} = require('core/elem');`");
+    return BROWSER_TYPE;
   }
+
 }
 
 const ELEM = new _ELEM();
-ELEM.reset();
-ELEM._warmup();
-const LOAD = thing => {
-  ELEM._domLoader(thing);
-};
+LOAD(() => {
+  ELEM.reset();
+  ELEM._init();
+});
 
-module.exports = {ELEM, LOAD, BROWSER_TYPE};
+module.exports = ELEM;

@@ -22,11 +22,13 @@ packages:
     - util/sha256 # js-sha256.min.js
     - datetime/moment
     - datetime/moment-timezone # moment-timezone-with-data
+    - core/browser_type
+    - core/load
     - core/class
-    - util/sha1
-    - core/elem
-    - core/event
     - util/util_methods
+    - core/elem
+    - util/sha1
+    - core/event
     - foundation/locale
     - foundation/system
     - foundation/value/dummyvalue

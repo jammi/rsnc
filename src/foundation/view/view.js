@@ -1,5 +1,7 @@
 
-const {BROWSER_TYPE, ELEM, LOAD} = require('core/elem');
+const BROWSER_TYPE = require('core/browser_type');
+const LOAD = require('core/load');
+const ELEM = require('core/elem');
 const UtilMethods = require('util/util_methods');
 const HRect = require('util/geom/rect');
 const HPoint = require('util/geom/point');

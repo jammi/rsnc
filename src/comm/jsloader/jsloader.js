@@ -1,5 +1,5 @@
 
-const {LOAD} = require('core/elem');
+const LOAD = require('core/load');
 const Queue = require('comm/queue');
 
 /* = Description

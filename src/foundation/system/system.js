@@ -1,5 +1,5 @@
-
-const {ELEM, LOAD} = require('core/elem');
+const LOAD = require('core/load');
+const ELEM = require('core/elem');
 const UtilMethods = require('util/util_methods');
 
 /** = Description

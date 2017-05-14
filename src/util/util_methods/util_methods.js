@@ -1,6 +1,6 @@
 
 const HClass = require('core/class');
-const {LOAD} = require('core/elem');
+const LOAD = require('core/load');
 let COMM; LOAD(() => {COMM = require('comm');});
 let HLocale; LOAD(() => {HLocale = require('foundation/locale');});
 let moment; LOAD(() => {moment = require('moment');});

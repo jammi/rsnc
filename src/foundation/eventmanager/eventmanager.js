@@ -1,5 +1,7 @@
 
-const {BROWSER_TYPE, ELEM, LOAD} = require('core/elem');
+const BROWSER_TYPE = require('core/browser_type');
+const LOAD = require('core/load');
+const ELEM = require('core/elem');
 const Event = require('core/event');
 const HApplication = require('foundation/application');
 const HSystem = require('foundation/system');

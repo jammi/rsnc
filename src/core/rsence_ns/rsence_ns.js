@@ -1,4 +1,4 @@
-const {LOAD} = require('core/elem');
+const LOAD = require('core/load');
 const HThemeManager = require('foundation/thememanager');
 const COMM = require('comm');
 const HLocale = require('foundation/locale');
