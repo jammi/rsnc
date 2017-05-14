@@ -108,7 +108,9 @@ class HApplication extends HValueResponder {
     this.views.push(_viewId);
 
     this.buildParents(_viewId);
-    this.viewsZOrder.push(_viewId);
+    if (_view.zOrderDisabled === false) {
+      this.viewsZOrder.push(_viewId);
+    }
 
     return _viewId;
   }

@@ -150,9 +150,10 @@ const updateObject = (_src, _dst) => {
   const _typeDst = typeChr(_dst);
   const _merge = (_item, i) => {
     const _itemType = typeChr(_item);
-    if (_itemType === typeChr(_dst[i]) || ['~', '-'].includes(typeChr(_dst[i]))) {
+    const _dstType = typeChr(_dst[i]);
+    if (_itemType === _dstType || ['~', '-'].includes(_dstType)) {
       if (_itemType === 'a' || _itemType === 'h') {
-        if (_itemType === typeChr(_dst[i])) {
+        if (_itemType === _dstType) {
           updateObject(_item, _dst[i]);
         }
         else {

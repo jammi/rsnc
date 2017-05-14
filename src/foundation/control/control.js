@@ -727,7 +727,8 @@ class HControl extends HView {
   *
   **/
   gainedActiveStatus(_lastActiveControl) {
-    let _parentIdx = this.parents.length - 1;
+    let _parentIdx = this.isArray(this.parents) ?
+      this.parents.length - 1 : -1;
     if (HSystem.windowFocusMode === 1 && _parentIdx > 1) {
       for (; _parentIdx > 0; _parentIdx--) {
         // Send gainedActiveStatus to HWindow parent(s)

@@ -17,7 +17,7 @@ class HViewDefaults extends HValueResponderDefaults.extend({
   visible: true,
   /** The default value of the component
   **/
-  value: 0,
+  value: null,
   /* The default initial minimum value of the component.
   **/
   minValue: -2147483648,

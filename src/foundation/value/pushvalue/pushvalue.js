@@ -26,6 +26,14 @@ class HPushValue extends HValue {
   }
 
   set(_value) {
+    const _encoded = this.encodeObject(_value);
+    for (let i = 0; i < this.buffer.length; i++) {
+      const _val = this.buffer[i];
+      if (this.encodeObject(_val) === _encoded) {
+        this.buffer.splice(i, 1);
+        break;
+      }
+    }
     this.buffer.push(_value);
     Values.changed(this);
     this.refresh();

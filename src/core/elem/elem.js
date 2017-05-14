@@ -322,7 +322,7 @@ class _ELEM extends UtilMethods {
 
   // Sets element position ( id, [ x, y ] )
   setPosition(_id, x, y) {
-    if (!y && y !== 0 && x instanceof Array) {
+    if (!y && y !== 0 && this.isArray(x)) {
       [x, y] = x; // assume tuple
     }
     this.setStyle(_id, 'left', `${x}px`);
@@ -331,13 +331,13 @@ class _ELEM extends UtilMethods {
 
   // Shortcut for filling parent dimensions with optional offset(s)
   stretchToParentBounds(_id, l, t, r, b) {
-    if (!l && l !== 0) {
+    if (this.isNullOrUndefined(l)) {
       [l, t, r, b] = [0, 0, 0, 0];
     }
-    else if (l instanceof Array) {
+    else if (this.isArray(l)) {
       [l, t, r, b] = l;
     }
-    else if (!t && t !== 0) {
+    else if (this.isNullOrUndefined(t)) {
       [l, t, r, b] = [l, l, l, l];
     }
     this.setStyle(_id, 'position', 'absolute');
@@ -497,7 +497,7 @@ class _ELEM extends UtilMethods {
   }
 
   flushElem(_elemIds) {
-    if (typeof _elemIds === 'number') {
+    if (this.isNumber(_elemIds)) {
       _elemIds = [_elemIds];
     }
     const _this = this;
@@ -512,7 +512,7 @@ class _ELEM extends UtilMethods {
 
   // Performs the flush of flushLoop
   _performFlush() {
-    const _flushStartTime = new Date().getTime();
+    const _flushStartTime = this.msNow();
     this._flushTime -= _flushStartTime;
     const _loopMaxL = this._elemTodo.length;
     if (_loopMaxL > 0) {
@@ -531,7 +531,7 @@ class _ELEM extends UtilMethods {
       }
     }
     this._flushCounter++;
-    this._flushTime += new Date().getTime();
+    this._flushTime += this.msNow();
     this._needFlush = this._elemTodo.length !== 0;
   }
 
@@ -772,10 +772,10 @@ class _ELEM extends UtilMethods {
   // Sets multiple styles at once
   setStyles(_id, _styles, _noCache) {
     const _this = this;
-    if (typeof _styles === 'object') {
+    if (this.isObject(_styles)) {
       _styles = Object.entries(_styles);
     }
-    if (_styles instanceof Array) {
+    if (this.isArray(_styles)) {
       _styles.forEach(([_key, _value]) => {
         _this.setStyle(_id, _key, _value, _noCache);
       });
@@ -801,29 +801,27 @@ class _ELEM extends UtilMethods {
     this._initCache(_id);
     if (_options) {
       let _attrs;
-      if (_options.attrs) {
+      if (this.isntNullOrUndefined(_options.attrs)) {
         _attrs = _options.attrs;
       }
-      else if (_options.attr) {
+      else if (this.isntNullOrUndefined(_options.attr)) {
         _attrs = _options.attr;
       }
-      if (_attrs) {
-        if (typeof _attrs === 'object') {
+      if (this.isObjectOrArray(_attrs)) {
+        if (this.isObject(_attrs)) {
           _attrs = Object.entries(_attrs);
         }
-        if (_attrs instanceof Array) {
+        if (this.isArray(_attrs)) {
           _attrs.forEach(([_key, _value]) => {
             this.setAttr(_id, _key, _value, true);
           });
         }
       }
       const _classes = _options.classes;
-      if (_classes) {
-        if (_classes instanceof Array) {
-          _classes.forEach(_className => {
-            this.addClassName(_id, _className);
-          });
-        }
+      if (this.isArray(_classes)) {
+        _classes.forEach(_className => {
+          this.addClassName(_id, _className);
+        });
       }
       if (_options.styles) {
         this.setStyles(_id, _options.styles);
@@ -871,7 +869,7 @@ class _ELEM extends UtilMethods {
     if (this._styleCache[_id]) {
       const _cached = this._styleCache[_id];
       _key = this._deCamelize(_key);
-      if (typeof _cached[_key] === 'undefined' || _cached[_key] === null || _noCache) {
+      if (this.isNullOrUndefined(_cached[_key]) || _noCache) {
         if (_key === 'opacity') {
           _value = this.getOpacity(_id);
         }
@@ -911,7 +909,7 @@ class _ELEM extends UtilMethods {
 
   // Final phase of startup, when document is loaded
   _init() {
-    if (typeof window.RSenceInit === 'function') {
+    if (this.isFunction(window.RSenceInit)) {
       window.RSenceInit();
     }
     if (!this._timer) {
@@ -925,8 +923,7 @@ class _ELEM extends UtilMethods {
 
   // Runs a cmd
   _runCmd(_cmd) {
-    const _type = typeof _cmd;
-    if (_type === 'function') {
+    if (this.isFunction(_cmd)) {
       _cmd.call();
     }
     else {

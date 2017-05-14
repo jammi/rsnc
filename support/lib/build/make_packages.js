@@ -40,7 +40,7 @@ const makePackages = ({config, bundles}) => {
     const {bundleShim, packageShim} = shims(config, packageConfig);
     return Promise.resolve().then(() => {
       return {
-        packageName: packageName,
+        packageName,
         src: packageShim(
           packageItems.map(bundleName => {
             return bundles[bundleName] ?

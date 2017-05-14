@@ -70,11 +70,11 @@ class HRect extends HValueResponder {
       this._constructorPoint(_left, _top);
     }
     else if (_argLen === 1) {
-      if (_left instanceof Array && _left.length === 4) {
+      if (this.isArray(_left) && _left.length === 4) {
         const _arr = _left;
         this._constructorSides(_arr[0], _arr[1], _arr[2], _arr[3]);
       }
-      else if (_left instanceof Array && _left.length === 6) {
+      else if (this.isArray(_left) && _left.length === 6) {
         const _arr = _left;
         throw new Error('HRect#constructor error: six-argument rect-array not properly implemented yet!');
       }
@@ -280,11 +280,11 @@ class HRect extends HValueResponder {
       this._constructorPoint(_left, _top);
     }
     else if (_argLen === 1) {
-      if (_left instanceof Array && _left.length === 4) {
+      if (this.isArray(_left) && _left.length === 4) {
         const _arr = _left;
         this._constructorSides(_arr[0], _arr[1], _arr[2], _arr[3]);
       }
-      else if (_left instanceof Array && _left.length === 6) {
+      else if (this.isArray(_left) && _left.length === 6) {
         const _arr = _left;
         throw new Error('HRect#set error: six-argument rect-array not properly implemented yet!');
       }
@@ -489,9 +489,9 @@ class HRect extends HValueResponder {
   *
   **/
   intersects(_rect, _insetByX, _insetByY) {
-    if (typeof _insetByX === 'number') {
+    if (this.isNumber(_insetByX)) {
       _rect = new HRect(_rect);
-      if (typeof _insetByY === 'undefined') {
+      if (this.isUndefined(_insetByY)) {
         _insetByY = _insetByX;
       }
       _rect.insetBy(_insetByX, _insetByY);
@@ -604,7 +604,7 @@ class HRect extends HValueResponder {
       const _point = x;
       this._offsetByPoint(_point);
     }
-    if (_argLen === 1 && x instanceof Array && x.length === 2) {
+    if (_argLen === 1 && this.isArray(x) && x.length === 2) {
       [x, y] = x;
       this._offsetByXY(x, y);
     }
@@ -647,7 +647,7 @@ class HRect extends HValueResponder {
       const _point = x;
       this._offsetToPoint(_point);
     }
-    else if (_argLen === 1 && x instanceof Array && x.length === 2) {
+    else if (_argLen === 1 && this.isArray(x) && x.length === 2) {
       [x, y] = x;
       this._offsetToXY(x, y);
     }
@@ -662,7 +662,12 @@ class HRect extends HValueResponder {
   }
 
   _offsetToPoint(_point) {
-    this._offsetToXY(_point.x, _point.y);
+    if (this.isArray(_point)) {
+      this._offsetToXY(_point[0], _point[1]);
+    }
+    else {
+      this._offsetToXY(_point.x, _point.y);
+    }
   }
 
   _offsetToXY(x, y) {

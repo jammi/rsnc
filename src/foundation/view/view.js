@@ -375,6 +375,19 @@ class HView extends HValueResponder {
   **/
   // viewsZOrder: null,
 
+  /** The view z-index is controlled by parent view if this is true(default).
+  * In other case view handle own z-index by CSS etc.
+  **/
+  get zOrderDisabled() {
+    return this.__zOrderDisabled || false;
+  }
+
+  set zOrderDisabled(_zOrderDisabled) {
+    if (this.isBoolean(_zOrderDisabled)) {
+      this.__zOrderDisabled = _zOrderDisabled;
+    }
+  }
+
 /** The isHidden flog reflects the visibility of the view.
   **/
   get isHidden() {
@@ -445,10 +458,8 @@ class HView extends HValueResponder {
 
   get _stringSizeImportantAttrs() {
     return [
-      'fontSize',
-      'fontWeight',
-      'fontFamily',
-      'lineHeight'
+      'fontSize', 'fontWeight', 'fontFamily', 'lineHeight',
+      'paddingLeft', 'paddingRight', 'paddingTop', 'paddingBottom'
     ];
   }
 
@@ -918,6 +929,11 @@ class HView extends HValueResponder {
           ELEM.addClassName(this.elemId, _browserName);
         }
       });
+      if (this.isArray(this.options.classes)) {
+        this.options.classes.forEach(_className => {
+          ELEM.addClassName(this.elemId, _className);
+        });
+      }
       if (this.isntNullOrUndefined(this.options.textSelectable)) {
         this.textSelectable = this.options.textSelectable;
       }
@@ -1219,7 +1235,6 @@ class HView extends HValueResponder {
     return this;
   }
 
-
 /** = Description
   * Called when the +self.value+ has been changed. By default
   * tries to update the value element defined in the theme of
@@ -1321,6 +1336,8 @@ class HView extends HValueResponder {
       const _validBottomOffset = this.isInteger(_bottomOffset);
       let _validWidth = this.isInteger(_width);
       let _validHeight = this.isInteger(_height);
+      let _minWidth = 0;
+      let _minHeight = 0;
       const [_parentWidth, _parentHeight] = (_arrLen === 6) ? this.parentSize() : [null, null];
       if (_validLeftOffset && _validRightOffset && !_validWidth) {
         _width = 0;
@@ -1349,17 +1366,16 @@ class HView extends HValueResponder {
       })();
       if (_validLeftOffset && _validWidth && !_validRightOffset) {
         _right = _leftOffset + _width;
-        this.setMinWidth(0);
       }
       else if (!_validLeftOffset && _validWidth && _validRightOffset) {
         _right = _parentWidth - _validRightOffset;
         _leftOffset = _right - _width;
-        this.setMinWidth(_width);
+        _minWidth = _width;
       }
       else if (_validLeftOffset && _validRightOffset) {
         _right = _parentWidth - _rightOffset;
         if (_validWidth) {
-          this.setMinWidth(_width);
+          _minWidth = _width;
           if ((_parentWidth - _leftOffset) < _width) {
             console.warn(
               `HView#_setArrayRect warning; The minWidth(${_width
@@ -1374,23 +1390,22 @@ class HView extends HValueResponder {
             }) to fit _rightOffset (${_rightOffset}) and left (${_leftOffset
             }); right(${_right}) yields to (${_leftOffset
             }) and _rightOffset(${_rightOffset}) yields to ${_parentWidth - _leftOffset}!`);
-          _rightOffset = _parentWidth - _leftOffset;
+          // _rightOffset = _parentWidth - _leftOffset;
           _right = _leftOffset;
         }
       }
       if (_validTopOffset && _validHeight && !_validBottomOffset) {
         _bottom = _topOffset + _height;
-        this.setMinHeight(0);
       }
       else if (!_validTopOffset && _validHeight && _validBottomOffset) {
         _bottom = _parentHeight - _validBottomOffset;
         _topOffset = _bottom - _height;
-        this.setMinHeight(_height);
+        _minHeight = _height;
       }
       else if (_validTopOffset && _validBottomOffset) {
         _bottom = _parentHeight - _bottomOffset;
         if (_validHeight) {
-          this.setMinHeight(_height);
+          _minHeight = _height;
           if (_parentHeight - _topOffset < _height) {
             console.warn(
               `HView#_setArrayRect warning; The minHeight(${_height
@@ -1415,8 +1430,8 @@ class HView extends HValueResponder {
       if (_topOffset > _bottom) {
         _bottom = _topOffset;
       }
-      this.setMinWidth(this.minWidth);
-      this.setMinHeight(this.minHeight);
+      this.setMinWidth(_minWidth);
+      this.setMinHeight(_minHeight);
       this.setFlexLeft(_validLeftOffset, _leftOffset);
       this.setFlexTop(_validTopOffset, _topOffset);
       this.setFlexRight(_validRightOffset, _rightOffset);
@@ -1923,7 +1938,9 @@ class HView extends HValueResponder {
     const _viewId = HSystem.addView(_view);
     this.views.push(_viewId);
     this.buildParents(_viewId);
-    this.viewsZOrder.push(_viewId);
+    if (_view.zOrderDisabled === false) {
+      this.viewsZOrder.push(_viewId);
+    }
     return _viewId;
   }
 
@@ -2023,14 +2040,24 @@ class HView extends HValueResponder {
   *
   **/
   resizeTo(_width, _height) {
-    if (this.isNumber(_width)) {
-      this.rect.right = this.rect.left + _width;
+    if (this.rect) {
+      if (this.isNumber(_width)) {
+        this.rect.right = this.rect.left + _width;
+      }
+      if (this.isNumber(_height)) {
+        this.rect.bottom = this.rect.top + _height;
+      }
+      this.rect.updateSecondaryValues();
+      this.drawRect();
     }
-    if (this.isNumber(_height)) {
-      this.rect.bottom = this.rect.top + _height;
+    else {
+      if (this.isNumber(_width)) {
+        ELEM.setStyle(this.elemId, 'width', `${_width}px`);
+      }
+      if (this.isNumber(_height)) {
+        ELEM.setStyle(this.elemId, 'height', `${_height}px`);
+      }
     }
-    this.rect.updateSecondaryValues();
-    this.drawRect();
     return this;
   }
 
@@ -2055,9 +2082,34 @@ class HView extends HValueResponder {
   * +self+
   *
   **/
-  offsetTo() {
-    this.rect.offsetTo.apply(this.rect, arguments);
-    this.drawRect();
+  offsetTo(..._args) {
+    const _setLeftTopStyles = (_left, _top) => {
+      if (this.isNumber(_left)) {
+        ELEM.setStyle(this.elemId, 'left', `${_left}px`);
+      }
+      if (this.isNumber(_top)) {
+        ELEM.setStyle(this.elemId, 'top', `${_top}px`);
+      }
+    };
+    if (this.rect) {
+      this.rect.offsetTo.apply(this.rect, _args);
+      this.drawRect();
+    }
+    else if (_args.length === 1 && this.isArray(_args[0]) && _args[0].length === 2) {
+      const [_left, _top] = _args[0];
+      _setLeftTopStyles(_left, _top);
+    }
+    else if (_args.length === 1 && this.isObject(_args[0]) && _args[0].x && _args[0].y) {
+      const {x, y} = _args[0];
+      _setLeftTopStyles(x, y);
+    }
+    else if (_args.length === 2) {
+      const [_left, _top] = _args;
+      _setLeftTopStyles(_left, _top);
+    }
+    else {
+      console.error('HView#offsetTo; invalid arguments error:', _args);
+    }
     return this;
   }
 
@@ -2118,9 +2170,11 @@ class HView extends HValueResponder {
   *
   **/
   bringToFront() {
-    if (this.parent) {
+    if (this.parent && this.zOrderDisabled === false) {
       const _index = this.zIndex();
-      this.parent.viewsZOrder.splice(_index, 1);
+      if (_index !== -1) {
+        this.parent.viewsZOrder.splice(_index, 1);
+      }
       this.parent.viewsZOrder.push(this.viewId);
       this._updateZIndexAllSiblings();
     }
@@ -2140,9 +2194,17 @@ class HView extends HValueResponder {
   **/
   bringToFrontOf(_view) {
     // Ensure the views are siblings:
-    if (this.parent.viewId === _view.parent.viewId) {
-      this.parent.viewsZOrder.splice(this.zIndex(), 1);
-      this.parent.viewsZOrder.splice(_view.zIndex() + 1, 0, this.viewId);
+    if (this.parent.viewId === _view.parent.viewId && this.zOrderDisabled === false) {
+      const _selfIndex = this.zIndex();
+      if (_selfIndex !== -1) {
+        // removes own index:
+        this.parent.viewsZOrder.splice(_selfIndex, 1);
+        const _otherIndex = _view.zIndex();
+        if (_otherIndex !== -1) {
+          // adds own index before the other _view
+          this.parent.viewsZOrder.splice(_otherIndex + 1, 0, this.viewId);
+        }
+      }
       this._updateZIndexAllSiblings();
     }
     return this;
@@ -2161,9 +2223,17 @@ class HView extends HValueResponder {
   **/
   sendToBackOf(_view) {
     // Ensure the views are siblings
-    if (this.parent.viewId === _view.parent.viewId) {
-      this.parent.viewsZOrder.splice(this.zIndex(), 1);
-      this.parent.viewsZOrder.splice(_view.zIndex(), 0, this.viewId);
+    if (this.parent.viewId === _view.parent.viewId && this.zOrderDisabled === false) {
+      const _selfIndex = this.zIndex();
+      if (_selfIndex !== -1) {
+        // removes own index:
+        this.parent.viewsZOrder.splice(_selfIndex, 1);
+        const _otherIndex = _view.zIndex();
+        if (_otherIndex !== -1) {
+          // adds own index after the other _view
+          this.parent.viewsZOrder.splice(_otherIndex, 0, this.viewId);
+        }
+      }
       this._updateZIndexAllSiblings();
     }
     return this;
@@ -2179,7 +2249,7 @@ class HView extends HValueResponder {
   sendBackward() {
     const _index = this.zIndex();
     // 0 is already at the back
-    if (_index !== 0) {
+    if (_index !== 0 && this.zOrderDisabled === false) {
       this.parent.viewsZOrder.splice(_index, 1);
       this.parent.viewsZOrder.splice(_index - 1, 0, this.viewId);
       this._updateZIndexAllSiblings();
@@ -2197,7 +2267,7 @@ class HView extends HValueResponder {
   bringForward() {
     const _index = this.zIndex();
     // don't do anything if already in front:
-    if (_index !== this.parent.viewsZOrder.length - 1) {
+    if (_index !== this.parent.viewsZOrder.length - 1 && this.zOrderDisabled === false) {
       this.parent.viewsZOrder.splice(_index, 1);
       this.parent.viewsZOrder.splice(_index + 1, 0, this.viewId);
       this._updateZIndexAllSiblings();
@@ -2215,8 +2285,10 @@ class HView extends HValueResponder {
   sendToBack() {
     if (this.parent) {
       const _index = this.zIndex();
-      if (_index !== 0) {
-        this.parent.viewsZOrder.splice(_index, 1); // removes this index from the arr
+      if (_index !== 0 && this.zOrderDisabled === false) {
+        if (_index !== -1) {
+          this.parent.viewsZOrder.splice(_index, 1); // removes this index from the arr
+        }
         this.parent.viewsZOrder.splice(0, 0, this.viewId); // un-shifts viewId
         this._updateZIndexAllSiblings();
       }
@@ -2286,9 +2358,12 @@ class HView extends HValueResponder {
     ELEM.setStyles(_stringElem, _customStyle);
     ELEM.setHTML(_stringElem, _string);
     ELEM.flushElem([_stringParent, _stringElem]);
+    ELEM.flush();
     const [_width, _height] = ELEM.getSize(_stringElem);
     ELEM.del(_stringElem); ELEM.del(_stringParent);
-    return [_width + _width % 2, _height + _height % 2];
+    const _paddedWidth = _width - _width % 2 + 2;
+    const _paddedHeight = _height - _height % 2 + 2;
+    return [_paddedWidth, _paddedHeight];
   }
 
   /* Returns the string width
@@ -2561,6 +2636,47 @@ class HView extends HValueResponder {
     else {
       return false;
     }
+  }
+
+  getZOrder() {
+    return this.views
+      .map(_viewId => {
+        return HSystem.views[_viewId];
+      })
+      .filter(_view => {
+        return !!_view;
+      })
+      .map((_view, index) => {
+        let zIndex = ELEM.getStyle(_view.elemId, 'z-index', true);
+        if (zIndex !== 'auto') {
+          zIndex = parseInt(zIndex, 10);
+          if (!isFinite(zIndex)) {
+            zIndex = 'auto';
+          }
+        }
+        return {
+          index,
+          viewId: _view.viewId,
+          zIndex
+        };
+      })
+      .sort((a, b) => {
+        if (a.zIndex === b.zIndex) {
+          return a.index - b.index;
+        }
+        else if (a.zIndex === 'auto') {
+          return -1;
+        }
+        else if (b.zIndex === 'auto') {
+          return 1;
+        }
+        else {
+          return a.zIndex - b.zIndex;
+        }
+      })
+      .map(({viewId}) => {
+        return viewId;
+      });
   }
 }
 

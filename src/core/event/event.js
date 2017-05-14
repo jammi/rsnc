@@ -1,42 +1,64 @@
 
 const {ELEM, BROWSER_TYPE} = require('core/elem');
+const UtilMethods = require('util/util_methods');
 
 /* = Description
 ** Abstracts the DOM Event differences between browsers.
 **/
-const Event = {
+const Event = (class extends UtilMethods.extend({
+  // List of ASCII "special characters":
+  KEY_BACKSPACE: 8,
+  KEY_TAB: 9,
+  KEY_RETURN: 13,
+  KEY_ESC: 27,
+  KEY_SPACE: 32,
+  KEY_LEFT: 37,
+  KEY_UP: 38,
+  KEY_RIGHT: 39,
+  KEY_DOWN: 40,
+  KEY_DELETE: 46,
+  KEY_HOME: 36,
+  KEY_END: 35,
+  KEY_PAGEUP: 33,
+  KEY_PAGEDOWN: 34,
+
+  /* List of event observers
+  **/
+  observers: false,
+
+}) {
 
   /* Returns the element of the event.
   */
-  element: function(e) {
+  element(e) {
     return e.target || e.srcElement;
-  },
+  }
 
   /* Returns the mouse cursor x -coordinate of the event.
   */
-  pointerX: function(e) {
+  pointerX(e) {
     if (/touch/.test(e.type)) {
       return e.changedTouches[0].pageX;
     }
     else {
       return (e.pageX || e.clientX);
     }
-  },
+  }
 
   /* Returns the mouse cursor y -coordinate of the event.
   */
-  pointerY: function(e) {
+  pointerY(e) {
     if (/touch/.test(e.type)) {
       return e.changedTouches[0].pageY;
     }
     else {
       return (e.pageY || e.clientY);
     }
-  },
+  }
 
   /* Stops event propagation
   */
-  stop: function(e) {
+  stop(e) {
     if (e.preventDefault) {
       e.preventDefault();
       e.stopPropagation();
@@ -45,11 +67,11 @@ const Event = {
       e.returnValue = false;
       e.cancelBubble = true;
     }
-  },
+  }
 
   /* Returns true if the left mouse butten was clicked.
   */
-  isLeftClick: function(e) {
+  isLeftClick(e) {
     if (e.type === 'touchend' || BROWSER_TYPE.ipad || BROWSER_TYPE.iphone) {
       return true;
     }
@@ -60,33 +82,34 @@ const Event = {
     else {
       return (e.button === 0);
     }
-  },
-
-  /* List of event observers
-  **/
-  observers: false,
+  }
 
   /* Implementation of observe */
-  _observeAndCache: function(_elem, _name, _function, _useCapture) {
-    _name = Event.wrapEventName(_name);
-    if (typeof _name === 'undefined') {
+  _observeAndCache(_elem, _name, _function, _useCapture, _usePassive) {
+    if (this.isUndefinedOrNull(_name)) {
       return;
     }
     if (!Event.observers) {
       Event.observers = [];
     }
+    let _opts = _useCapture;
+    if (BROWSER_TYPE.passiveEvents) {
+      _opts = {};
+      _opts.passive = _usePassive === true;
+      _opts.capture = _useCapture === true;
+    }
     if (_elem && _elem.addEventListener) {
-      this.observers.push([_elem, _name, _function, _useCapture]);
-      _elem.addEventListener(_name, _function, _useCapture);
+      this.observers.push([_elem, _name, _function, _opts]);
+      _elem.addEventListener(_name, _function, _opts);
     }
     else if (_elem) {
       console.warn('element', _elem, 'doesn\'t have removeEventListener!');
     }
-  },
+  }
 
   /* Flushes the event observer cache.
   **/
-  unloadCache: function() {
+  unloadCache() {
     if (!Event.observers) {
       return;
     }
@@ -100,32 +123,32 @@ const Event = {
       }
     }
     Event.observers = false;
-  },
+  }
 
   /* Starts observing the named event of the element and
   * specifies a callback function.
   **/
-  observe: function(_elem, _name, _function, _useCapture) {
+  observe(_elem, _name, _function, _useCapture, _usePassive) {
     _useCapture = _useCapture || false;
-    if (typeof _elem === 'number') {
+    _usePassive = _usePassive || false;
+    if (this.isNumber(_elem)) {
       _elem = ELEM.get(_elem);
     }
-    Event._observeAndCache(_elem, _name, _function, _useCapture);
+    Event._observeAndCache(_elem, _name, _function, _useCapture, _usePassive);
     return _function;
-  },
+  }
 
   /* Stops observing the named event of the element and
   * removes the callback function.
   **/
-  stopObserving: function(_elem, _name, _function, _useCapture) {
-    _name = Event.wrapEventName(_name);
-    if (typeof _name === 'undefined') {
+  stopObserving(_elem, _name, _function, _useCapture) {
+    if (this.isUndefinedOrNull(_name)) {
       return;
     }
-    if (typeof _elem === 'number') {
+    if (this.isNumber(_elem)) {
       _elem = ELEM.get(_elem);
     }
-    if (typeof _elem === 'undefined') {
+    if (this.isUndefinedOrNull(_elem)) {
       // console.log('Warning Event.stopObserving of event name: "' + _name + '" called with an undefined elem!');
       return;
     }
@@ -147,49 +170,14 @@ const Event = {
         i += 1;
       }
     }
-  },
+  }
 
-  hasTouch: function() {
+  hasTouch() {
     return (
       window.ontouchstart ||    // html5 browsers
       navigator.maxTouchPoints > 0  // MS EDGE?
     );
-  },
-
-  wrapEventName: function(_name) {
-    if (Event.hasTouch()) {
-      if (_name === 'mousedown') {
-        _name = 'touchstart';
-      }
-      else if (_name === 'mousemove') {
-        _name = 'touchmove';
-      }
-      else if (_name === 'mouseup') {
-        _name = 'touchend';
-      }
-      else if (_name === 'click') {
-        // _name = undefined;
-      }
-    }
-    return _name;
-  },
-
-  // List of ASCII "special characters":
-  KEY_BACKSPACE: 8,
-  KEY_TAB: 9,
-  KEY_RETURN: 13,
-  KEY_ESC: 27,
-  KEY_SPACE: 32,
-  KEY_LEFT: 37,
-  KEY_UP: 38,
-  KEY_RIGHT: 39,
-  KEY_DOWN: 40,
-  KEY_DELETE: 46,
-  KEY_HOME: 36,
-  KEY_END: 35,
-  KEY_PAGEUP: 33,
-  KEY_PAGEDOWN: 34
-
-};
+  }
+}).new();
 
 module.exports = Event;

@@ -349,46 +349,91 @@ const HSystem = new (class extends UtilMethods {
     }
   }
 
+  /** Return list of views which are in root level of document sorted by z-inde **/
+  getZOrder() {
+    return this.views
+      .filter(_view => {
+        return _view && _view.parent.elemId !== 0;
+      })
+      .map((_view, index) => {
+        let zIndex = ELEM.getStyle(_view.elemId, 'z-index', true);
+        if (zIndex !== 'auto') {
+          zIndex = parseInt(zIndex, 10);
+          if (!isFinite(zIndex)) {
+            zIndex = 'auto';
+          }
+        }
+        return {
+          index,
+          viewId: _view.viewId,
+          zIndex
+        };
+      })
+      .sort((a, b) => {
+        if (a.zIndex === b.zIndex) {
+          return a.index - b.index;
+        }
+        else if (a.zIndex === 'auto') {
+          return -1;
+        }
+        else if (b.zIndex === 'auto') {
+          return 1;
+        }
+        else {
+          return a.zIndex - b.zIndex;
+        }
+      })
+      .map(({viewId}) => {
+        return viewId;
+      });
+  }
+
  /* Flushes the z-indexes. This is a fairly expensive operation,
   * thas's why the info is buffered.
   **/
   _flushUpdateZIndexOfChilden() {
     const _this = this;
-    const _buffer = this._updateZIndexOfChildrenBuffer;
     // Iterate over a clone:
-    _buffer.map(_viewId => {
-      _buffer.shift(); // purge first item from the original buffer
-      const _view = _this.__views[_viewId];
-      const _isRootView = _viewId === null;
-      const _viewOrder = _isRootView ? _this.__viewsZOrder : _view.viewsZOrder;
-      if (_viewOrder instanceof Array) {
-        return _viewOrder;
-      }
-      else {
-        return null;
-      }
-    }).filter(_viewOrder => {
-      return _viewOrder !== null;
-    }).map(_viewOrder => {
-      let _zIndex = -1;
-      return _viewOrder.map(_viewId => {
+    const _buffer = this.cloneObject(this._updateZIndexOfChildrenBuffer);
+    this._updateZIndexOfChildrenBuffer = [];
+    _buffer
+      .map(_viewId => {
         const _view = _this.__views[_viewId];
-        const _elemId = _view.elemId;
-        if (_elemId) {
-          _zIndex += 1;
-          return [_elemId, _zIndex];
+        const _isRootView = _viewId === null;
+        const _viewOrder = _isRootView ? _this.__viewsZOrder : _view.viewsZOrder;
+        if (_viewOrder instanceof Array) {
+          return _viewOrder;
         }
         else {
           return null;
         }
-      }).filter(_item => {
-        return _item !== null;
+      })
+      .filter(_viewOrder => {
+        return _viewOrder !== null;
+      })
+      .map(_viewOrder => {
+        let _zIndex = -1;
+        return _viewOrder
+          .map(_viewId => {
+            const _view = _this.__views[_viewId];
+            const _elemId = _view.elemId;
+            if (_elemId) {
+              _zIndex += 1;
+              return [_elemId, _zIndex];
+            }
+            else {
+              return null;
+            }
+          })
+          .filter(_item => {
+            return _item !== null;
+          });
+      })
+      .forEach(_elemZIndexes => {
+        _elemZIndexes.forEach(([_elemId, _zIndex]) => {
+          ELEM.setStyle(_elemId, 'z-index', _zIndex, true);
+        });
       });
-    }).forEach(_elemZIndexes => {
-      _elemZIndexes.forEach(([_elemId, _zIndex]) => {
-        ELEM.setStyle(_elemId, 'z-index', _zIndex);
-      });
-    });
   }
 })();
 
