@@ -368,6 +368,14 @@ class UtilMethods extends HClass {
     return !this.isObjectOrArray(_item);
   }
 
+  isArrayOrObject(_item) {
+    return this.isObjectOrArray(_item);
+  }
+
+  isntArrayOrObject(_item) {
+    return this.isntObjectOrArray(_item);
+  }
+
   isNull(_item) {
     return typeChr(_item) === '~';
   }
@@ -404,7 +412,7 @@ class UtilMethods extends HClass {
     return this.isFunction(_item) && _item.prototype.constructor === _item;
   }
 
-  instClass(_item) {
+  isntClass(_item) {
     return !this.isClass(_item);
   }
 
