@@ -404,39 +404,42 @@ class HControl extends HView {
   * a dimmer appearance.
   *
   * = Parameters
-  * +_flag+:: Boolean; true enables, false disables.
+  * +_state+:: Boolean; true enables, false disables.
   *
   * = Returns
   * +this+
   *
   **/
-  setEnabled(_flag) {
+  setEnabled(_state) {
     const _viewsLen = this.views ? this.views.length : 0;
 
     // Enable/disable the children first.
     for (let i = 0; i < _viewsLen; i++) {
       const _view = HSystem.views[this.views[i]];
-      this.isFunction(_view.setEnabled) && _view.setEnabled(_flag);
+      this.isFunction(_view.setEnabled) && _view.setEnabled(_state);
     }
 
-    if (this.enabled === _flag) {
+    if (this.enabled === _state) {
       // No change in enabled status, do nothing.
       return this;
     }
 
-    this.enabled = _flag;
+    this.enabled = _state;
 
-    if (_flag && this.events) {
+    if (_state && this.events) {
       EVENT.reg(this, this.events);
     }
     else {
       EVENT.unreg(this);
     }
-
-    // Toggle the CSS class: enabled/disabled
-    this.toggleCSSClass(this.elemId, 'enabled', _flag);
-    this.toggleCSSClass(this.elemId, 'disabled', !_flag);
+    this.setEnabledStyle(_state);
     return this;
+  }
+
+  setEnabledStyle(_state) {
+    // Toggle the CSS class: enabled/disabled
+    this.toggleCSSClass(this.elemId, 'enabled', _state);
+    this.toggleCSSClass(this.elemId, 'disabled', !_state);
   }
 
 /** = Description
@@ -460,15 +463,15 @@ class HControl extends HView {
   * starts listening to mouseDown events when the component has focus.
   *
   * = Parameters
-  * +_flag+:: Set the mouseDown event listening on/off (true/false) for
+  * +_state+:: Set the mouseDown event listening on/off (true/false) for
   *           the component instance.
   *
   * = Returns
   * +self+
   *
   **/
-  setMouseMove(_flag) {
-    this.events.mouseMove = _flag;
+  setMouseMove(_state) {
+    this.events.mouseMove = _state;
     this.setEvents();
     return this;
   }
@@ -478,15 +481,15 @@ class HControl extends HView {
   * starts listening to click events when the component has focus.
   *
   * = Parameters
-  * +_flag+:: Set the click event listening on/off (true/false) for
+  * +_state+:: Set the click event listening on/off (true/false) for
   *           the component instance.
   *
   * = Returns
   * +self+
   *
   **/
-  setClickable(_flag) {
-    this.events.click = _flag;
+  setClickable(_state) {
+    this.events.click = _state;
     this.setEvents();
     return this;
   }
@@ -496,15 +499,15 @@ class HControl extends HView {
   * the value of the flag argument.
   *
   * = Parameters
-  * +_flag+:: Set the mouseDown event listening on/off (true/false) for
+  * +_state+:: Set the mouseDown event listening on/off (true/false) for
   *           the component instance.
   *
   * = Returns
   * +self+
   *
   **/
-  setMouseDown(_flag) {
-    this.events.mouseDown = _flag;
+  setMouseDown(_state) {
+    this.events.mouseDown = _state;
     this.setEvents();
     return this;
   }
@@ -514,15 +517,15 @@ class HControl extends HView {
   * the value of the flag argument.
   *
   * = Parameters
-  * +_flag+:: Set the doubleClick event listening on/off (true/false) for
+  * +_state+:: Set the doubleClick event listening on/off (true/false) for
   *           the component instance.
   *
   * = Returns
   * +self+
   *
   **/
-  setDoubleClickable(_flag) {
-    this.events.doubleClick = _flag;
+  setDoubleClickable(_state) {
+    this.events.doubleClick = _state;
     this.setEvents();
     return this;
   }
@@ -532,15 +535,15 @@ class HControl extends HView {
   * the value of the flag argument.
   *
   * = Parameters
-  * +_flag+:: Set the contextMenu event listening on/off (true/false) for
+  * +_state+:: Set the contextMenu event listening on/off (true/false) for
   *           the component instance.
   *
   * = Returns
   * +self+
   *
   **/
-  setContextMenu(_flag) {
-    this.events.contextMenu = _flag;
+  setContextMenu(_state) {
+    this.events.contextMenu = _state;
     this.setEvents();
     return this;
   }
@@ -550,15 +553,15 @@ class HControl extends HView {
   * value of the flag argument.
   *
   * = Parameters
-  * +_flag+:: Set the mouseUp event listening on/off (true/false) for
+  * +_state+:: Set the mouseUp event listening on/off (true/false) for
   *           the component instance.
   *
   * = Returns
   * +self+
   *
   **/
-  setMouseUp(_flag) {
-    this.events.mouseUp = _flag;
+  setMouseUp(_state) {
+    this.events.mouseUp = _state;
     this.setEvents();
     return this;
   }
@@ -568,15 +571,15 @@ class HControl extends HView {
   * starts listening to mouseWheel events when the component has focus.
   *
   * = Parameters
-  * +_flag+:: Set the mouseWheel event listening on/off (true/false) for
+  * +_state+:: Set the mouseWheel event listening on/off (true/false) for
   *           the component instance.
   *
   * = Returns
   * +self+
   *
   **/
-  setMouseWheel(_flag) {
-    this.events.mouseWheel = _flag;
+  setMouseWheel(_state) {
+    this.events.mouseWheel = _state;
     this.setEvents();
     return this;
   }
@@ -586,15 +589,15 @@ class HControl extends HView {
   * endDrag -events depending on the value of the flag argument.
   *
   * = Parameters
-  * +_flag+:: Set the startDrag, drag and endDrag event listening
+  * +_state+:: Set the startDrag, drag and endDrag event listening
   *           on/off (true/false) for the component instance.
   *
   * = Returns
   * +self+
   *
   **/
-  setDraggable(_flag) {
-    this.events.draggable = _flag;
+  setDraggable(_state) {
+    this.events.draggable = _state;
     this.setEvents();
     return this;
   }
@@ -604,15 +607,15 @@ class HControl extends HView {
   * endHover -events depending on the value of the flag argument.
   *
   * = Parameters
-  * +_flag+:: Set the startHover, drop and endHover event listening
+  * +_state+:: Set the startHover, drop and endHover event listening
   *           on/off (true/false) for the component instance.
   *
   * = Returns
   * +self+
   *
   **/
-  setDroppable(_flag) {
-    this.events.droppable = _flag;
+  setDroppable(_state) {
+    this.events.droppable = _state;
     this.setEvents();
     return this;
   }
@@ -622,7 +625,7 @@ class HControl extends HView {
   * value of the flag argument.
   *
   * = Parameters
-  * +_flag+:: Set the keyDown event listening on/off (true/false) for
+  * +_state+:: Set the keyDown event listening on/off (true/false) for
   *           the component instance. Also supports special mode 'repeat',
   *           when listening to key repetitions is needed.
   *
@@ -630,8 +633,8 @@ class HControl extends HView {
   * +self+
   *
   **/
-  setKeyDown(_flag) {
-    this.events.keyDown = _flag;
+  setKeyDown(_state) {
+    this.events.keyDown = _state;
     this.setEvents();
     return this;
   }
@@ -641,15 +644,15 @@ class HControl extends HView {
   * the value of the flag argument.
   *
   * = Parameters
-  * +_flag+:: Set the keyUp event listening on/off (true/false) for
+  * +_state+:: Set the keyUp event listening on/off (true/false) for
   *           the component instance.
   *
   * = Returns
   * +self+
   *
   **/
-  setKeyUp(_flag) {
-    this.events.keyUp = _flag;
+  setKeyUp(_state) {
+    this.events.keyUp = _state;
     this.setEvents();
     return this;
   }
@@ -662,8 +665,8 @@ class HControl extends HView {
   * +self+
   *
   **/
-  setTextEnter(_flag) {
-    this.events.textEnter = _flag;
+  setTextEnter(_state) {
+    this.events.textEnter = _state;
     this.setEvents();
     return this;
   }
@@ -676,22 +679,22 @@ class HControl extends HView {
   * +self+
   *
   **/
-  setResize(_flag) {
-    this.events.resize = _flag;
+  setResize(_state) {
+    this.events.resize = _state;
     this.setEvents();
     return this;
   }
 
 /** Same as +setClickable+
   **/
-  setClick(_flag) {
-    return this.setClickable(_flag);
+  setClick(_state) {
+    return this.setClickable(_state);
   }
 
 /** Same as +setDoubleClickable+
   **/
-  setDoubleClick(_flag) {
-    return this.setDoubleClickable(_flag);
+  setDoubleClick(_state) {
+    return this.setDoubleClickable(_state);
   }
 
 /** = Description
@@ -737,13 +740,16 @@ class HControl extends HView {
         }
       }
     }
+  }
 
+  setActiveStyle(_state) {
+    this.toggleCSSClass(this.elemId, 'active', _state);
   }
 
   // A low-level handler for active status, don't extend this.
   _gainedActiveStatus(_lastActiveControl) {
     if (this.enabled) {
-      this.setCSSClass('active');
+      this.setActiveStyle(true);
     }
     return this.gainedActiveStatus(_lastActiveControl);
   }
@@ -767,7 +773,7 @@ class HControl extends HView {
   _lostActiveStatus(_newActiveControl) {
     if (this.lostActiveStatus(_newActiveControl) !== false) {
       if (this.enabled) {
-        this.unsetCSSClass('active');
+        this.setActiveStyle(false)
       }
       return true;
     }
@@ -997,8 +1003,12 @@ class HControl extends HView {
     }
   }
 
-  setSelected(_state) {
+  setSelectedStyle(_state) {
     this.toggleCSSClass(this.elemId, 'selected', _state);
+  }
+
+  setSelected(_state) {
+    this.setSelectedStyle(_state);
     if (_state) {
       this.selected = true;
       this.select();
