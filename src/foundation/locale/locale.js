@@ -12,7 +12,7 @@ const defaultLocale = {
   compUnits: {
     strings: {
       bit: ' b',
-      'byte': ' B',
+      byte: ' B',
       kilobyte: ' kB',
       kibibyte: ' KiB',
       megabyte: ' MB',
@@ -100,21 +100,21 @@ const HLocale = new (class extends UtilMethods {
     this.updateObject(_locale, this);
   }
 
-  get components() {
-    return this.components;
-  }
+  // get components() {
+  //   return this.components;
+  // }
 
-  get general() {
-    return this.general;
-  }
+  // get general() {
+  //   return this.general;
+  // }
 
-  get compUnits() {
-    return this.compUnits;
-  }
+  // get compUnits() {
+  //   return this.compUnits;
+  // }
 
-  get dateTime() {
-    return this.dateTime;
-  }
+  // get dateTime() {
+  //   return this.dateTime;
+  // }
 
   formatBytes(_value, _decimals, _unitSystem) {
     const _units = this.compUnits;
@@ -266,6 +266,6 @@ const HLocale = new (class extends UtilMethods {
 })(defaultLocale);
 
 // Deprecate this at some point:
-window.HLocale = HLocale;
+// window.HLocale = HLocale;
 
 module.exports = HLocale;

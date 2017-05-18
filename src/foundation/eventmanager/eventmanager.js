@@ -420,7 +420,13 @@ class EventManagerApp extends HApplication.mixin({
       _capture = false;
     }
     const _anonFn = e => {
-      _targetObj[_targetMethodName](e);
+      if (this.isFunction(_targetObj[_targetMethodName])) {
+        return _targetObj[_targetMethodName](e);
+      }
+      else {
+        console.log('missing targetObj', _targetObj, ' method:', _targetMethodName, ' for event:', e);
+        return false;
+      }
     };
     if (this.isntObject(this._observerMethods[_eventName])) {
       this._observerMethods[_eventName] = {
@@ -1782,6 +1788,10 @@ class EventManagerApp extends HApplication.mixin({
     if (_wantsToStopTheEvent.length !== 0) {
       Event.stop(e);
     }
+  }
+
+  keyPress(e) {
+    // this event is largely ignored at this point
   }
 
   die() {

@@ -67,6 +67,7 @@ class HValueAction extends HValueResponder {
     if (this.isntNullOrUndefined(this.valueObj)) {
       this.valueObj.releaseResponder(this);
     }
+    super.die();
     this.value = null;
     this.viewId = null;
   }
@@ -85,7 +86,7 @@ class HValueAction extends HValueResponder {
         ) {
           this.parent[_refreshAction](this.value);
         }
-        else {
+        else if (this.isObject(this.parent)) {
           this.parent[_refreshAction] = this.value;
         }
       }

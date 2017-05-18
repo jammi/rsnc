@@ -241,7 +241,7 @@ class _ELEM extends UtilMethods {
           a += _elem[_offsetProp] + document.body[_scrollProp];
           break;
         }
-        if (_pos === 'absolute' || _pos === 'relative' || _elem === this.elements[_id]) {
+        if (_pos === 'absolute' || _pos === 'relative' || _elem === this._elements[_id]) {
           a += _elem[_offsetProp];
         }
         if (!_noOwnScroll || _elem !== this._elements[_id]) {

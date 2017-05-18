@@ -8,8 +8,10 @@ const processEntries = ({themePaths, config, bundles}) => {
   const readThemeData = (
     {bundleName, bundle, themeName, themeObj, themeDir}
   ) => {
-    const themeExpectedHtmlName = `${bundleName}.html`;
-    const themeExpectedCssName = `${bundleName}.css`;
+    const themeBaseName = bundleName.includes('/') ?
+      path.basename(bundleName) : bundleName;
+    const themeExpectedHtmlName = `${themeBaseName}.html`;
+    const themeExpectedCssName = `${themeBaseName}.css`;
     return themeFiles => {
       const hasHtml = themeFiles.includes(themeExpectedHtmlName);
       const hasCss = themeFiles.includes(themeExpectedCssName);

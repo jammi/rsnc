@@ -76,7 +76,7 @@ class HView extends HValueResponder {
     return this.__cssPosition || 'absolute';
   }
   set cssPosition(_cssPosition) {
-    if (_cssPosition === 'absolute' || _cssPosition === 'relative') {
+    if (_cssPosition === 'absolute' || _cssPosition === 'relative' || _cssPosition === 'fixed') {
       this.__cssPosition = _cssPosition;
     }
     else {
