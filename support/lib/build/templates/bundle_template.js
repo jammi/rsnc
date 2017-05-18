@@ -1,3 +1,3 @@
-__exports('$$BUNDLE_NAME$$', function() {
+__exports('$$BUNDLE_NAME$$', () => {
 $$BUNDLE$$;
 });

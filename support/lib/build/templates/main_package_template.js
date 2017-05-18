@@ -1,6 +1,6 @@
 'use strict';
 
-(function(__origConsole) {
+(__origConsole => {
   const process = new (class {
     get env() {
       return $$PROCESS_ENV$$;
@@ -13,7 +13,7 @@
     return process.env.BUILD_TYPE === 'production';
   };
   const __fakeConsole = {
-    get: function(obj, prop) {
+    get: (obj, prop) => {
       if (prop === 'warn') {
         return () => {}; // dummy fn
       }
@@ -27,15 +27,15 @@
   const console = isProductionBuild() ?
      new Proxy({}, __fakeConsole) : __origConsole;
   const __repository = {};
-  const __unableToRequireError = function(_src) {
+  const __unableToRequireError = _src => {
     const _err = 'Unable to require bundle: ';
     console.error(_err, _src, '; called from ', __lastBundleName);
     throw new Error(_err + _src.toString());
   };
-  const __findMatchingModule = function(__bundleName) {
+  const __findMatchingModule = __bundleName => {
     const _match = Object
       .entries(__repository)
-      .filter(function([name, mod]) {
+      .filter(([name, mod]) => {
         return name.match(__bundleName);
       }).sort((a, b) => {
         return a.length > b.length ? -1 : 1;
@@ -47,20 +47,20 @@
   const __modules = window.__modules = {
     __console: console,
     __process: process,
-    __exports: function(_module, _bundleName) {
+    __exports: (_module, _bundleName) => {
       __lastBundleName = _bundleName;
       __repository[_bundleName] =
         _module && typeof _module.exports !== 'undefined' ?
           _module.exports : null;
     },
-    __require: function(_src) {
+    __require: (_src) => {
       return typeof __repository[_src] !== 'undefined' ?
         __repository[_src] :
         __findMatchingModule(_src);
     }
   };
   const require = window.require = __modules.__require;
-  const __exports = function(__bundleName, __fn) {
+  const __exports = (__bundleName, __fn) => {
     __fn();
     __modules.__exports(module, __bundleName);
     exports = {}; module = {exports};
