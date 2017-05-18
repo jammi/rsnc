@@ -1,2 +1,41 @@
 #!/usr/bin/env node
 
+const {spawn} = require('child_process');
+const path = require('path');
+const fs = require('fs');
+
+const which = require('which').sync;
+
+const pathSetup = require('../support/path_setup');
+
+//const electronMocha = which('electron-mocha');
+
+const run = (cmd, args) => {
+  const child = spawn(cmd, args);
+  child.stderr.on('data', data => {
+    process.stderr.write(data);
+  });
+  child.stdout.on('data', data => {
+    process.stdout.write(data);
+  });
+};
+
+const buildPath = pathSetup.relativeToRoot(
+  'bin/build');
+const testConf = pathSetup.relativeToRoot(
+  'conf/client_pkg.yaml');
+const testBuildDir = pathSetup.relativeToRoot(
+  'test/built/');
+run(buildPath, [testConf, testBuildDir]);
+run('cp', [
+  pathSetup.relativeToRoot('node_modules/chai/chai.js'),
+  testBuildDir
+]);
+run('cp', [
+  pathSetup.relativeToRoot('node_modules/mocha/mocha.js'),
+  testBuildDir
+]);
+run('cp', [
+  pathSetup.relativeToRoot('node_modules/mocha/mocha.css'),
+  testBuildDir
+]);
