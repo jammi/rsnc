@@ -1717,6 +1717,30 @@ class HView extends HValueResponder {
   }
 
   /* = Description
+  * Removed an element attribute of a specified markup element that has been bound
+  * to this view.
+  *
+  * = Parameters
+  * +_partName+::   The identifier of the markup element.
+  * +_key+::        The attribute to remove.
+  *
+  * = Returns
+  * +self+
+  */
+  unsetAttrOfPart(_partName, _key) {
+    const _elemId = this._getMarkupElemIdPart(_partName, 'HView#setAttrOfPart');
+    if (this.isntNull(_elemId)) {
+      ELEM.delAttr(_elemId, _key);
+    }
+    return this;
+  }
+
+  // Same as unsetAttrOfPart
+  delAttrOfPart(_partName, _key) {
+    return this.unsetAttrOfPart(_partName, _key);
+  }
+
+  /* = Description
   * Returns a element attribute of a specified markup element that has been bound to this
   * view.
   *
