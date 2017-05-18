@@ -144,45 +144,6 @@ const numToHex = (_int) => {
   return baseNumToStr(_int, 16);
 };
 
-// Recursively merges two objects of identical structure (array or object)
-const updateObject = (_src, _dst) => {
-  const _typeSrc = typeChr(_src);
-  const _typeDst = typeChr(_dst);
-  const _merge = (_item, i) => {
-    const _itemType = typeChr(_item);
-    const _dstType = typeChr(_dst[i]);
-    if (_itemType === _dstType || ['~', '-'].includes(_dstType)) {
-      if (_itemType === 'a' || _itemType === 'h') {
-        if (_itemType === _dstType) {
-          updateObject(_item, _dst[i]);
-        }
-        else {
-          _dst[i] = _item;
-        }
-      }
-      else {
-        _dst[i] = _item;
-      }
-    }
-    else {
-      console.warn('updateObject; mismatching item type: ', _itemType,
-        ' (', _item, ') vs ', typeChr(_dst[i]), ' (', _dst[i], ')');
-    }
-  };
-  if (_typeSrc === _typeDst) {
-    if (_typeSrc === 'a') {
-      _src.forEach((_item, i) => {
-        _merge(_item, i);
-      });
-    }
-    else if (_typeSrc === 'h') {
-      Object.entries(_src).forEach(([_key, _value]) => {
-        _merge(_value, _key);
-      });
-    }
-  }
-};
-
 const _normalizeHexColorToNum = _color => {
   const _hexLen = _color.length;
   if (typeChr(_color) !== 's') {
@@ -521,7 +482,69 @@ class UtilMethods extends HClass {
   }
 
   updateObject(_src, _dst) {
-    return updateObject(_src, _dst);
+    const _mergeArray = (_item, i) => {
+      if (this.isObjectOrArray(_item) && (
+        this.isObjectOrArray(_dst[i]) || this.isUndefinedOrNull(_dst[i])
+      )) {
+        if (this.isUndefinedOrNull(_dst[i]) && this.isArray(_item)) {
+          _dst[i] = [];
+        }
+        else if (this.isUndefinedOrNull(_dst[i]) && this.isObject(_item)) {
+          _dst[i] = {};
+        }
+        else if (
+          (this.isntArray(_item) && this.isntArray(_dst[i])) &&
+          (this.isntObject(_item) && this.isntObject(_dst[i]))
+        ) {
+          console.warn('#updateObject#_mergeArray warning 1; mismatching types:', _item, _dst[i]);
+          return;
+        }
+        this.updateObject(_item, _dst[i]);
+      }
+      else if (this.isntObjectOrArray(_item) && this.isntObjectOrArray(_dst[i])) {
+        _dst[i] = _item;
+      }
+      else {
+        console.warn('#updateObject#_mergeArray warning 2; mismatching types:', _item, _dst[i]);
+        return;
+      }
+    };
+    const _mergeObject = ([_key, _value]) => {
+      if (this.isObjectOrArray(_value) && (
+        this.isObjectOrArray(_dst[_key]) || this.isUndefinedOrNull(_dst[_key])
+      )) {
+        if (this.isUndefinedOrNull(_dst[_key]) && this.isArray(_value)) {
+          _dst[_key] = [];
+        }
+        else if (this.isUndefinedOrNull(_dst[_key]) && this.isObject(_value)) {
+          _dst[_key] = {};
+        }
+        else if (
+          (this.isntArray(_value) && this.isntArray(_dst[_key])) &&
+          (this.isntObject(_value) && this.isntObject(_dst[_key]))
+        ) {
+          console.warn('#updateObject#_mergeArray warning 3; mismatching types:', _value, _dst[_key]);
+          return;
+        }
+        this.updateObject(_value, _dst[_key]);
+      }
+      else if (this.isntObjectOrArray(_value) && this.isntObjectOrArray(_dst[_key])) {
+        _dst[_key] = _value;
+      }
+      else {
+        console.warn('#updateObject#_mergeArray warning 4; mismatching types:', _value, _dst[_key]);
+        return;
+      }
+    };
+    if (this.isArray(_src) && this.isArray(_dst)) {
+      _src.forEach(_mergeArray);
+    }
+    else if (this.isObject(_src) && this.isObject(_dst)) {
+      Object.entries(_src).forEach(_mergeObject);
+    }
+    else {
+      console.warn('#updateObject warning; mismatching types:', _src, 'vs', _dst);
+    }
   }
 
   // Returns a decoded Array with the decoded content of Array _arr
