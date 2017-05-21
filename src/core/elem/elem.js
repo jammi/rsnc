@@ -65,12 +65,22 @@ class _ELEM extends UtilMethods {
     this._elemTodoH[_id] = false;
   }
 
-  // Adds an existing document element by its id attribute
-  bindId(_attrId) {
-    const _elem = document.getElementById(_attrId);
-    const _id = this._add(_elem);
-    this._initCache(_id);
-    return _id;
+  // Adds an existing document element by its id attribute.
+  // Optionally give _parentId to give a scope for the search,
+  // which is much faster for finding from a small subset of
+  // the DOM rather than the entire document).
+  // Returns null, if no such element was found
+  bindId(_idAttr, _parentId) {
+    const _elem = this.isNumber(_parentId) ?
+      this._elements[_parentId].getElementById(_idAttr) : document.getElementById(_idAttr);
+    if (this.isNullOrUndefined(_elem)) {
+      return null;
+    }
+    else {
+      const _id = this._add(_elem);
+      this._initCache(_id);
+      return _id;
+    }
   }
 
   // Binds the document element

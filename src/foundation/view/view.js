@@ -1095,18 +1095,28 @@ class HView extends HValueResponder {
   drawMarkup() {
     const _themeName = this.preserveTheme ? this.theme : HThemeManager.currentTheme;
     const _markup = HThemeManager.resourcesFor(this, _themeName);
-    // debugger;
     this.markupElemIds = {};
     if (this.isString(_markup) && _markup !== '') {
       ELEM.setHTML(this.elemId, _markup);
       this.markupElemNames.forEach(_partName => {
         const _elemName = _partName + this.elemId;
+        // Optimization of matching the html string before searching the DOM:
         const _htmlIdMatch = `id="${_elemName}"`;
         if (_markup.includes(_htmlIdMatch)) {
-          this.markupElemIds[_partName] = this.bindDomElement(_elemName);
+          const _elemId = this.bindDomElement(_elemName, this.elemId);
+          if (this.isNumber(_elemId)) {
+            this.markupElemIds[_partName] = _elemId;
+            // removes the id attribute, because it's no longer needed:
+            ELEM.delAttr(_elemId, 'id');
+          }
+          else {
+            console.warn(
+              `HView#drawMarkup warning; no such partNamue: ${_partName
+              } for componentName: ${this.componentName}`, this);
+          }
         }
       });
-      if (this.isntNullOrUndefined(this.themeStyle)) {
+      if (this.isFunction(this.themeStyle)) {
         this.themeStyle.call(this);
       }
     }
