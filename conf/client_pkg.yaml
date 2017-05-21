@@ -65,6 +65,7 @@ packages:
     - core/elem
     - util/sha1
     - core/event
+    - core # multibundle
     - foundation/locale
     - foundation/system
     - foundation/value/dummyvalue
@@ -81,6 +82,7 @@ packages:
     - comm/jsloader
     - util/geom/point
     - util/geom/rect
+    - util # multibundle
     - foundation/thememanager
     - foundation/view/viewdefaults
     - foundation/view

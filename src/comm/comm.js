@@ -165,9 +165,9 @@ const COMM = {
     return _this;
   },
 
-   /* = Description
-    * Creates a new instance of the XMLHttpRequest object
-    **/
+  /* = Description
+   * Creates a new instance of the XMLHttpRequest object
+   **/
   _XMLHttpRequest: function() {
     return new XMLHttpRequest();
   }
