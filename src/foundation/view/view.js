@@ -631,7 +631,7 @@ class HView extends HValueResponder {
       this.preserveTheme = true;
     }
     const _isValueRange = _options.minValue || _options.maxValue;
-    if (_isValueRange && this.isFunction(this.setValueRange)) {
+    if (_isValueRange && this.isFunction(this.setValueRange) && this.isNumber(this.value)) {
       this.setValueRange(this.value, _options.minValue, _options.maxValue);
     }
     return _options;
@@ -1240,18 +1240,18 @@ class HView extends HValueResponder {
 /** = Description
   * Called when the +self.value+ has been changed. By default
   * tries to update the value element defined in the theme of
-  * the component. Of course, the HControl itself doesn't
-  * define a theme, so without a theme doesn't do anything.
+  * the component. The HView itself doesn't define a theme,
+  * so without a theme doesn't do anything.
   *
   * = Returns
   * +self+
   *
   **/
   refreshValue() {
-    if (this.markupElemIds) {
-      if (this.markupElemIds.value) {
-        ELEM.setHTML(this.markupElemIds.value, this.value);
-      }
+    if (this.isObject(this.markupElemIds) && this.isNumber(this.markupElemIds.value)) {
+      const _value = this.isString(this.value) ?
+        this.value : JSON.stringify(this.value);
+      ELEM.setHTML(this.markupElemIds.value, _value);
     }
     return this;
   }
@@ -1392,7 +1392,7 @@ class HView extends HValueResponder {
             }) to fit _rightOffset (${_rightOffset}) and left (${_leftOffset
             }); right(${_right}) yields to (${_leftOffset
             }) and _rightOffset(${_rightOffset}) yields to ${_parentWidth - _leftOffset}!`);
-          // _rightOffset = _parentWidth - _leftOffset;
+          _rightOffset = _parentWidth - _leftOffset;
           _right = _leftOffset;
         }
       }

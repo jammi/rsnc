@@ -47,10 +47,7 @@ class HValueResponder extends UtilMethods {
       _options.bind.bindResponder(this);
     }
     if (this.isntObject(this.valueObj)) {
-      this.setValueObj(new HDummyValue());
-    }
-    if (this.isNullOrUndefined(this.value) && this.isntNullOrUndefined(_options.value)) {
-      this.setValue(_options.value);
+      this.setValueObj(new HDummyValue(false, _options.value));
     }
     this.options = _options;
     return _options;
@@ -58,6 +55,10 @@ class HValueResponder extends UtilMethods {
 
   get defaultOptionsClass() {
     return this.__defaultOptionsClass || HValueResponderDefaults;
+  }
+
+  isValueObject(_valueObj) {
+    return this.isObject(_valueObj) && this.isntUndefined(_valueObj.value) && this.isntUndefined(_valueObj.id);
   }
 
   /* = Description
@@ -73,7 +74,7 @@ class HValueResponder extends UtilMethods {
   *
   **/
   setValueObj(_valueObj) {
-    if (this.isObject(_valueObj)) {
+    if (this.isValueObject(_valueObj)) {
       this.__valueObj = _valueObj;
       this.setValue(_valueObj.value);
     }
@@ -83,13 +84,12 @@ class HValueResponder extends UtilMethods {
   * Holds reference to the bound HValue instance.
   * Set with HValue.bind.
   **/
-  // valueObj: null,
   set valueObj(_valueObj) {
     this.setValueObj(_valueObj);
   }
 
   get valueObj() {
-    return this.__valueObj;
+    return this.__valueObj || null;
   }
 
   /* = Description
@@ -121,7 +121,7 @@ class HValueResponder extends UtilMethods {
   *
   **/
   setValue(_value) {
-    if (this.isntUndefined(_value) && this.isObject(this.valueObj) && this.valueDiffers(_value)) {
+    if (this.isntUndefined(_value) && this.isValueObject(this.valueObj) && this.valueDiffers(_value)) {
       this.__value = _value;
       if (this.isObjectOrArray(_value)) {
         this.valueObj.set(this.cloneObject(_value));
@@ -141,7 +141,7 @@ class HValueResponder extends UtilMethods {
   die() {
     if (this.valueObj) {
       this.valueObj.releaseResponder(this);
-      this.valueObj = null;
+      this.__valueObj = null;
     }
   }
 
@@ -152,14 +152,7 @@ class HValueResponder extends UtilMethods {
   }
 
   get value() {
-    if (this.isUndefined(this.__value)) {
-      if (this.isntUndefined(this.options)) {
-        return this.options.value;
-      }
-    }
-    else {
-      return this.__value;
-    }
+    return this.__value || null;
   }
 }
 

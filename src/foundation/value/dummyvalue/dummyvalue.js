@@ -19,6 +19,12 @@ class HDummyValue extends HClass {
   **/
   constructor(_id, _value) {
     super();
+    if (typeof _id === 'undefined') {
+      _id = null;
+    }
+    if (typeof _value === 'undefined') {
+      _value = null;
+    }
     this.id = _id;
     this.value = _value;
   }
