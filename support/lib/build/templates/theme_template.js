@@ -1,5 +1,5 @@
 const HThemeManager = require('foundation/thememanager');
-const themeName = '${themeName}';
+const themeName = '$$THEME_NAME$$';
 $$THEME_REQUIRES$$
 const themeCss = {
 $$CSS_DATA$$

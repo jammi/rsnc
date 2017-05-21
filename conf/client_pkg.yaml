@@ -64,7 +64,6 @@ packages:
     - core/elem
     - util/sha1
     - core/event
-    - core # multibundle
     - foundation/locale
     - foundation/system
     - foundation/value/dummyvalue
@@ -97,6 +96,7 @@ packages:
     - foundation/valueaction
     - core/rsence_ns
     - default_theme # metapackage built by the theme bundler
+    - core # multibundle
     - foundation # multibundle
 
 compound_packages: {}

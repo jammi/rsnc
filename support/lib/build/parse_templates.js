@@ -77,6 +77,7 @@ const processEntries = ({config, bundles, themeBundleNames}) => {
       return `    '${themeData.componentName}': ${themeData.html.js},\n`;
     }).join('');
     const themeJs = themeTemplate
+      .replace('$$THEME_NAME$$', themeName)
       .replace('$$THEME_REQUIRES$$', themeRequires)
       .replace('$$CSS_DATA$$', cssData)
       .replace('$$HTML_DATA$$', htmlData);
