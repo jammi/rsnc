@@ -563,6 +563,23 @@ class UtilMethods extends HClass {
     return _output;
   }
 
+  // Base64 encode/decode methods
+  encodeBase64(_str) {
+    return btoa(_str);
+  }
+
+  decodeBase64(_str) {
+    return atob(_str);
+  }
+
+  toBase64(_str) {
+    return btoa(_str);
+  }
+
+  fromBase64(_str) {
+    return atob(_str);
+  }
+
   /* = Description
   ** Decodes a JSON object. Decodes the url-encoded strings within.
   **
