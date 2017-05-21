@@ -36,6 +36,41 @@ const findInPathConfig = config => {
       }
     };
   };
+  const getIsDefinedFile = srcPath => {
+    return entry => {
+      // isJsFile and isCoffeeFile are already processed at this point
+      entry.isYamlFile = entry.entryName.endsWith('.yaml');
+      entry.isJsonFile = entry.entryName.endsWith('.json');
+      entry.isTextFile = entry.entryName.endsWith('.txt');
+      entry.isMarkdownFile = entry.entryName.endsWith('.md');
+      if (entry.isYamlFile || entry.isJsFile || entry.isTextFile || entry.isMarkdownFile) {
+        const foundEntry = Object.entries(config.files).find(([fileName, defItem]) => {
+          if (entry.path.endsWith(fileName)) {
+            entry.isFound = true;
+            const {packageName, packageItems} = defItem;
+            entry.bundleName = fileName;
+            entry.packageName = packageName;
+            entry.packageItems = packageItems;
+            entry.defItem = defItem;
+            defItem.entry = entry;
+            return true;
+          }
+          else {
+            return false;
+          }
+        });
+        if (foundEntry) {
+          return true;
+        }
+        else {
+          return false;
+        }
+      }
+      else {
+        return false;
+      }
+    };
+  };
   const filterHiddenEntries = ({entryName}) => {
     return !entryName.startsWith('.');
   };
@@ -102,6 +137,7 @@ const findInPathConfig = config => {
     const bundleName = getBundleName(rootPath);
     const findInPath = srcPath => {
       const isBundle = getIsBundle(srcPath);
+      const isDefinedFile = getIsDefinedFile(srcPath);
       return fs
         .readdir(srcPath)
         .then(entries => {
@@ -132,10 +168,21 @@ const findInPathConfig = config => {
                       .readFile(entry.path)
                       .then(src => {
                         entry.isBundle = true;
+                        entry.isIncludedFile = false;
                         entry.src = src;
                         return entry;
                       });
                   }
+                }
+                else if (isDefinedFile(entry)) {
+                  return fs
+                    .readFile(entry.path)
+                    .then(data => {
+                      entry.isBundle = false;
+                      entry.isIncludedFile = true;
+                      entry.data = data;
+                      return entry;
+                    });
                 }
                 else {
                   return null;

@@ -3,6 +3,14 @@ const path = require('path');
 const fs = promisify('fs');
 
 const processEntries = ({config, bundles}) => {
+  // shortcut for themes; rather than 'themes/themename/',
+  // allows allows 'themename_theme/' in a flatter structure
+  // for instance with the 'default' theme, it's
+  // 'default_theme/' with the css & html templates and
+  // graphic files rather than in 'themes/default/'
+  const flatThemeNames = config.themeNames.map(themeName => {
+    return `${themeName}_theme`;
+  });
   const findThemePaths = (bundleName, bundle) => {
     const parseThemesDirectory = themesDir => {
       return themeNamesInDir => {
@@ -24,6 +32,11 @@ const processEntries = ({config, bundles}) => {
           });
       };
     };
+    const findFlattenedThemes = entries => {
+      return entries.filter(entry => {
+        return flatThemeNames.includes(entry);
+      });
+    };
     const hasTheme = (bundleDir, entries) => {
       if (entries.includes('themes')) {
         const themesDir = path.resolve(bundleDir, 'themes');
@@ -32,7 +45,21 @@ const processEntries = ({config, bundles}) => {
           .then(parseThemesDirectory(themesDir));
       }
       else {
-        return false;
+        const foundFlatThemes = findFlattenedThemes(entries);
+        if (foundFlatThemes.length > 0) {
+          return Promise.resolve(
+            foundFlatThemes.map(flatThemeName => {
+              return {
+                themeDir: path.resolve(bundleDir, flatThemeName),
+                themeName: flatThemeName.split('_theme')[0],
+                bundleName, bundle
+              };
+            })
+          );
+        }
+        else {
+          return false;
+        }
       }
     };
     const bundleDir = path.dirname(bundle.path);
@@ -51,8 +78,9 @@ const processEntries = ({config, bundles}) => {
         })
     )
     .then(themePaths => {
-      return {config, bundles, themePaths: themePaths
-        .filter(themePath => {
+      return {
+        config, bundles,
+        themePaths: themePaths.filter(themePath => {
           return themePath !== false;
         })
       };

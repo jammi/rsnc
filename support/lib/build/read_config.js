@@ -19,8 +19,7 @@ const isObject = item => {
 const handledKeys = [
   'src_dirs', 'theme_names', 'packages', 'gfx_formats',
   'themes_require', 'env'];
-const configParsers = (parsedConfig, filePath) => {
-  const config = parsedConfig;
+const configParsers = (config, filePath) => {
   const handleConfigItemArray = (source, destination, descr) => {
     // handles special items in config arrays:
     const handleArrayDirective = directives => {
@@ -36,10 +35,21 @@ const configParsers = (parsedConfig, filePath) => {
           return !(itemsToDelete.includes(item));
         });
       };
+      const isPackage = descr.startsWith('packages.');
+      const convertFileToPackage = fileName => {
+        config.files[fileName] = {
+          isFound: false,
+          src: ''
+        };
+        destination.push(fileName);
+      };
       Object.entries(directives)
         .forEach(([cmd, props]) => {
           if (cmd === 'delete') {
             deleteFromArray(props);
+          }
+          else if (isPackage && cmd === 'file') {
+            convertFileToPackage(props);
           }
           else {
             console.warn(
@@ -139,7 +149,8 @@ const readConfig = configFiles => {
         packages: {},
         gfxFormats: [],
         themesRequire: {},
-        env: {}
+        env: {},
+        files: {}
       };
       configs.forEach(config => {
         const parsers = configParsers(parsedConfig, config._filePath);

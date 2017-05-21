@@ -1,3 +1,11 @@
+const {readFileSync} = require('fs');
+const pathSetup = require('path_setup');
+
+const themeTemplate = readFileSync(
+  pathSetup.relativeToRoot(
+    'support/lib/build/templates/theme_template.js'
+)).toString('utf8');
+
 const TMPL_RE_CMD = /(\$)\{([^\}]*?)\}/m;
 const TMPL_RE_EVL = /(#)\{([^\}]*?)\}/m;
 const TMPL_RE_EID = /\]I\[/m;
@@ -62,25 +70,16 @@ const processEntries = ({config, bundles, themeBundleNames}) => {
       themeData.css.js = tmplToJs(css.src, true);
       themeArray.push(themeData);
     });
-    const themeJs = `
-const HThemeManager = require('foundation/thememanager');
-const themeName = '${themeName}';
-${themeRequires}
-const themeCss = {
-${themeArray.map(themeData => {
-  return `  '${themeData.componentName}': ${themeData.css.js},\n`;
-}).join('')}
-};
-const themeHtml = componentName => {
-  return {
-${themeArray.map(themeData => {
-  return `    '${themeData.componentName}': ${themeData.html.js},\n`;
-}).join('')}
-  }[componentName];
-};
-HThemeManager.installThemeData(themeName, themeCss, themeHtml);
-module.exports = true; // just for require-checking presence of theme
-`;
+    const cssData = themeArray.map(themeData => {
+      return `  '${themeData.componentName}': ${themeData.css.js},\n`;
+    }).join('');
+    const htmlData = themeArray.map(themeData => {
+      return `    '${themeData.componentName}': ${themeData.html.js},\n`;
+    }).join('');
+    const themeJs = themeTemplate
+      .replace('$$THEME_REQUIRES$$', themeRequires)
+      .replace('$$CSS_DATA$$', cssData)
+      .replace('$$HTML_DATA$$', htmlData);
     bundles[`${themeName}_theme`] = {
       bundleName: `${themeName}_theme`,
       src: themeJs

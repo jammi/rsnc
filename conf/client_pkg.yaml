@@ -50,7 +50,6 @@ packages:
   # Same as above, but for markdown files, which will return a
   # markdown generator for producing either plain text,
   # markdown source, html or something else.
-  # TODO: implement this
   # - file: sourcepath/sourcename.md
   #
   # The core package, loaded by default using a script tag in index_html
@@ -82,6 +81,7 @@ packages:
     - comm/jsloader
     - util/geom/point
     - util/geom/rect
+    - util/marked
     - util # multibundle
     - foundation/thememanager
     - foundation/view/viewdefaults
