@@ -33,8 +33,8 @@ class HValueResponder extends UtilMethods {
     }
     _options = this.defaultOptionsClass.extend(_options).new(this);
     this.options = _options;
-    if (this.isObject(_options.valueObj) && this.isFunction(this.options.valueObj)) {
-      _options.valueObj.bindResponder(this);
+    if (this.isObject(this.options.valueObj) && this.isFunction(this.options.valueObj.bindResponder)) {
+      this.options.valueObj.bindResponder(this);
     }
     else if (this.isString(_options.bind)) {
       const _valueId = _options.bind;
