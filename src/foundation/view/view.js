@@ -617,7 +617,6 @@ class HView extends HValueResponder {
     if (this.isFunction(this.customOptions)) {
       this.customOptions(_options || {});
     }
-    this.label = _options.label;
     // Moved these to the top to ensure safe theming operation
     if (_options.theme) {
       this.theme = _options.theme;
@@ -1232,7 +1231,7 @@ class HView extends HValueResponder {
       // constructor when setRect() is initially called.
       this.drawRect();
     }
-    if (this.isFunction(this.refreshOnLabelChange)) {
+    if (this.drawn && this.refreshOnLabelChange && this.isFunction(this.refreshLabel)) {
       this.refreshLabel();
     }
     if (this.isFunction(this.themeStyle)) {
@@ -2486,7 +2485,6 @@ class HView extends HValueResponder {
     }
     if (_label !== this.label) {
       this.label = _label;
-      this.options.label = _label;
       this.refresh();
     }
     return this;
@@ -2504,7 +2502,7 @@ class HView extends HValueResponder {
   **/
   refreshLabel() {
     const _elemId = this._getMarkupElemIdPart('label', 'HView#refreshLabel');
-    if (_elemId) {
+    if (this.isNumber(_elemId)) {
       ELEM.setHTML(_elemId, this.label);
     }
     return this;
@@ -2712,6 +2710,19 @@ class HView extends HValueResponder {
       })
       .map(({viewId}) => {
         return viewId;
+      });
+  }
+
+  getSiblings() {
+    return this.parent.views
+      .map(_viewId => {
+        return HSystem.views[_viewId];
+      })
+      .filter(_item => {
+        return _item !== null;
+      })
+      .filter(_view => {
+        return _view.viewId !== this.viewId;
       });
   }
 }
