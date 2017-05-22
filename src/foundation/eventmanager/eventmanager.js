@@ -834,7 +834,7 @@ class EventManagerApp extends HApplication.mixin({
   }
 
   _debugHighlight() {
-    if (!this.isProduction || BROWSER_TYPE.mobile) {
+    if (this.isProduction || BROWSER_TYPE.mobile) {
       return false;
     }
     else {
