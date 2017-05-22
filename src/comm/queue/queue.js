@@ -23,8 +23,8 @@ class QueueApp extends HApplication {
   **/
   constructor() {
 
-    // Run with priority 10; not too demanding but not too sluggish either
-    super(10, 'COMM.Queue');
+    // Run with priority 1; high priority
+    super(1, 'COMM.Queue');
 
     // The queue itself, is packed with anonymous functions
     this.commandQueue = [];
