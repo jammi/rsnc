@@ -152,7 +152,10 @@ class HValueResponder extends UtilMethods {
   }
 
   get value() {
-    return this.__value || null;
+    if (this.isUndefined(this.__value)) {
+      this.__value = null;
+    }
+    return this.__value;
   }
 }
 
