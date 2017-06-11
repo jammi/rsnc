@@ -328,9 +328,9 @@ class HView extends HValueResponder {
   * that feature.
   **/
   // optimizeWidthOnRefresh: false,
-  get optimizeWidthOnRefresh() {
-    return false;
-  }
+  // get optimizeWidthOnRefresh() {
+  //   return false;
+  // }
 
 /** The parent is the +_parent+ supplied to the constructor.
   * This is a complete object reference to the parent's name-space.
@@ -1272,7 +1272,7 @@ class HView extends HValueResponder {
     if (this.drawn && this.refreshOnValueChange && this.isFunction(this.refreshValue)) {
       this.refreshValue();
     }
-    if (this.optimizeWidthOnRefresh && this.options.pack && this.drawn && this.isFunction(this.optimizeWidth)) {
+    if (this.drawn && this.isFunction(this.optimizeWidth)) {
       this.optimizeWidth();
     }
     return this;
@@ -2552,7 +2552,7 @@ class HView extends HValueResponder {
   * Similar to pack, might be renamed when components are written to
   * be savvy of this feature.
   **/
-  optimizeWidth() {}
+  // optimizeWidth() {}
 
   /* = Description
   * Binds a DOM element to the +ELEM+ cache. This is a wrapper for
