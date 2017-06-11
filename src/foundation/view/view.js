@@ -467,9 +467,11 @@ class HView extends HValueResponder {
 
   // Extend with something returning an array if your component has
   // an optimal size to work with points rather than rects.
-  get optimalSize() {
-    return null;
-  }
+  // get optimalSize() {
+  //   const width = 100;
+  //   const height = 20;
+  //   return [width, height];
+  // }
 
   /* = Description
   * Constructs the logic part of a HView.
@@ -596,7 +598,7 @@ class HView extends HValueResponder {
     const _parent = _options.parent;
     const _rect = (() => {
       if (_options.rect) {
-        if (this.isArray(_options.rect) && this.optimalSize) {
+        if (this.isArray(_options.rect) && this.isntNullOrUndefined(this.optimalSize)) {
           const [w, h] = this.optimalSize;
           if (this.isntNumber(_options.rect[2])) {
             _options.rect[2] = w;
@@ -1718,6 +1720,25 @@ class HView extends HValueResponder {
   setAttr(_key, _value, _force) {
     ELEM.setAttr(this.elemId, _key, _value, _force);
     return this;
+  }
+
+  /* = Description
+  * Removes a element attribute of the view's cell.
+  *
+  * = Parameters
+  * +_key+::       The attribute key to set.
+  *
+  * = Returns
+  * +self+
+  *
+  **/
+  unsetAttr(_key) {
+    ELEM.delAttr(this.elemId, _key)
+    return this;
+  }
+
+  delAttr(_key) {
+    return this.unsetAttr(_key)
   }
 
   /* = Description
