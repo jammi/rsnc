@@ -465,6 +465,12 @@ class HView extends HValueResponder {
     ];
   }
 
+  // Extend with something returning an array if your component has
+  // an optimal size to work with points rather than rects.
+  get optimalSize() {
+    return null;
+  }
+
   /* = Description
   * Constructs the logic part of a HView.
   * The view still needs to be drawn on screen. To do that, call draw after
@@ -588,7 +594,21 @@ class HView extends HValueResponder {
   setOptions(_options) {
     _options = super.setOptions(_options);
     const _parent = _options.parent;
-    const _rect = _options.rect;
+    const _rect = (() => {
+      if (_options.rect) {
+        if (this.isArray(_options.rect) && this.optimalSize) {
+          const [w, h] = this.optimalSize;
+          if (this.isntNumber(_options.rect[2])) {
+            _options.rect[2] = w;
+          }
+          if (this.isntNumber(_options.rect[3])) {
+            _options.rect[3] = h;
+          }
+        }
+        return _options.rect;
+      }
+      return null;
+    })();
     // destructable timeouts:
     this.timeouts = [];
     // adds the parentClass as a "super" object
@@ -812,6 +832,11 @@ class HView extends HValueResponder {
     return HThemeManager._buildThemePath(_fileName, _themeName);
   }
 
+  // The element tag for the cell element of the component.
+  get cellTagName() {
+    return 'div';
+  }
+
   /* = Description
   * The _makeElem method does the ELEM.make call to create
   * the <div> element of the component. It assigns the elemId.
@@ -820,7 +845,7 @@ class HView extends HValueResponder {
   * ++
   **/
   _makeElem(_parentElemId) {
-    this.elemId = ELEM.make(_parentElemId, 'div');
+    this.elemId = ELEM.make(_parentElemId, this.cellTagName);
     ELEM.setAttr(this.elemId, 'view_id', this.viewId, true);
     ELEM.setAttr(this.elemId, 'elem_id', this.elemId, true);
   }
@@ -896,7 +921,6 @@ class HView extends HValueResponder {
   * main DOM element of the view.
   **/
   createElement() {
-    // debugger;
     if (this.isntNumber(this.elemId)) {
       this._makeElem(this.getParentElemId());
       if (this.cssOverflowY === false && this.cssOverflowX === false) {
@@ -921,8 +945,16 @@ class HView extends HValueResponder {
         ELEM.addClassName(this.elemId, HThemeManager.currentTheme);
       }
       // componentName => CSS class name
-      if (this.isntNullOrUndefined(this.componentName)) {
-        ELEM.addClassName(this.elemId, this.componentName);
+      if (this.isString(this.componentName)) {
+        const classNamesArray =
+          this.isString(this.componentClassNames) ?
+            this.componentClassNames.split(' ') :
+              this.isArray(this.componentClassNames) ?
+                this.componentClassNames :
+                [this.componentName];
+        classNamesArray.forEach(className => {
+          ELEM.addClassName(this.elemId, className);
+        });
       }
       // BROWSER_TYPE.* = true => CSS class names
       Object.entries(BROWSER_TYPE).forEach(([_browserName, _active]) => {
