@@ -349,11 +349,11 @@ const HSystem = new (class extends UtilMethods {
     }
   }
 
-  /** Return list of views which are in root level of document sorted by z-inde **/
+  /** Return list of views which are in root level of document sorted by z-index **/
   getZOrder() {
     return this.views
       .filter(_view => {
-        return _view && _view.parent.elemId !== 0;
+        return _view && _view.parent.elemId === 0;
       })
       .map((_view, index) => {
         let zIndex = ELEM.getStyle(_view.elemId, 'z-index', true);
