@@ -839,6 +839,13 @@ class HView extends HValueResponder {
     return 'div';
   }
 
+  // default attributes of the cell element
+  get cellTagAttrs() {
+    return {
+      // type: 'text' // example when something has cellTagName: 'input'
+    };
+  }
+
   /* = Description
   * The _makeElem method does the ELEM.make call to create
   * the <div> element of the component. It assigns the elemId.
@@ -850,6 +857,9 @@ class HView extends HValueResponder {
     this.elemId = ELEM.make(_parentElemId, this.cellTagName);
     ELEM.setAttr(this.elemId, 'view_id', this.viewId, true);
     ELEM.setAttr(this.elemId, 'elem_id', this.elemId, true);
+    Object.entries(this.cellTagAttrs).forEach(([key, value]) => {
+      ELEM.setAttr(this.elemId, key, value, true);
+    });
   }
 
   /* = Description
@@ -895,7 +905,7 @@ class HView extends HValueResponder {
 
   _getSubviewId() {
     console.warn('HView#_getSubviewId is deprecated, use #getSubviewId instead');
-    this.getSubviewId();
+    return this.getSubviewId();
   }
 
   /* = Description
@@ -1294,7 +1304,7 @@ class HView extends HValueResponder {
     if (this.isObject(this.markupElemIds) && this.isNumber(this.markupElemIds.value)) {
       const _value = this.isString(this.value) ?
         this.value : JSON.stringify(this.value);
-      ELEM.setHTML(this.markupElemIds.value, _value);
+      this.setMarkupOfPart('value', _value);
     }
     return this;
   }
