@@ -1743,12 +1743,12 @@ class HView extends HValueResponder {
   *
   **/
   unsetAttr(_key) {
-    ELEM.delAttr(this.elemId, _key)
+    ELEM.delAttr(this.elemId, _key);
     return this;
   }
 
   delAttr(_key) {
-    return this.unsetAttr(_key)
+    return this.unsetAttr(_key);
   }
 
   /* = Description
