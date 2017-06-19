@@ -186,14 +186,18 @@ class HApplication extends HValueResponder {
   destroyAllViews() {
     const _views = this.cloneObject(this.views);
     this.views = [];
-    _views.forEach(_view => {
-      if (this.isObject(_view) && this.isFunction(_view.die)) {
-        _view.die();
-      }
-      else {
-        console.error('invalid view:', _view);
-      }
-    });
+    _views
+      .map(_viewId => {
+        return HSystem.views[_viewId];
+      })
+      .forEach(_view => {
+        if (this.isObject(_view) && this.isFunction(_view.die)) {
+          _view.die();
+        }
+        else {
+          console.error('invalid view:', _view);
+        }
+      });
   }
 
   renice(_priority) {
