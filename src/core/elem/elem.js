@@ -525,11 +525,16 @@ class _ELEM extends UtilMethods {
   // Gets an element attribute directly from the element
   _getAttrDirect(_id, _key) {
     const _elem = this._elements[_id];
-    return _elem.getAttribute(_key);
+    let _attr = _elem.getAttribute(_key);
+    if (_attr === null) {
+      _attr = _elem[_key];
+    }
+    return _attr;
   }
 
   _setAttrDirect(_id, _key, _value) {
     const _elem = this._elements[_id];
+    _elem[_key] = _value;
     _elem.setAttribute(_key, _value);
   }
 
