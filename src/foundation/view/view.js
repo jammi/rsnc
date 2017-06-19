@@ -73,7 +73,8 @@ class HView extends HValueResponder {
 /** Component CSS position type: absolute|relative|fixed
   **/
   get cssPosition() {
-    return this.__cssPosition || 'absolute';
+    return this.isntNullOrUndefined(this.__cssPosition) ?
+      this.__cssPosition : 'absolute';
   }
   set cssPosition(_cssPosition) {
     if (_cssPosition === 'absolute' || _cssPosition === 'relative' || _cssPosition === 'fixed') {
@@ -115,7 +116,7 @@ class HView extends HValueResponder {
     return this.isntNullOrUndefined(this.__cssOverflowX) ?
       this.__cssOverflowX : false;
   }
-  set cssOverflowY(_cssOverflowX) {
+  set cssOverflowX(_cssOverflowX) {
     if (CSS_OVERFLOWS.includes(_cssOverflowX)) {
       this.__cssOverflowY = _cssOverflowX;
     }
@@ -127,7 +128,8 @@ class HView extends HValueResponder {
   **/
   // displayMode: 'block',
   get displayMode() {
-    return this.__displayMode || 'block';
+    return this.isntNullOrUndefined(this.__displayMode) ?
+      this.__displayMode : 'block';
   }
   set displayMode(_displayMode) {
     if (DISPLAY_MODES.includes(_displayMode)) {
@@ -174,7 +176,7 @@ class HView extends HValueResponder {
   * Can be set directly using the setFlexRight method.
   **/
   get flexRight() {
-    return this.__flexRight || false;
+    return this.isntUndefined(this.__flexRight) ? this.__flexRight : false;
   }
   set flexRight(_state) {
     if (this.isBoolean(_state)) {
@@ -193,7 +195,7 @@ class HView extends HValueResponder {
   * Can be set directly using the setFlexLeft method.
   **/
   get flexLeft() {
-    return this.__flexLeft || true;
+    return this.isntUndefined(this.__flexLeft) ? this.__flexLeft : true;
   }
   set flexLeft(_state) {
     if (this.isBoolean(_state)) {
@@ -212,7 +214,7 @@ class HView extends HValueResponder {
   * Can be set directly using the setFlexTop method.
   **/
   get flexTop() {
-    return this.__flexTop || true;
+    return this.isntUndefined(this.__flexTop) ? this.__flexTop : true;
   }
   set flexTop(_state) {
     if (this.isBoolean(_state)) {
@@ -230,7 +232,7 @@ class HView extends HValueResponder {
   * Can be set directly using the setFlexRight method.
   **/
   get flexBottom() {
-    return this.__flexBottom || false;
+    return this.isntUndefined(this.__flexBottom) ? this.__flexBottom : false;
   }
   set flexBottom(_state) {
     if (this.isBoolean(_state)) {
@@ -595,10 +597,32 @@ class HView extends HValueResponder {
 
   setOptions(_options) {
     _options = super.setOptions(_options);
+
+    if (this.isntUndefinedOrNull(_options.cssOverflow)) {
+      this.cssOverflow = _options.cssOverflow;
+    }
+    if (this.isntUndefinedOrNull(_options.cssOverflowY)) {
+      this.cssOverflowY = _options.cssOverflowY;
+    }
+    if (this.isntUndefinedOrNull(_options.cssOverflowX)) {
+      this.cssOverflowX = _options.cssOverflowX;
+    }
+    if (this.isntUndefinedOrNull(_options.cssPosition)) {
+      this.cssPosition = _options.cssPosition;
+    }
+    if (this.isntUndefinedOrNull(_options.displayMode)) {
+      this.displayMode = _options.displayMode;
+    }
+    if (this.isntUndefinedOrNull(_options.zOrderDisabled)) {
+      this.zOrderDisabled = _options.zOrderDisabled;
+    }
+
     const _parent = _options.parent;
     const _rect = (() => {
       if (_options.rect) {
-        if (this.isArray(_options.rect) && this.isntNullOrUndefined(this.optimalSize)) {
+        if (this.isArray(_options.rect) &&
+            this.isArray(this.optimalSize)
+        ) {
           const [w, h] = this.optimalSize;
           if (this.isntNumber(_options.rect[2])) {
             _options.rect[2] = w;
@@ -748,7 +772,7 @@ class HView extends HValueResponder {
       _flag = true;
     }
     this.flexLeft = _flag;
-    if ((_px || _px === 0) && this.rect) {
+    if (this.isNumber(_px) && this.rect) {
       this.rect.setLeft(_px);
     }
     return this;
@@ -776,7 +800,7 @@ class HView extends HValueResponder {
       _flag = true;
     }
     this.flexTop = _flag;
-    if ((_px || _px === 0) && this.rect) {
+    if (this.isNumber(_px) && this.rect) {
       this.rect.setTop(_px);
     }
     return this;
@@ -855,8 +879,10 @@ class HView extends HValueResponder {
   **/
   _makeElem(_parentElemId) {
     this.elemId = ELEM.make(_parentElemId, this.cellTagName);
-    ELEM.setAttr(this.elemId, 'view_id', this.viewId, true);
-    ELEM.setAttr(this.elemId, 'elem_id', this.elemId, true);
+    if (process.env.BUILD_TYPE === 'development') {
+      ELEM.setAttr(this.elemId, 'view_id', this.viewId, true);
+      ELEM.setAttr(this.elemId, 'elem_id', this.elemId, true);
+    }
     Object.entries(this.cellTagAttrs).forEach(([key, value]) => {
       ELEM.setAttr(this.elemId, key, value, true);
     });
@@ -2436,14 +2462,17 @@ class HView extends HValueResponder {
       console.warn('HView#stringSize: use style objects instead of css text!');
       _customStyle = {};
     }
-    if (_length || _length === 0) {
+    if (this.isNumber(_length)) {
       _string = _string.substring(0, _length);
     }
-    if (!_elemId && _elemId !== 0) {
+    if (this.isntNumber(_elemId)) {
       _elemId = this.elemId || 0;
     }
     _customStyle.visibility = 'hidden';
-    if (!_wrap) {
+    if (_wrap) {
+      _customStyle.whiteSpace = 'normal';
+    }
+    else {
       _customStyle.whiteSpace = 'nowrap';
     }
     this._stringSizeImportantAttrs.forEach(_attr => {
@@ -2451,12 +2480,13 @@ class HView extends HValueResponder {
         _customStyle[_attr] = ELEM.getStyle(_elemId, _attr);
       }
     });
+    _customStyle.display = 'inline-block';
     const _stringParent = ELEM.make(_elemId, 'div');
     const _stringElem = ELEM.make(_stringParent, 'span');
     ELEM.setStyles(_stringElem, _customStyle);
-    ELEM.setHTML(_stringElem, _string);
     ELEM.flushElem([_stringParent, _stringElem]);
     ELEM.flush();
+    ELEM.setHTML(_stringElem, _string);
     const [_width, _height] = ELEM.getSize(_stringElem);
     ELEM.del(_stringElem); ELEM.del(_stringParent);
     const _paddedWidth = _width - _width % 2 + 2;
