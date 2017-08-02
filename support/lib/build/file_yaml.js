@@ -9,12 +9,20 @@ const yamlTemplate = readFileSync(
     'support/lib/build/templates/file_yaml_template.js'
 )).toString('utf8');
 
-const parseYaml = bundle => {
-  const stringifiedObject = JSON.stringify(
-    yaml.safeLoad(
+const readYAMLFile = bundle => {
+  try {
+    return yaml.safeLoad(
       bundle.data.toString('utf-8')
-    )
-  );
+    );
+  }
+  catch (e) {
+    console.error(`Error <${e.name}:${e.reason}> in YAML file "${bundle.path}":\n ${e.message}\n`);
+    return {};
+  }
+};
+
+const parseYaml = bundle => {
+  const stringifiedObject = JSON.stringify(readYAMLFile(bundle));
   bundle.src = yamlTemplate
     .replace('$$OBJECT$$', stringifiedObject);
   return bundle;
