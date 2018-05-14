@@ -66,6 +66,10 @@ class HView extends HValueResponder {
     }
   }
 
+  get elem() {
+    return ELEM.get(this.elemId);
+  }
+
 /** Component specific theme path.
   **/
   // themePath: null,
