@@ -39,6 +39,7 @@ const findInPathConfig = config => {
   const getIsDefinedFile = srcPath => {
     return entry => {
       // isJsFile and isCoffeeFile are already processed at this point
+      entry.isJsFile = entry.entryName.endsWith('.js');
       entry.isYamlFile = entry.entryName.endsWith('.yaml');
       entry.isJsonFile = entry.entryName.endsWith('.json');
       entry.isTextFile = entry.entryName.endsWith('.txt');

@@ -18,7 +18,7 @@ const parseText = bundle => {
 
 const processEntries = ({config, bundles}) => {
   Object.entries(bundles).map(([bundleName, bundle]) => {
-    if (bundle.isJsonFile) {
+    if (bundle.isTextFile) {
       return parseText(bundle);
     }
     else {
