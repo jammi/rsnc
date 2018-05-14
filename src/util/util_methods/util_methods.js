@@ -226,7 +226,7 @@ class UtilMethods extends HClass {
   }
 
   msNow() {
-    return new Date().getTime();
+    return +new Date();
   }
 
   getValueById(_id) {

@@ -19,7 +19,7 @@ class Session {
   /* The constructor takes no arguments.
   **/
   constructor() {
-    this.shaKey = sha256.hex(((new Date().getTime()) * Math.random() * 1000).toString());
+    this.shaKey = sha256.hex(Math.round(+new Date() * Math.random() * 1000).toString());
     this.sesKey = '0:2:' + this.shaKey;
     this.reqNum = 0;
   }
