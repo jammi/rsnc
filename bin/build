@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+
+require('../support/path_setup');
+
+const parseArgs = require('lib/run/parse_argv');
+const readConfig = require('lib/build/read_config');
+const findBundles = require('lib/build/find_bundles');
+const flattenBundles = require('lib/build/flatten_bundles');
+const brewCoffee = require('lib/build/brew_coffee');
+const parseYaml = require('lib/build/file_yaml');
+const parseJson = require('lib/build/file_json');
+const parseText = require('lib/build/file_text');
+const parseMarkdown = require('lib/build/file_markdown');
+const rawJsFile = require('lib/build/file_rawjs');
+const findThemes = require('lib/build/find_themes');
+const readThemes = require('lib/build/read_themes');
+const parseTemplates = require('lib/build/parse_templates');
+const makePackages = require('lib/build/make_packages');
+const writePackages = require('lib/build/write_packages');
+
+readConfig(parseArgs.buildConfigFiles)
+  .then(findBundles)
+  .then(flattenBundles)
+  .then(parseYaml)
+  .then(parseJson)
+  .then(parseText)
+  .then(parseMarkdown)
+  .then(rawJsFile)
+  .then(brewCoffee)
+  .then(findThemes)
+  .then(readThemes)
+  .then(parseTemplates)
+  .then(makePackages)
+  .then(writePackages(parseArgs.buildTargetDirectory))
+  .catch(console.error)
+  .then(() => console.log('end'));

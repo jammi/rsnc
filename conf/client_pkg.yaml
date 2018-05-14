@@ -1,81 +1,110 @@
 #### Client package build configuration
 
 # Source directories to scan
-:src_dirs: []
+src_dirs:
+  - ../src/
+
+# Environment variables to pass on to the client at build time
+# accessible in the client in `process.env`
+env:
+  BUILD_TYPE: 'development'
+  # BUILD_TYPE: 'production'
 
 # List of theme names to include and pack
-:theme_names:
+theme_names:
   - default  # Makes default_theme.js containing css and html templates
 
 # List of packages to build
-:packages:
+packages:
 
+  # The format is package name (eg core makes core.js) as the key and
+  # a list of values of bundles to include in that package, in the order
+  # to include; mind the dependency order.
+  #
+  # The syntax of it is a list of items with full or partial
+  # path or just the bundle name, but all of these should be unique.
+  #
+  # There are special annotiations for a few purposes:
+  #
+  # This deletes the included bundle from the named package;
+  # useful in project client_pkgs.yaml files, where you might want to
+  # override the defaults.
+  # - delete: bundlename
+  #
+  # This includes a yaml file, basically converting it to JSON, then
+  # including it in a JS bundle exporting a clone of its value.
+  # - file: sourcepath/sourcename.yaml
+  #
+  # Same as above, but for JSON:
+  # - file: sourcepath/sourcename.json
+  #
+  # Same as above, but for non-bundle JS sources; they have to
+  # handle the exporting themselves.
+  # TODO: maybe implement options as needed for mangling these.
+  # - file: sourcepath/sourcename.js
+  #
+  # Same as above, but for plain text files, which get formatted as
+  # strings for the exporting:
+  # - file: sourcepath/sourcename.txt
+  #
+  # Same as above, but for markdown files, which will return a
+  # markdown generator for producing either plain text,
+  # markdown source, html or something else.
+  # - file: sourcepath/sourcename.md
+  #
   # The core package, loaded by default using a script tag in index_html
   core:
+    - util/sha256 # js-sha256.min.js
+    - datetime/moment
+    - datetime/moment-timezone # moment-timezone-with-data
+    - core/browser_type
+    - core/load
+    - core/class
+    - util/util_methods
+    - core/elem
+    - util/sha1
+    - core/event
+    - foundation/locale
+    - foundation/system
+    - foundation/value/dummyvalue
+    - foundation/valueresponder/valueresponderdefaults
+    - foundation/valueresponder
+    - foundation/application
+    - comm/queue
+    - comm/session
+    - comm/sessionwatcher
+    - comm/urlresponder
+    - foundation/value
+    - foundation/value/pushvalue
+    - foundation/value/pullvalue
+    - comm/jsloader
+    - util/geom/point
+    - util/geom/rect
+    - util/marked
+    - util # multibundle
+    - foundation/thememanager
+    - foundation/view/viewdefaults
+    - foundation/view
+    - foundation/eventmanager
+    - comm/transporter
+    - comm/values
+    - foundation/json_renderer
+    - comm # multibundle and comm utils
+    - foundation/valueview
+    - foundation/control/controldefaults
+    - foundation/control
+    - foundation/valueaction
+    - core/rsence_ns
+    - default_theme # metapackage built by the theme bundler
+    - core # multibundle
+    - foundation # multibundle
 
-    # RSence.*
-    - rsence_ns
-
-    # RSence.Core
-    - class             # HClass
-    - sha               # SHA
-    - elem              # ELEM
-    - event             # Event
-    - util_methods      # UtilMethods
-
-    - locale_settings   # HLocaleSettings
-
-    # RSence.Foundation
-    - system            # HSystem
-    - valueresponder    # HValueResponder
-    - application       # HApplication
-
-    # COMM
-    - comm              # COMM
-    - queue             # COMM.Queue
-    - session           # COMM.Session
-    - transporter       # COMM.Transporter
-    - sessionwatcher    # COMM.SessionWatcher
-    - urlresponder      # COMM.URLResponder
-    - autosync          # ( automatic sync setup )
-    - values            # COMM.Values
-    - value             # HValue
-    - keyvalue          # HKeyValue
-    - pushvalue         # HPushValue
-    - pullvalue         # HPullValue
-    - jsloader          # COMM.JSLoader
-    - json_renderer     # COMM.JSONRenderer
-    - point             # HPoint
-    - rect              # HRect
-    - thememanager      # HThemeManager
-    - viewdefaults      # HViewDefaults
-    - view              # HView
-    - valueview         # HValueView
-    - eventresponder    # HEventResponder
-    - dummyvalue        # HDummyValue
-    - eventmanager      # EVENT
-    - controldefaults   # HControlDefaults
-    - control           # HControl
-    - valueaction       # HValueAction
-    - moment
-    - default_theme
-
-:compound_packages: {}
-
-# List of variables and other names beginning
-# with a underscore that should not be obfuscated
-:reserved_names:
-  - _ID
-  - _id
-  - _WIDTH
-  - _width
-  - _HEIGHT
-  - _height
-  - _
+compound_packages: {}
 
 # List of file extensions considered graphics image types.
-# Used for theme graphics inclusion.
-:gfx_formats:
+# Used for theme graphics inclusion, when the theme scanner
+# scans bundle theme directories for files to collect.
+gfx_formats:
   - .jpg
   - .gif
   - .png
@@ -89,23 +118,30 @@
   - .mp3
   - .ogg
 
-# If disabled, makes packages out of single source bundles automatically
-:dont_pack_undefined: true
-
-# Replacement prefix for obfuscated names
-:repl_prefix: _
+# If disabled, makes packages out of standalone bundle packages automatically
+# TODO: implementation
+dont_pack_undefined: true
 
 # If enabled, doesn't obfuscate code (useful for debugging)
-:no_obfuscation: false
+# TODO: implement obfuscation and maybe remove this option in favor of source maps
+no_obfuscation: false
 
 # If enabled, doesn't remove whitespace (useful for debugging)
-:no_whitespace_removal: false
+# TODO: implement obfuscation and maybe remove this option in favor of source maps
+no_whitespace_removal: false
 
 # If enabled, doesn't make GNUzipped packages
-:no_gzip: false
+# TODO: implement gzipping and maybe remove this option, since there's no niid for other
+no_gzip: false
 
 # The strategy for gzip, a number between 0 and 9
 #  - 0 means largest size, but fast compression
 #  - 9 means smallest size, but slow compression
 #  - any number in between is a compromise
-:gz_strategy: 9
+gz_strategy: 9
+
+# Allocate scopable constants for templates, format is constant name and what
+# to require() as the assignation
+themes_require:
+  default:
+    - HLocale: foundation/locale
