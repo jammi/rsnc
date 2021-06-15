@@ -1,7 +1,6 @@
-const promisify = require('promisify-node');
 const yaml = require('js-yaml');
 const path = require('path');
-const fs = promisify('fs');
+const fs = require('fs').promises;
 
 const {dirExists} = require('lib/util/fileutil');
 

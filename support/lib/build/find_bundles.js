@@ -1,6 +1,5 @@
-const promisify = require('promisify-node');
 const path = require('path');
-const fs = promisify('fs');
+const fs = require('fs').promises;
 
 const pathSetup = require('path_setup');
 
