@@ -119,6 +119,10 @@ const configParsers = (config, filePath) => {
     'env': envObj => {
       Object.entries(envObj)
         .forEach(([key, value]) => {
+          if (process.env[key] && process.env[key] !== value) {
+            console.log(`Overriding default ENV: ${key}=${value} -> ${process.env[key]}`);
+            value = process.env[key];
+          }
           config.env[key] = value;
         });
     }
