@@ -251,6 +251,7 @@ class HControl extends HView {
     super(_rect, _parent, _options);
     this.setEvents(this.options.events);
     this.setEnabled(this.options.enabled);
+    this.setSelected(this.options.selected);
   }
 
 /** -- Use this object to specify class-specific default settings. ++
